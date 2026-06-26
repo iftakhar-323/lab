@@ -200,8 +200,6 @@ The `-p` flag maps a host port to a container port. The format is `host_port:con
 
 Without this mapping, the container's network is isolated and unreachable from outside.
 
-![Port mapping: host port 8080 forwards traffic to container port 80](images/diagram-1.png)
-
 </details>
 
 ### 2.3 Create the HTML Page
@@ -213,8 +211,6 @@ echo '<h1>Hello from NGINX running in Docker!</h1>' > nginx-lab/html/index.html
 ```bash
 cat nginx-lab/html/index.html
 ```
-
-![Volume mount: host directory nginx-lab/html is bound read-only to the container web root /usr/share/nginx/html](images/diagram-2.png)
 
 <details>
 <summary>Expected output</summary>
@@ -380,8 +376,6 @@ A teammate tells you a container shows status `Up 2 minutes (unhealthy)`. What d
 
 In production, a load balancer should route traffic only to healthy containers.
 
-![Status and health are independent dimensions: a container can be Up while its health check reports unhealthy](images/diagram-3.png)
-
 </details>
 
 ### 3.2 Check Running Containers
@@ -476,8 +470,6 @@ A container can be `Up` while returning 500 errors on every request, rejecting a
 Containers are ephemeral by design. A deployment workflow involves starting, stopping, restarting, and eventually removing containers as application versions change. These operations leave the underlying image intact.
 
 ### 4.1 The Container Lifecycle
-
-![Container lifecycle: Created, Running, Stopped, Removed — with docker start returning to Running, and the nginx:latest image persisting underneath all four states until docker rmi](images/diagram-4.png)
 
 | Note | Detail |
 |---|---|
