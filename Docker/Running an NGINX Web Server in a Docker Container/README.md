@@ -121,7 +121,9 @@ docker pull nginx
 
 Docker downloads each layer of the image in parallel and confirms each layer as it completes.
 
-![docker pull nginx output](images/docker-pull-nginx.png)
+<p align="center">
+  <img src="images/docker-pull-nginx.png" alt="docker pull nginx terminal output" width="900">
+</p>
 
 <details>
 <summary>Expected output</summary>
@@ -153,7 +155,9 @@ Confirm the image is available locally:
 docker images
 ```
 
-![docker images output](images/docker-images-output.png)
+<p align="center">
+  <img src="images/docker-images-output.png" alt="docker images terminal output" width="900">
+</p>
 
 Predict: which columns will this command display?
 
@@ -267,7 +271,9 @@ On Windows PowerShell, replace `$(pwd)` with `${PWD}`.
 
 </details>
 
-![docker run command output](images/docker-run-command.png)
+<p align="center">
+  <img src="images/docker-run-command.png" alt="docker run command terminal output" width="900">
+</p>
 
 <details>
 <summary>Expected output (container ID)</summary>
@@ -297,7 +303,9 @@ The request reaches port 8080 on the host. The host forwards it to port 80 insid
 
 The same result appears when visiting `http://localhost:8080` in a browser:
 
-![Browser showing the served HTML page at localhost:8080](images/browser-test-result.png)
+<p align="center">
+  <img src="images/browser-test-result.png" alt="Browser showing the served HTML page at localhost:8080" width="900">
+</p>
 
 </details>
 
@@ -396,7 +404,9 @@ In production, a load balancer should route traffic only to healthy containers.
 docker ps
 ```
 
-![docker ps output](images/docker-ps-output.png)
+<p align="center">
+  <img src="images/docker-ps-output.png" alt="docker ps terminal output" width="900">
+</p>
 
 <details>
 <summary>Expected output</summary>
@@ -427,7 +437,9 @@ Predict: what type of information will appear in NGINX logs?
 <details>
 <summary>Expected output (abbreviated)</summary>
 
-![docker logs my-nginx output](images/docker-logs-output.png)
+<p align="center">
+  <img src="images/docker-logs-output.png" alt="docker logs my-nginx terminal output" width="900">
+</p>
 
 ```text
 /docker-entrypoint.sh: Configuration complete; ready for start up
