@@ -200,6 +200,10 @@ The `-p` flag maps a host port to a container port. The format is `host_port:con
 
 Without this mapping, the container's network is isolated and unreachable from outside.
 
+<p align="center">
+  <img src="images/port-mapping.png" alt="Port mapping: host port 8080 forwards to container port 80" width="700">
+</p>
+
 </details>
 
 ### 2.3 Create the HTML Page
@@ -256,6 +260,10 @@ docker run --name my-nginx \
 | `-d` | Runs the container in detached (background) mode. |
 
 On Windows PowerShell, replace `$(pwd)` with `${PWD}`.
+
+<p align="center">
+  <img src="images/volume-mount.png" alt="Volume mount: host directory mapped into container web root" width="700">
+</p>
 
 </details>
 
@@ -376,6 +384,10 @@ A teammate tells you a container shows status `Up 2 minutes (unhealthy)`. What d
 
 In production, a load balancer should route traffic only to healthy containers.
 
+<p align="center">
+  <img src="images/status-vs-health.png" alt="Container status (Up / Exited) versus container health (healthy / unhealthy)" width="700">
+</p>
+
 </details>
 
 ### 3.2 Check Running Containers
@@ -475,6 +487,10 @@ Containers are ephemeral by design. A deployment workflow involves starting, sto
 |---|---|
 | `docker start` | Brings a Stopped container back to Running. Does not work after `docker rm`. |
 | Image safety | The `nginx:latest` image is never affected by `stop` or `rm`. It persists until you run `docker rmi`. |
+
+<p align="center">
+  <img src="images/container-lifecycle.png" alt="Container lifecycle: created, running, stopped, paused, deleted states and transitions" width="700">
+</p>
 
 ### 4.2 Think First
 
