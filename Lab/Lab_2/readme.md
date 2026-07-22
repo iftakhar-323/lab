@@ -11,7 +11,7 @@ This lab is intended for developers who have completed Lab 5 and understand the 
 By working through this lab, you gain the ability to offload long-running work from an API request and track its progress asynchronously, a pattern used in production systems that need to remain responsive under load.
 
 <p align="center">
-  <img src="./images/Celery%20Redis%20Architecture.png" alt="Celery Redis Architecture">
+  <img src="./images/Celery%20Redis%20Architecture.drawio.svg" alt="Celery Redis Architecture">
 </p>
 
 ## Learning Objectives
@@ -95,7 +95,7 @@ Docker returns an error indicating that the port is already allocated, and the c
 Celery does not process tasks by itself. It requires a message broker to hold pending tasks and, when results are needed, a result backend to store task outcomes. This chapter configures Redis to serve both roles.
 
 <p align="center">
-  <img src="./images/Redis%20broker%20vs%20backend.png" alt="Redis broker vs backend">
+  <img src="./images/Redis%20broker%20vs%20backend.drawio.svg" alt="Redis broker vs backend">
 </p>
 
 ### What You Will Build
@@ -228,7 +228,7 @@ The `@celery.task` decorator registers a function with the Celery application so
 The Flask API is responsible for accepting client requests and submitting tasks to Celery. It does not execute the task logic itself.
 
 <p align="center">
-  <img src="./images/Task%20lifecycle.png" alt="Task lifecycle">
+  <img src="./images/Task%20lifecycle.drawio.svg" alt="Task lifecycle">
 </p>
 
 ### What You Will Build
