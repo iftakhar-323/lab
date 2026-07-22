@@ -115,7 +115,15 @@ User → Long Task (Email/PDF) → Flask API → Response (User waits)
 
 ![With Celery (Asynchronous)](image/With%20Celery%20(Asynchronous).drawio.svg)
 
-In this flow, the user sends a request, the Flask API performs the long-running task directly within the request handler, and only after the task completes does the API return a response. The user's connection remains open for the entire duration of the task.
+```
+User → Flask API → Schedule Task → Response (Immediate)
+                ↓
+        Redis Broker → Celery Worker → Background Execution
+```
+
+In this flow, the user sends a request and the Flask API schedules the long-running task on the broker and returns an immediate response. The actual work is picked up and executed by a separate Celery worker process, so the client's connection does not stay open while the task runs.
+
+**Compare the two flows:** in the synchronous diagram, `Response (User waits)` sits at the end of the chain — the user only gets a response after the entire chain finishes. In the asynchronous diagram, `Response (Immediate)` branches off early — the Flask API returns as soon as the task is queued, while the `Celery Worker → Background Execution` chain runs in parallel. The user's waiting time is no longer tied to the task duration.
 
 ### Checkpoint
 
@@ -150,7 +158,7 @@ Study the architecture diagram below and complete the component table that follo
 ![Celery Architecture](image/celery%20architecture.drawio.svg)
 
 ```
-Flask API --(Send Task)--> Redis Broker (Queue) --(Fetch Task)--> Celery Worker --(Execute Task)--> Result Backend (Redis)
+
 ```
 
 Complete the table by filling in the responsibility of each component:
