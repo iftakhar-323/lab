@@ -105,7 +105,7 @@ The diagram below shows the synchronous flow described in the prologue.
 
 **Without Celery (Synchronous):**
 
-![Without Celery (Synchronous)](image/without%20celery%20synchronours.drawio.svg)
+![Without Celery (Synchronous)](image/without%20celery%20synchronours.drawio.png)
 
 ```
 User → Long Task (Email/PDF) → Flask API → Response (User waits)
@@ -113,7 +113,7 @@ User → Long Task (Email/PDF) → Flask API → Response (User waits)
 
 **With Celery (Asynchronous):**
 
-![With Celery (Asynchronous)](image/With%20Celery%20(Asynchronous).drawio.svg)
+![With Celery (Asynchronous)](image/With%20Celery%20(Asynchronous).drawio.png)
 
 In this flow, the user sends a request, the Flask API performs the long-running task directly within the request handler, and only after the task completes does the API return a response. The user's connection remains open for the entire duration of the task.
 
@@ -147,7 +147,7 @@ Study the architecture diagram below and complete the component table that follo
 
 **Celery Architecture:**
 
-![Celery Architecture](image/celery%20architecture.drawio.svg)
+![Celery Architecture](image/celery%20architecture.drawio.png)
 
 ```
 Flask API --(Send Task)--> Redis Broker (Queue) --(Fetch Task)--> Celery Worker --(Execute Task)--> Result Backend (Redis)
@@ -218,7 +218,7 @@ You will trace the full path of a task and predict the state of the system at ea
 
 Study the end-to-end workflow diagram:
 
-![End-to-End Workflow](image/End-to-End%20Workflow.drawio.svg)
+![End-to-End Workflow](image/End-to-End%20Workflow.drawio.png)
 
 ```
 User → HTTP Request → Flask API → Create Celery Task
