@@ -11,7 +11,7 @@ This lab covers the failure-handling mechanisms Celery provides: automatic retri
 ### Retry and Backoff Flow
 
 <p align="center">
-  <img src="./image/Celery%20Retry%20%26%20Backoff%20Flow.png" alt="Celery Retry and Backoff Flow">
+  <img src="./image/Celery%20Retry%20%26%20Backoff%20Flow.drawio.svg" alt="Celery Retry and Backoff Flow">
 </p>
 
 This diagram shows how a failed task is re-queued with an increasing delay between attempts. After each failure, the worker waits for the backoff interval before re-executing the task, up to a configured maximum number of retries.
@@ -19,7 +19,7 @@ This diagram shows how a failed task is re-queued with an increasing delay betwe
 ### Task States with Retry Loop
 
 <p align="center">
-  <img src="./image/Celery%20Task%20States%20with%20Retry%20Loop.png" alt="Celery Task States with Retry Loop">
+  <img src="./image/Celery%20Task%20States%20with%20Retry%20Loop.drawio.svg" alt="Celery Task States with Retry Loop">
 </p>
 
 This diagram traces the full state machine for a single task: PENDING → STARTED → SUCCESS, or PENDING → STARTED → RETRY → STARTED → … → SUCCESS / FAILURE. The retry loop re-enters the STARTED state each time the task is re-executed.
