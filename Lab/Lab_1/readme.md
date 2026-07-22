@@ -105,7 +105,9 @@ The diagram below shows the synchronous flow described in the prologue.
 
 **Without Celery (Synchronous):**
 
-![Without Celery (Synchronous)](image/without%20celery%20synchronours.drawio.svg)
+<p align="center">
+  <img src="image/without%20celery%20synchronours.drawio.svg" alt="Without Celery (Synchronous)">
+</p>
 
 ```
 User → Long Task (Email/PDF) → Flask API → Response (User waits)
@@ -113,7 +115,9 @@ User → Long Task (Email/PDF) → Flask API → Response (User waits)
 
 **With Celery (Asynchronous):**
 
-![With Celery (Asynchronous)](image/With%20Celery%20(Asynchronous).drawio.svg)
+<p align="center">
+  <img src="image/With%20Celery%20(Asynchronous).drawio.svg" alt="With Celery (Asynchronous)">
+</p>
 
 ```
 User → Flask API → Schedule Task → Response (Immediate)
@@ -155,7 +159,9 @@ Study the architecture diagram below and complete the component table that follo
 
 **Celery Architecture:**
 
-![Celery Architecture](image/celery%20architecture.drawio.svg)
+<p align="center">
+  <img src="image/celery%20architecture.drawio.svg" alt="Celery Architecture">
+</p>
 
 ```
 
@@ -226,7 +232,9 @@ You will trace the full path of a task and predict the state of the system at ea
 
 Study the end-to-end workflow diagram:
 
-![End-to-End Workflow](image/End-to-End%20Workflow.drawio.svg)
+<p align="center">
+  <img src="image/End-to-End%20Workflow.drawio.svg" alt="End-to-End Workflow">
+</p>
 
 ```
 User → HTTP Request → Flask API → Create Celery Task
