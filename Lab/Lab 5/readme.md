@@ -110,7 +110,12 @@ The diagram below shows the synchronous flow described in the prologue.
 </p>
 
 ```
-User → Long Task (Email/PDF) → Flask API → Response (User waits)
+Without Celery (Synchronous):
+
+The user sends a request.
+The Flask API performs the long task (such as sending an email or generating a PDF) immediately.
+The user must wait until the task finishes.
+Only after the task is complete does the API send a response back to the user.
 ```
 
 **With Celery (Asynchronous):**
@@ -120,9 +125,12 @@ User → Long Task (Email/PDF) → Flask API → Response (User waits)
 </p>
 
 ```
-User → Flask API → Schedule Task → Response (Immediate)
-                ↓
-        Redis Broker → Celery Worker → Background Execution
+With Celery (Asynchronous):
+
+The user sends a request to the Flask API.
+The Flask API creates a background task and places it in the Redis queue.
+The API immediately returns a response to the user without waiting.
+A Celery worker picks up the task from the Redis queue and executes the long-running task (e.g., sending an email or generating a PDF) in the background.
 ```
 
 In this flow, the user sends a request and the Flask API schedules the long-running task on the broker and returns an immediate response. The actual work is picked up and executed by a separate Celery worker process, so the client's connection does not stay open while the task runs.
@@ -230,18 +238,13 @@ You will trace the full path of a task and predict the state of the system at ea
 
 ### Implementation: Tracing the Flow
 
-Study the end-to-end workflow diagram:
 
 <p align="center">
   <img src="image/End-to-End%20Workflow.drawio.svg" alt="End-to-End Workflow">
 </p>
 
 ```
-User → HTTP Request → Flask API → Create Celery Task
-                                          ↓
-Celery Worker ← Redis Broker Queue ← (task enqueued)
-      ↓
-Task Completed → Redis Result Backend → Execute Task (Email/PDF)
+
 ```
 
 ### Test and Verify
@@ -356,14 +359,7 @@ The company's document processing service can now accept a request, schedule rep
 - A result backend is only necessary when a task's outcome must be retrieved after the original request has completed.
 - Not every operation should be offloaded; fast, low-latency operations are typically better handled synchronously.
 
-## Troubleshooting
 
-| Symptom | Likely Cause | Resolution |
-|---|---|---|
-| Task appears to never complete | Celery worker is not running | Start the worker process and confirm it connects to the broker |
-| `redis-cli ping` returns no response | Redis server is not running | Start the Redis service and verify its process status |
-| API returns a response but no result is ever stored | No result backend configured | Confirm the Celery app is configured with a result backend URL |
-| Worker starts but does not fetch any tasks | Worker is not subscribed to the correct queue name | Verify the queue name used by the API matches the queue the worker is consuming from |
 
 ## Next Steps
 
