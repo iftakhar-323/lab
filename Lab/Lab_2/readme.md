@@ -196,7 +196,7 @@ The `@celery.task` decorator registers a function with the Celery application so
 The Flask API is responsible for accepting client requests and submitting tasks to Celery. It does not execute the task logic itself.
 
 <p align="center">
-  <img src="./images/Task%20lifecycle.drawio(1).svg" alt="Task lifecycle">
+  <img src="./images/lifecycle.drawio.svg" alt="Task lifecycle">
 </p>
 
 ### What You Will Build
