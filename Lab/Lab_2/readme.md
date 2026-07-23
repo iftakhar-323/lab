@@ -137,10 +137,6 @@ celery = Celery(
 )
 ```
 
-<p align="center">
-  <img src="./images/celery_app-code.png" alt="celery_app.py implementation">
-</p>
-
 ### Understanding the Code
 
 The `Celery` constructor takes a name that identifies the application, typically matching the module name. The `broker` argument tells Celery where to publish and consume task messages. The `backend` argument tells Celery where to store task state and return values. Database `0` on the Redis instance is used for the broker, and database `1` is used for the backend — this keeps the two roles logically separated even though they share the same Redis server.
@@ -188,10 +184,6 @@ def generate_pdf(document_id):
     time.sleep(8)  # simulate slow PDF rendering
     return f"PDF generated for document {document_id}"
 ```
-
-<p align="center">
-  <img src="./images/tasks-code.png" alt="tasks.py implementation">
-</p>
 
 ### Understanding the Code
 
