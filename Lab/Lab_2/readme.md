@@ -273,18 +273,7 @@ celery -A app.celery_app.celery worker --loglevel=info
 
 Expected output on successful startup:
 
-```
--------------- celery@your-hostname v5.6.3 (recovery)
---- ***** -----
--- ******* ---- Linux ...
-- *** --- * --- [config]
-- ** ---------- .> app:         flask_celery_lab:0x...
-- ** ---------- .> transport:   redis://localhost:6379/0
-- ** ---------- .> results:     redis://localhost:6379/1
-- *** --- * --- .> concurrency: 16 (prefork)
-[INFO/MainProcess] Connected to redis://localhost:6379/0
-[INFO/MainProcess] celery@your-hostname ready.
-```
+
 
 <p align="center">
   <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully">
@@ -369,9 +358,7 @@ Restore Redis and confirm your observation.
 docker start redis-broker
 ```
 
-<p align="center">
-  <img src="./images/status-check-experiment.png" alt="Checking status and stopping/starting the Redis container">
-</p>
+
 
 ## Epilogue
 
