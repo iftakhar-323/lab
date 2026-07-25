@@ -106,7 +106,7 @@ The diagram below shows the synchronous flow described in the prologue.
 **Without Celery (Synchronous):**
 
 <p align="center">
-  <img src="image/without%20celery%20synchronours.drawio.svg" alt="Without Celery (Synchronous)">
+  <img src="image/11.gif" alt="Without Celery (Synchronous)">
 </p>
 
 ```
