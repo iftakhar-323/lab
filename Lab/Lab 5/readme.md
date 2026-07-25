@@ -77,7 +77,9 @@ Adding more API server instances only partially addresses this. It increases the
 
 **Without Celery (Synchronous):**
 
+<div align="center">
 <img alt="Without Celery (Synchronous) request flow" src="image/without celery synchronours.gif" />
+</div>
 
 ```text
 The client sends a request.
@@ -88,7 +90,9 @@ Only after the task completes does the API send a response back to the client.
 
 **With Celery (Asynchronous):**
 
+<div align="center">
 <img alt="With Celery (Asynchronous) request flow" src="image/With Celery (Asynchronous).gif" />
+</div>
 
 ```text
 The client sends a request to the Flask API.
@@ -115,7 +119,9 @@ Since the API does not execute the task itself, an intermediary is required to r
 
 ### The Architecture Diagram
 
+<div align="center">
 <img alt="Celery Architecture" src="image/celery architecture.gif" />
+</div>
 
 | Component | Responsibility |
 |---|---|
@@ -146,7 +152,9 @@ With the individual components defined, this section traces a single task throug
 
 ### The Workflow Diagram
 
+<div align="center">
 <img alt="End-to-End Workflow" src="image/End-to-End Workflow.gif" />
+</div>
 
 At the moment the Flask API returns its HTTP response, the underlying task (sending the email or generating the PDF) has not been completed yet. The API returns a response as soon as the task has been created and placed on the broker queue. The actual execution happens afterward, in the Celery worker process, independent of the API response.
 
@@ -218,4 +226,3 @@ Expected result: the previously queued task is picked up and executed shortly af
 - Tasks placed on the broker are not lost if a worker is temporarily unavailable; they wait in the queue.
 - A result backend is only necessary when a task's outcome must be retrieved after the original request has completed.
 - Not every operation should be offloaded; fast, low-latency operations are typically better handled synchronously.
-
