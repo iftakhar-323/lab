@@ -105,11 +105,9 @@ The diagram below shows the synchronous flow described in the prologue.
 
 **Without Celery (Synchronous):**
 
-<p align="center">
-  <img src="image/11111.gif" alt="Without Celery (Synchronous)">
-</p>
+<img alt="Without Celery (Synchronous) request flow" src="image/without celery synchronours.gif" />
 
-```
+```text
 Without Celery (Synchronous):
 
 The user sends a request.
@@ -120,11 +118,9 @@ Only after the task is complete does the API send a response back to the user.
 
 **With Celery (Asynchronous):**
 
-<p align="center">
-  <img src="image/With%20Celery%20(Asynchronous).drawio.svg" alt="With Celery (Asynchronous)">
-</p>
+<img alt="With Celery (Asynchronous) request flow" src="image/With Celery (Asynchronous).gif" />
 
-```
+```text
 With Celery (Asynchronous):
 
 The user sends a request to the Flask API.
@@ -167,13 +163,7 @@ Study the architecture diagram below and complete the component table that follo
 
 **Celery Architecture:**
 
-<p align="center">
-  <img src="image/celery%20architecture.drawio.svg" alt="Celery Architecture">
-</p>
-
-```
-
-```
+<img alt="Celery Architecture" src="image/celery architecture.gif" />
 
 Complete the table by filling in the responsibility of each component:
 
@@ -238,14 +228,7 @@ You will trace the full path of a task and predict the state of the system at ea
 
 ### Implementation: Tracing the Flow
 
-
-<p align="center">
-  <img src="image/End-to-End%20Workflow.drawio.svg" alt="End-to-End Workflow">
-</p>
-
-```
-
-```
+<img alt="End-to-End Workflow" src="image/End-to-End Workflow.gif" />
 
 ### Test and Verify
 
@@ -358,8 +341,6 @@ The company's document processing service can now accept a request, schedule rep
 - Tasks placed on the broker are not lost if a worker is temporarily unavailable; they wait in the queue.
 - A result backend is only necessary when a task's outcome must be retrieved after the original request has completed.
 - Not every operation should be offloaded; fast, low-latency operations are typically better handled synchronously.
-
-
 
 ## Next Steps
 
