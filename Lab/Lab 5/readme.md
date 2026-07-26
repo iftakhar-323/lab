@@ -91,7 +91,7 @@ Only after the task completes does the API send a response back to the client.
 **With Celery (Asynchronous):**
 
 <div align="center">
-<img alt="With Celery (Asynchronous) request flow" src="image/With Celery (Asynchronous).gif" />
+<img alt="With Celery (Asynchronous) request flow" src="image/With Celery (Asynchronouss).gif" />
 </div>
 
 ```text
