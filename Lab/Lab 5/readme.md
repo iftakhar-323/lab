@@ -103,11 +103,7 @@ A Celery worker picks up the task from the Redis queue and executes the long-run
 
 In the synchronous diagram, `Response (User waits)` sits at the end of the chain — the client only gets a response after the entire chain finishes. In the asynchronous diagram, `Response (Immediate)` branches off early — the Flask API returns as soon as the task is queued, while the `Celery Worker → Background Execution` chain runs in parallel. The client's waiting time is no longer tied to the task duration.
 
-### Self-Assessment
 
-- [ ] You can explain why a long-running task inside a request handler blocks other requests
-- [ ] You can explain why horizontal scaling alone does not solve this problem
-- [ ] You understand that the goal is to separate task execution from request handling
 
 ## Chapter 2: The Celery Architecture
 
@@ -138,11 +134,7 @@ Since the API does not execute the task itself, an intermediary is required to r
 
 **Result Backend:** The result backend is optional in some designs, but it is necessary whenever the client needs to check the status or outcome of a task after the initial response has been returned. Redis can serve as both broker and result backend, or two separate systems can be used.
 
-### Self-Assessment
 
-- [ ] You can name the three core components of the Celery architecture
-- [ ] You can explain the responsibility of each component
-- [ ] You understand that the worker is a separate process from the API
 
 ## Chapter 3: Tracing the End-to-End Workflow
 
@@ -169,11 +161,7 @@ If the Celery worker process is stopped, a task that was already sent to the bro
 | API availability during task | Blocked | Free to handle other requests |
 | Result retrieval | Returned directly in the response | Retrieved separately via result backend |
 
-### Self-Assessment
 
-- [ ] You can trace a task from HTTP request to task completion using the diagram
-- [ ] You can explain what happens to a task if no worker is currently running
-- [ ] You can articulate the difference in API response time between the two approaches
 
 ## Chapter 4: Deciding When to Use Celery
 
@@ -213,11 +201,6 @@ celery -A app.celery worker --loglevel=info
 
 Expected result: the previously queued task is picked up and executed shortly after the worker restarts. Restore the worker to a running state before continuing.
 
-### Self-Assessment
-
-- [ ] You can distinguish between tasks suited for synchronous handling and those suited for asynchronous handling
-- [ ] You have observed that tasks queue in the broker even if no worker is running
-- [ ] You understand that a fast API response does not guarantee the underlying task has completed
 
 ## The Principles
 
