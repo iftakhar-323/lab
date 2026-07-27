@@ -109,9 +109,7 @@ By default, the Redis image used here persists no data to disk, so anything queu
 
 Celery does not process tasks by itself. It requires a message broker to hold pending tasks and, when results are needed, a result backend to store task outcomes. This chapter configures Redis to serve both roles.
 
-<p align="center">
-  <img src="./images/Redis%20broker%20vs%20backend.drawio.svg" alt="Redis broker vs backend">
-</p>
+
 
 ### What You Will Build
 
@@ -202,7 +200,7 @@ The `@celery.task` decorator registers a function with the Celery application so
 The Flask API is responsible for accepting client requests and submitting tasks to Celery. It does not execute the task logic itself.
 
 <p align="center">
-  <img src="./images/lifecycle.drawio.svg" alt="Task lifecycle">
+  <img src="./images/Task lifecycle.gif" alt="Task lifecycle">
 </p>
 
 ### What You Will Build
