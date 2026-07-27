@@ -24,22 +24,6 @@ By the end of this lab you will be able to:
 - Implement Celery tasks for operations such as sending an email and generating a PDF
 - Verify asynchronous task execution using task IDs and status polling
 
-### Prerequisites
-
-- Lab 5 completed (Celery architecture: broker, worker, result backend)
-- Working knowledge of Flask routes and request handling
-- Python 3.10 or later installed
-- Docker installed and running
-- Basic familiarity with the command line
-
-## Prologue
-
-You join the backend team of a document processing platform. The current API generates invoice PDFs directly inside the request handler. During peak hours, PDF generation takes several seconds, and clients experience timeouts.
-
-The engineering lead assigns you the task of moving this work into a background task queue. The goal is an API that accepts a request, immediately returns a task ID, and processes the actual work separately. The client should be able to check the task status using the returned ID.
-
-The system consists of three components: a Flask API that accepts requests and queues tasks, a Redis instance that stores pending tasks and results, and a Celery worker that executes the tasks.
-
 ## Environment Setup
 
 Update the system package index.
@@ -62,6 +46,8 @@ Activate the virtual environment.
 source venv/bin/activate
 ```
 
+> **Note:** The virtual environment must be activated separately in **every new terminal tab**. If a terminal prompt does not show `(venv)` at the start, Python and pip commands will use the system Python instead of the project's virtual environment, and packages like Flask will appear to be "not installed" even though they were installed correctly earlier.
+
 Install the required packages.
 
 ```bash
@@ -80,6 +66,22 @@ Confirm Redis is reachable:
 redis-cli ping
 # → PONG
 ```
+
+> **Troubleshooting — port already in use:** If `docker run` fails with `Conflict. The container name "/redis-broker" is already in use`, a container with that name already exists. Either reuse it (`docker start redis-broker`) or remove it and create a fresh one:
+> ```bash
+> docker rm -f redis-broker
+> docker run -d --name redis-broker -p 6379:6379 redis:7-alpine
+> ```
+> If instead you see `failed to bind host port 0.0.0.0:6379/tcp: address already in use`, something else on the machine is already listening on port 6379 — commonly a system-installed Redis service. Check with:
+> ```bash
+> sudo lsof -i :6379
+> ```
+> If it shows `redis-server`, stop the system service so Docker can bind the port:
+> ```bash
+> sudo systemctl stop redis-server
+> sudo systemctl disable redis-server
+> ```
+> Also note that a container's port mapping is fixed at creation time — if a `redis-broker` container was originally created **without** `-p 6379:6379`, simply `start`-ing it later will never expose the port. In that case remove it and recreate it with the `-p` flag as shown above.
 
 Create the project structure.
 
@@ -126,6 +128,8 @@ As a broker, Redis stores a queue of pending task messages waiting to be picked 
 
 ### Implementation
 
+**File: `app/celery_app.py`**
+
 ```python
 # app/celery_app.py
 from celery import Celery
@@ -168,6 +172,8 @@ The Flask request thread blocks for the full 5 seconds, since the function execu
 </details>
 
 ### Implementation
+
+**File: `app/tasks.py`**
 
 ```python
 # app/tasks.py
@@ -214,6 +220,8 @@ No. The task has only been placed on the Redis queue. The email is sent only whe
 
 ### Implementation
 
+**File: `app/main.py`**
+
 ```python
 # app/main.py
 from flask import Flask, jsonify, request
@@ -242,42 +250,30 @@ def check_status(task_id):
 
 The `202 Accepted` status code is used instead of `200 OK` because the request has been accepted for processing, but the work is not yet complete. `celery.AsyncResult(task_id)` reconstructs a result handle from a task ID, allowing state to be queried from any process, not only the one that submitted the task, because state is stored in the shared Redis backend.
 
-**Matching exercise:** Match each Celery task state to its meaning.
-
-| State | Meaning |
-|---|---|
-| PENDING | ? |
-| STARTED | ? |
-| SUCCESS | ? |
-| FAILURE | ? |
-
-<details>
-<summary>Reveal answers</summary>
-
-| State | Meaning |
-|---|---|
-| PENDING | Task has been queued but has not yet been picked up by a worker |
-| STARTED | A worker has begun executing the task |
-| SUCCESS | The task completed and the return value is available |
-| FAILURE | The task raised an exception during execution |
-
-</details>
+---
 
 ## Test and Verify
 
-Start the Celery worker in one terminal.
+Start the Celery worker in one terminal. Make sure the virtual environment is activated first.
 
 ```bash
+source venv/bin/activate
 celery -A app.celery_app.celery worker --loglevel=info
 ```
 
 Expected output on successful startup:
 
-
-
 <p align="center">
   <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully">
 </p>
+
+**Actual output from a successful run:**
+
+<p align="center">
+  <img src="./images/celery-worker-start-actual.png" alt="Celery worker connected to redis://localhost:6379/0 and ready">
+</p>
+
+Notice the `.> transport:` and `.> results:` lines confirm the worker connected to Redis on databases `0` and `1`, and the final line `celery@<hostname> ready.` confirms the worker is waiting for tasks.
 
 **Prediction question:** Before starting the Flask server, predict what happens if a request is sent to `/send-email` while the worker above is not running.
 
@@ -286,13 +282,20 @@ Expected output on successful startup:
 The Flask route still returns a `202` response with a task ID, since queuing a task only requires the broker, not the worker. The task remains in the `PENDING` state in Redis until a worker becomes available to process it.
 </details>
 
-Start the Flask application in a second terminal. This lab runs Flask on port **5001**:
+Start the Flask application in a **second terminal** (remember to `source venv/bin/activate` here too — activation does not carry over between terminals). This lab runs Flask on port **5001**:
 
 ```bash
+source venv/bin/activate
 python -m flask --app app.main run --host 0.0.0.0 --port 5001
 ```
 
-Submit a task from a third terminal:
+**Actual output from a successful run:**
+
+<p align="center">
+  <img src="./images/flask-server-running.png" alt="Flask development server running on port 5001">
+</p>
+
+Submit a task from a **third terminal**:
 
 ```bash
 curl -X POST http://localhost:5001/send-email \
@@ -312,6 +315,14 @@ Status code: `202`
   <img src="./images/send-email-request.png" alt="Submitting the send-email task via curl">
 </p>
 
+**Actual output from a successful run:**
+
+<p align="center">
+  <img src="./images/curl-send-email-actual-output.png" alt="curl POST to /send-email returning a task_id JSON response">
+</p>
+
+You can also confirm the request was received by checking the Flask terminal — a line like `"POST /send-email HTTP/1.1" 202 -` will appear there, matching the screenshot above.
+
 Check the task status using the returned ID:
 
 ```bash
@@ -329,6 +340,8 @@ After the 5-second simulated delay completes, re-running the same command return
 ```json
 {"task_id":"05323108-90de-4cce-8acb-cb0c847f2cf6","state":"SUCCESS","result":"Email sent to user@example.com"}
 ```
+
+> **Note:** Use the `task_id` value returned by your **own** curl request from the previous step, not the example ID shown above — every submission gets a unique ID.
 
 ## Checkpoint
 
@@ -358,20 +371,13 @@ Restore Redis and confirm your observation.
 docker start redis-broker
 ```
 
+---
 
+## The Principles
 
-## Epilogue
-
-This lab connected a Flask API to Celery using Redis as both the broker and the result backend, and implemented tasks that execute independently of the request-response cycle. The API now returns immediately while work continues in the background, and clients can poll for status using a task ID.
-
-This lab did not address what happens when a task fails partway through, how to retry failed tasks automatically, or how to enforce timeouts on tasks that run too long. These concerns are addressed in Lab 7.
-
-## Next Steps
-
-Lab 7 extends this setup with task retries, timeouts, and structured error handling, along with a dedicated endpoint for tracking task state transitions in more detail.
-
-## Additional Resources
-
-- Celery official documentation: First Steps with Celery
-- Redis documentation: Data Types
-- Flask documentation: Handling JSON requests
+* A web API should return a response as quickly as possible; long-running work does not belong inside a request handler.
+* The broker decouples task creation from task execution, allowing workers to process tasks independently of the API's lifecycle.
+* Tasks placed on the broker are not lost if a worker is temporarily unavailable; they wait in the queue.
+* A result backend is only necessary when a task's outcome must be retrieved after the original request has completed.
+* Not every operation should be offloaded; fast, low-latency operations are typically better handled synchronously.
+* Explicitly naming Celery tasks (`@celery.task(name=...)`) avoids task-registration mismatches between how different processes import the same module.
