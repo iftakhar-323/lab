@@ -91,7 +91,7 @@ Only after the task completes does the API send a response back to the client.
 **With Celery (Asynchronous):**
 
 <div align="center">
-<img alt="With Celery (Asynchronous) request flow" src="image/Untitled Diagram.gif" />
+<img alt="With Celery (Asynchronous) request flow" src="image/With Celery (Asynchronous)1.gif" />
 </div>
 
 ```text
@@ -145,7 +145,7 @@ With the individual components defined, this section traces a single task throug
 ### The Workflow Diagram
 
 <div align="center">
-<img alt="End-to-End Workflow" src="image/End-to-End Workfloww.gif" />
+<img alt="End-to-End Workflow" src="image/End-to-End Workflow1.gif" />
 </div>
 
 At the moment the Flask API returns its HTTP response, the underlying task (sending the email or generating the PDF) has not been completed yet. The API returns a response as soon as the task has been created and placed on the broker queue. The actual execution happens afterward, in the Celery worker process, independent of the API response.
