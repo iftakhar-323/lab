@@ -305,7 +305,6 @@ curl -X POST http://localhost:5001/send-email \
 
 Actual output:
 
-```json
 
 
 **Output from a successful run:**
