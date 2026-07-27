@@ -11,7 +11,7 @@ This lab is intended for students who have completed Lab 5 and understand the co
 By working through this lab, you gain the ability to offload long-running work from an API request and track its progress asynchronously — a pattern used in production systems that need to remain responsive under load.
 
 <p align="center">
-  <img src="./images/Celery%20Redis%20Architecture.drawio.svg" alt="Celery Redis Architecture">
+  <img src="./images/Celery Redis Architecture.gif" alt="Celery Redis Architecture">
 </p>
 
 ## Learning Objectives
