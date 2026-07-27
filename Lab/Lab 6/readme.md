@@ -263,15 +263,15 @@ celery -A app.celery_app.celery worker --loglevel=info
 
 Expected output on successful startup:
 
+
+
+**Output from a successful run:**
+
 <p align="center">
   <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully">
 </p>
 
-**Actual output from a successful run:**
 
-<p align="center">
-  <img src="./images/celery-worker-start-actual.png" alt="Celery worker connected to redis://localhost:6379/0 and ready">
-</p>
 
 Notice the `.> transport:` and `.> results:` lines confirm the worker connected to Redis on databases `0` and `1`, and the final line `celery@<hostname> ready.` confirms the worker is waiting for tasks.
 
@@ -306,16 +306,9 @@ curl -X POST http://localhost:5001/send-email \
 Actual output:
 
 ```json
-{"task_id":"05323108-90de-4cce-8acb-cb0c847f2cf6"}
-```
 
-Status code: `202`
 
-<p align="center">
-  <img src="./images/send-email-request.png" alt="Submitting the send-email task via curl">
-</p>
-
-**Actual output from a successful run:**
+**Output from a successful run:**
 
 <p align="center">
   <img src="./images/curl-send-email-actual-output.png" alt="curl POST to /send-email returning a task_id JSON response">
