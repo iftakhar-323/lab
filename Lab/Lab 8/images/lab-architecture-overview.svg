@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9Z" fill="#854F0B"/>
+    </marker>
+    <marker id="arrowDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9Z" fill="#2C2C2A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="560" fill="#FFFFFF"/>
+
+  <text x="400" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#2C2C2A">Lab 7 architecture overview</text>
+  <text x="400" y="62" text-anchor="middle" font-size="13" fill="#5F5E5A">Flask accepts work, Celery executes and retries it, Redis coordinates both sides</text>
+
+  <!-- Client -->
+  <g>
+    <rect x="40" y="110" width="160" height="70" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="1"/>
+    <text x="120" y="140" text-anchor="middle" font-size="15" font-weight="700" fill="#0C447C">Client</text>
+    <text x="120" y="159" text-anchor="middle" font-size="12" fill="#185FA5">curl / browser</text>
+  </g>
+
+  <!-- Flask API -->
+  <g>
+    <rect x="320" y="110" width="200" height="70" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+    <text x="420" y="138" text-anchor="middle" font-size="15" font-weight="700" fill="#085041">Flask API</text>
+    <text x="420" y="157" text-anchor="middle" font-size="12" fill="#0F6E56">app.py</text>
+  </g>
+
+  <!-- Redis container -->
+  <rect x="290" y="230" width="260" height="300" rx="16" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1" stroke-dasharray="5,4"/>
+  <text x="312" y="256" font-size="13" font-weight="700" fill="#5F5E5A">Redis  ·  localhost:6379</text>
+
+  <!-- Redis broker -->
+  <g>
+    <rect x="310" y="272" width="220" height="80" rx="10" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+    <text x="420" y="300" text-anchor="middle" font-size="15" font-weight="700" fill="#712B13">Broker  ·  DB 0</text>
+    <text x="420" y="320" text-anchor="middle" font-size="12" fill="#993C1D">Holds queued tasks</text>
+    <text x="420" y="337" text-anchor="middle" font-size="12" fill="#993C1D">waiting to run</text>
+  </g>
+
+  <!-- Redis result backend -->
+  <g>
+    <rect x="310" y="402" width="220" height="80" rx="10" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+    <text x="420" y="430" text-anchor="middle" font-size="15" font-weight="700" fill="#712B13">Result backend  ·  DB 1</text>
+    <text x="420" y="450" text-anchor="middle" font-size="12" fill="#993C1D">Stores task state</text>
+    <text x="420" y="467" text-anchor="middle" font-size="12" fill="#993C1D">and final result</text>
+  </g>
+
+  <!-- Celery worker -->
+  <g>
+    <rect x="610" y="272" width="170" height="120" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+    <text x="695" y="300" text-anchor="middle" font-size="15" font-weight="700" fill="#633806">Celery worker</text>
+    <text x="695" y="320" text-anchor="middle" font-size="12" fill="#854F0B">tasks.py</text>
+    <text x="695" y="337" text-anchor="middle" font-size="12" fill="#854F0B">runs the task</text>
+    <text x="695" y="353" text-anchor="middle" font-size="12" fill="#854F0B">retries on failure</text>
+    <text x="695" y="369" text-anchor="middle" font-size="12" fill="#854F0B">with backoff</text>
+  </g>
+
+  <!-- Client <-> Flask API -->
+  <line x1="200" y1="140" x2="318" y2="140" stroke="#2C2C2A" stroke-width="1.3" marker-end="url(#arrowDark)"/>
+  <text x="259" y="130" text-anchor="middle" font-size="11" fill="#2C2C2A">POST /tasks</text>
+  <line x1="318" y1="158" x2="200" y2="158" stroke="#2C2C2A" stroke-width="1.3" marker-end="url(#arrowDark)"/>
+  <text x="259" y="174" text-anchor="middle" font-size="11" fill="#2C2C2A">GET /tasks/&lt;id&gt;</text>
+
+  <!-- Flask API -> Redis broker -->
+  <line x1="420" y1="180" x2="420" y2="270" stroke="#2C2C2A" stroke-width="1.3" marker-end="url(#arrowDark)"/>
+  <text x="493" y="228" text-anchor="middle" font-size="11" fill="#2C2C2A">apply_async()</text>
+
+  <!-- Redis broker -> Celery worker -->
+  <line x1="530" y1="312" x2="608" y2="312" stroke="#2C2C2A" stroke-width="1.3" marker-end="url(#arrowDark)"/>
+  <text x="569" y="302" text-anchor="middle" font-size="11" fill="#2C2C2A">consume</text>
+
+  <!-- Retry self-loop on Celery worker -->
+  <path d="M 780 320 C 815 305, 815 265, 775 262" fill="none" stroke="#854F0B" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="812" y="248" text-anchor="middle" font-size="11" fill="#854F0B">retry</text>
+  <text x="812" y="261" text-anchor="middle" font-size="11" fill="#854F0B">backoff</text>
+
+  <!-- Celery worker -> Redis result backend -->
+  <path d="M 695 392 L 695 442 L 532 442" fill="none" stroke="#2C2C2A" stroke-width="1.3" marker-end="url(#arrowDark)"/>
+  <text x="695" y="418" text-anchor="middle" font-size="11" fill="#2C2C2A">store result</text>
+
+  <!-- Redis result backend -> Flask API (status read, dashed) -->
+  <path d="M 310 442 L 250 442 L 250 165 L 318 165" fill="none" stroke="#2C2C2A" stroke-width="1.3" stroke-dasharray="6,4" marker-end="url(#arrowDark)"/>
+  <text x="235" y="300" text-anchor="middle" font-size="11" fill="#2C2C2A" transform="rotate(-90 235 300)">read status</text>
+
+  <!-- Legend -->
+  <rect x="40" y="510" width="14" height="14" rx="3" fill="#E6F1FB" stroke="#185FA5"/>
+  <text x="60" y="521" font-size="12" fill="#5F5E5A">Caller</text>
+
+  <rect x="130" y="510" width="14" height="14" rx="3" fill="#E1F5EE" stroke="#0F6E56"/>
+  <text x="150" y="521" font-size="12" fill="#5F5E5A">Application layer</text>
+
+  <rect x="290" y="510" width="14" height="14" rx="3" fill="#FAECE7" stroke="#993C1D"/>
+  <text x="310" y="521" font-size="12" fill="#5F5E5A">Message store</text>
+
+  <rect x="440" y="510" width="14" height="14" rx="3" fill="#FAEEDA" stroke="#854F0B"/>
+  <text x="460" y="521" font-size="12" fill="#5F5E5A">Task execution</text>
+
+  <line x1="590" y1="517" x2="620" y2="517" stroke="#2C2C2A" stroke-width="1.3" stroke-dasharray="6,4"/>
+  <text x="628" y="521" font-size="12" fill="#5F5E5A">Read path</text>
+
+</svg>
