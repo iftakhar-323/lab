@@ -323,6 +323,10 @@ Expected output (tail):
 [2026-07-30 10:00:01,000: INFO/MainProcess] celery@worker ready.
 ```
 
+<p align="center">
+  <img src="./image/celery-worker-startup.png" alt="Celery Worker Startup Terminal Output" width="650">
+</p>
+
 Open a second terminal and start the Flask API:
 
 ```bash
@@ -370,6 +374,10 @@ Expected output:
   "result": {"payload": "order-1001", "processed": true, "attempts": 1}
 }
 ```
+
+<p align="center">
+  <img src="./image/scenario-1-guaranteed-success.png" alt="Scenario 1 Guaranteed Success Terminal Output" width="650">
+</p>
 
 Worker log excerpt:
 
@@ -420,6 +428,10 @@ Poll again after the backoff delay:
 }
 ```
 
+<p align="center">
+  <img src="./image/scenario-2-retry-success.png" alt="Scenario 2 Retry Then Success Terminal Output" width="650">
+</p>
+
 Worker log excerpt showing the retry loop:
 
 ```
@@ -465,6 +477,10 @@ Expected output:
 }
 ```
 
+<p align="center">
+  <img src="./image/scenario-3-retries-exhausted.png" alt="Scenario 3 Retries Exhausted Terminal Output" width="650">
+</p>
+
 Worker log excerpt:
 
 ```
@@ -504,6 +520,10 @@ Expected output:
   "detail": "task ID unknown or not yet started"
 }
 ```
+
+<p align="center">
+  <img src="./image/scenario-4-5-invalid-unknown.png" alt="Scenario 4 and 5 Invalid Request and Unknown Task ID Output" width="650">
+</p>
 
 ### Summary
 
