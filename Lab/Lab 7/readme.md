@@ -2,12 +2,6 @@
 
 You will build a Flask service backed by Celery that retries failing tasks with exponential backoff, enforces execution timeouts, exposes an endpoint to check task status by ID, and logs every state transition and exception. The service uses Redis as both broker and result backend. Two components are involved: a Flask API (`app.py`) that triggers tasks and reports their state, and a Celery worker (`tasks.py`) that executes the task, retries it on failure, and records the final result.
 
-<p align="center">
-  <img src="./image/lab-architecture-overview.gif" alt="Lab 7 architecture overview" width="650">
-</p>
-
-*Figure 1. The client calls `POST /tasks` on the Flask API, which hands the job to Celery through `apply_async`. Celery places the task on the Redis broker (DB 0); the worker pulls it, runs `call_upstream_service`, and retries with exponential backoff on failure. Once the task settles, the worker writes its final state and result to the Redis result backend (DB 1). The client polls `GET /tasks/<id>`, which reads that same result backend to report PENDING, STARTED, RETRY, SUCCESS, or FAILURE.*
-
 ## Concepts
 
 | Term | Meaning |
@@ -30,13 +24,13 @@ A Celery task moves through a fixed set of states from the moment it is submitte
   <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="650">
 </p>
 
-*Figure 2. The five states a Celery task can be in. A task starts PENDING, moves to STARTED once a worker picks it up, and from there either settles at SUCCESS or, on a caught exception, moves to RETRY and loops back to STARTED for another attempt. The loop repeats until the task succeeds or `max_retries` is exhausted, at which point it settles at FAILURE.*
+*Figure 1. The five states a Celery task can be in. A task starts PENDING, moves to STARTED once a worker picks it up, and from there either settles at SUCCESS or, on a caught exception, moves to RETRY and loops back to STARTED for another attempt. The loop repeats until the task succeeds or `max_retries` is exhausted, at which point it settles at FAILURE.*
 
 <p align="center">
   <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="650">
 </p>
 
-*Figure 3. What happens inside a single retry cycle. When the task raises `UpstreamServiceError`, Celery checks whether retries remain. If they do, it schedules a retry after an exponential backoff delay and re-enters the task; if not, the task is marked FAILURE with no further attempts. A task that returns without raising an exception exits the loop immediately and the backend stores its result as SUCCESS.*
+*Figure 2. What happens inside a single retry cycle. When the task raises `UpstreamServiceError`, Celery checks whether retries remain. If they do, it schedules a retry after an exponential backoff delay and re-enters the task; if not, the task is marked FAILURE with no further attempts. A task that returns without raising an exception exits the loop immediately and the backend stores its result as SUCCESS.*
 
 ## Objectives
 
