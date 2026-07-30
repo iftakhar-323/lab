@@ -85,9 +85,9 @@ Adding more API server instances only partially addresses this. It increases the
 
 **Without Celery (Synchronous):**
 
-<div align="center">
-<img alt="Without Celery (Synchronous) request flow" src="image/without celery synchronours.gif" />
-</div>
+<p align="center">
+  <img src="./image/without-celery-synchronous.gif" alt="Without Celery (Synchronous) request flow" width="650">
+</p>
 
 ```text
 The client sends a request.
@@ -98,9 +98,9 @@ Only after the task completes does the API send a response back to the client.
 
 **With Celery (Asynchronous):**
 
-<div align="center">
-<img alt="With Celery (Asynchronous) request flow" src="image/With Celery (Asynchronous)1.gif" />
-</div>
+<p align="center">
+  <img src="./image/with-celery-asynchronous.gif" alt="With Celery (Asynchronous) request flow" width="650">
+</p>
 
 ```text
 The client sends a request to the Flask API.
@@ -121,9 +121,9 @@ Since the API does not execute the task itself, an intermediary is required to r
 
 ### The Architecture Diagram
 
-<div align="center">
-<img alt="Celery Architecture" src="image/celery architecture.gif" />
-</div>
+<p align="center">
+  <img src="./image/celery-architecture.gif" alt="Celery Architecture" width="650">
+</p>
 
 | Component | Responsibility |
 |---|---|
@@ -148,9 +148,9 @@ With the individual components defined, this section traces a single task throug
 
 ### The Workflow Diagram
 
-<div align="center">
-<img alt="End-to-End Workflow" src="image/End-to-End Workflow1.gif" />
-</div>
+<p align="center">
+  <img src="./image/end-to-end-workflow.gif" alt="End-to-End Workflow" width="650">
+</p>
 
 At the moment the Flask API returns its HTTP response, the underlying task (sending the email or generating the PDF) has not been completed yet. The API returns a response as soon as the task has been created and placed on the broker queue. The actual execution happens afterward, in the Celery worker process, independent of the API response.
 
@@ -326,15 +326,15 @@ Expected response (returned immediately, without waiting for the 10-second task)
 
 **Screenshot — Flask API log after receiving the request:**
 
-<div align="center">
-<img alt="Flask server log showing POST and GET requests" src="image/flask-server-request-log.png" />
-</div>
+<p align="center">
+  <img src="./image/flask-server-request-log.png" alt="Flask server log showing POST and GET requests" width="650">
+</p>
 
 **Screenshot — Celery worker log picking up and completing the task:**
 
-<div align="center">
-<img alt="Celery worker log showing task received and succeeded" src="image/celery-worker-task-success-log.png" />
-</div>
+<p align="center">
+  <img src="./image/celery-worker-task-success-log.png" alt="Celery worker log showing task received and succeeded" width="650">
+</p>
 
 Now check the task status using the `task_id` returned above:
 ```bash
@@ -352,9 +352,9 @@ Checked immediately, the task may still show `PENDING`. Checked again after ~10 
 
 **Screenshot — `send-email` request followed by `task-status` check showing `SUCCESS`:**
 
-<div align="center">
-<img alt="curl output for send-email and task-status endpoints" src="image/send-email-and-task-status-output.png" />
-</div>
+<p align="center">
+  <img src="./image/send-email-and-task-status-output.png" alt="curl output for send-email and task-status endpoints" width="650">
+</p>
 
 ## Chapter 6: Deciding When to Use Celery
 

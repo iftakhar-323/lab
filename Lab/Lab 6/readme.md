@@ -11,7 +11,7 @@ This lab is intended for students who have completed Lab 5 and understand the co
 By working through this lab, you gain the ability to offload long-running work from an API request and track its progress asynchronously — a pattern used in production systems that need to remain responsive under load.
 
 <p align="center">
-  <img src="./images/Celery Redis Architecture.gif" alt="Celery Redis Architecture">
+  <img src="./images/celery-redis-architecture.gif" alt="Celery Redis Architecture" width="650">
 </p>
 
 ## Learning Objectives
@@ -91,7 +91,7 @@ touch app/__init__.py app/celery_app.py app/tasks.py app/main.py
 ```
 
 <p align="center">
-  <img src="./images/project-structure.png" alt="Project structure created in the terminal">
+  <img src="./images/project-structure.png" alt="Project structure created in the terminal" width="650">
 </p>
 
 **Prediction question:** Redis stores data in memory. If the Redis container is stopped while a task is still `PENDING`, what happens to that task once the container is restarted?
@@ -200,7 +200,7 @@ The `@celery.task` decorator registers a function with the Celery application so
 The Flask API is responsible for accepting client requests and submitting tasks to Celery. It does not execute the task logic itself.
 
 <p align="center">
-  <img src="./images/Task lifecycle.gif" alt="Task lifecycle">
+  <img src="./images/task-lifecycle.gif" alt="Task lifecycle" width="650">
 </p>
 
 ### What You Will Build
@@ -266,7 +266,7 @@ Expected output on successful startup:
 **Output from a successful run:**
 
 <p align="center">
-  <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully">
+  <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully" width="650">
 </p>
 
 
@@ -290,7 +290,7 @@ python -m flask --app app.main run --host 0.0.0.0 --port 5001
 **Actual output from a successful run:**
 
 <p align="center">
-  <img src="./images/flask-server-running.png" alt="Flask development server running on port 5001">
+  <img src="./images/flask-server-running.png" alt="Flask development server running on port 5001" width="650">
 </p>
 
 Submit a task from a **third terminal**:
@@ -308,7 +308,7 @@ Actual output:
 **Output from a successful run:**
 
 <p align="center">
-  <img src="./images/curl-send-email-actual-output.png" alt="curl POST to /send-email returning a task_id JSON response">
+  <img src="./images/curl-send-email-actual-output.png" alt="curl POST to /send-email returning a task_id JSON response" width="650">
 </p>
 
 You can also confirm the request was received by checking the Flask terminal — a line like `"POST /send-email HTTP/1.1" 202 -` will appear there, matching the screenshot above.
