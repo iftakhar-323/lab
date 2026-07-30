@@ -36,7 +36,6 @@ Flower does not modify the task code or the Flask API in any way. It connects to
 - Ubuntu 22.04 LTS.
 - Python 3.11.
 - Redis 7 running locally on port 6379.
-- The `celery-retry-lab` project from Lab 7, with its virtual environment already created.
 - `curl` for verification requests.
 
 Install Nginx and the `htpasswd` utility, used for the optional secured-proxy step:
@@ -46,7 +45,7 @@ sudo apt update
 sudo apt install -y nginx apache2-utils
 ```
 
-Install Flower into the existing Lab 7 virtual environment:
+Install Flower into the existing virtual environment:
 
 ```bash
 cd celery-retry-lab
@@ -57,10 +56,10 @@ source venv/bin/activate
 
 ```
 celery-retry-lab/
-├── requirements.txt          (updated)
-├── celery_app.py             (from Lab 7, unchanged)
-├── tasks.py                  (from Lab 7, unchanged)
-├── app.py                    (from Lab 7, unchanged)
+├── requirements.txt
+├── celery_app.py
+├── tasks.py
+├── app.py
 ├── flower_data/
 │   └── flower.db
 ├── scripts/
