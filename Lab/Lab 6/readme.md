@@ -94,13 +94,6 @@ touch app/__init__.py app/celery_app.py app/tasks.py app/main.py
   <img src="./images/project-structure.png" alt="Project structure created in the terminal" width="650">
 </p>
 
-**Prediction question:** Redis stores data in memory. If the Redis container is stopped while a task is still `PENDING`, what happens to that task once the container is restarted?
-
-<details>
-<summary>Reveal answer</summary>
-By default, the Redis image used here persists no data to disk, so anything queued while the container was down is lost once it restarts. In a production setup, Redis persistence (RDB or AOF) or a managed Redis service would be used to avoid losing queued work.
-</details>
-
 ---
 
 ## Chapter 1: Connecting Celery to Redis
@@ -109,20 +102,9 @@ By default, the Redis image used here persists no data to disk, so anything queu
 
 Celery does not process tasks by itself. It requires a message broker to hold pending tasks and, when results are needed, a result backend to store task outcomes. This chapter configures Redis to serve both roles.
 
-
-
 ### What You Will Build
 
 A `celery_app.py` module that creates a Celery application instance configured to use Redis as both the broker and the backend. This instance is imported by both the Flask API and the worker process.
-
-### Think First
-
-**Question:** Redis can serve as both the broker and the backend at the same time. What is the difference between what Redis stores in each role?
-
-<details>
-<summary>Reveal answer</summary>
-As a broker, Redis stores a queue of pending task messages waiting to be picked up by a worker, structured as a first-in-first-out list. As a backend, Redis stores the result of a completed task, indexed by task ID, so that a client can retrieve it later. The same Redis instance can perform both roles using different key namespaces, but in production these are often separated into different Redis databases or instances to isolate load.
-</details>
 
 ### Implementation
 
@@ -143,13 +125,6 @@ celery = Celery(
 
 The `Celery` constructor takes a name that identifies the application, typically matching the module name. The `broker` argument tells Celery where to publish and consume task messages. The `backend` argument tells Celery where to store task state and return values. Database `0` on the Redis instance is used for the broker, and database `1` is used for the backend — this keeps the two roles logically separated even though they share the same Redis server.
 
-**Concept question:** If the `backend` argument is omitted, what capability is lost?
-
-<details>
-<summary>Reveal answer</summary>
-Without a backend, Celery can still queue and execute tasks, but the result and state of a task cannot be retrieved afterward. Calling `.get()` or checking `.status` on a task result raises an error, since there is nowhere to look up that information.
-</details>
-
 ## Chapter 2: Defining Background Tasks
 
 ### Opening Context
@@ -159,15 +134,6 @@ A Celery task is a regular Python function decorated so that Celery can route ca
 ### What You Will Build
 
 Two Celery tasks: one that simulates sending an email, and one that simulates generating a PDF report. Both tasks include an artificial delay to represent real processing time.
-
-### Think First
-
-**Question:** A task function uses `time.sleep(5)` to simulate slow work. If this function is called directly as `send_email("user@example.com")` instead of `send_email.delay("user@example.com")`, what happens to the Flask request that called it?
-
-<details>
-<summary>Reveal answer</summary>
-The Flask request thread blocks for the full 5 seconds, since the function executes synchronously inside the request handler. The client waiting on that request also waits 5 seconds. Calling `.delay()` instead hands the task to Celery, and the request handler returns immediately with a task ID.
-</details>
 
 ### Implementation
 
@@ -206,15 +172,6 @@ The Flask API is responsible for accepting client requests and submitting tasks 
 ### What You Will Build
 
 A Flask application with two routes: one that queues an email task, and one that checks the status of a previously submitted task.
-
-### Think First
-
-**Question:** After calling `send_email.delay(recipient)`, the Flask route immediately has access to a task ID. At that moment, has the email actually been sent?
-
-<details>
-<summary>Reveal answer</summary>
-No. The task has only been placed on the Redis queue. The email is sent only when a Celery worker process picks up the message and executes the function. Without a running worker, the task remains in the `PENDING` state indefinitely.
-</details>
 
 ### Implementation
 
@@ -261,24 +218,13 @@ celery -A app.celery_app.celery worker --loglevel=info
 
 Expected output on successful startup:
 
-
-
 **Output from a successful run:**
 
 <p align="center">
   <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully" width="650">
 </p>
 
-
-
 Notice the `.> transport:` and `.> results:` lines confirm the worker connected to Redis on databases `0` and `1`, and the final line `celery@<hostname> ready.` confirms the worker is waiting for tasks.
-
-**Prediction question:** Before starting the Flask server, predict what happens if a request is sent to `/send-email` while the worker above is not running.
-
-<details>
-<summary>Reveal answer</summary>
-The Flask route still returns a `202` response with a task ID, since queuing a task only requires the broker, not the worker. The task remains in the `PENDING` state in Redis until a worker becomes available to process it.
-</details>
 
 Start the Flask application in a **second terminal** (remember to `source venv/bin/activate` here too — activation does not carry over between terminals). This lab runs Flask on port **5001**:
 
@@ -302,8 +248,6 @@ curl -X POST http://localhost:5001/send-email \
 ```
 
 Actual output:
-
-
 
 **Output from a successful run:**
 
@@ -352,8 +296,6 @@ docker stop redis-broker
 ```
 
 Submit a new task using the `/send-email` endpoint and observe the result.
-
-**Question:** Does the Flask route return an error immediately, or does it hang?
 
 Restore Redis and confirm your observation.
 
