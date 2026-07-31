@@ -252,7 +252,7 @@ Actual output:
 **Output from a successful run:**
 
 <p align="center">
-  <img src="./images/curl-send-email-actual-output.png" alt="curl POST to /send-email returning a task_id JSON response" width="650">
+  <img src="./images/send-email-request.png" alt="curl POST to /send-email returning a task_id JSON response" width="650">
 </p>
 
 You can also confirm the request was received by checking the Flask terminal — a line like `"POST /send-email HTTP/1.1" 202 -` will appear there, matching the screenshot above.
@@ -274,6 +274,10 @@ After the 5-second simulated delay completes, re-running the same command return
 ```json
 {"task_id":"05323108-90de-4cce-8acb-cb0c847f2cf6","state":"SUCCESS","result":"Email sent to user@example.com"}
 ```
+
+<p align="center">
+  <img src="./images/task-status-success.png" alt="curl status check output showing SUCCESS" width="650">
+</p>
 
 > **Note:** Use the `task_id` value returned by your **own** curl request from the previous step, not the example ID shown above — every submission gets a unique ID.
 
