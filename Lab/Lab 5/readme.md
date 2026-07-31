@@ -57,6 +57,11 @@ Install Flask, Celery, and the Redis client library:
 pip install flask celery redis
 ```
 
+<p align="center">
+  <img src="./image/pip-install-flask-celery-redis.png" alt="Install Flask, Celery, and Redis" width="650">
+</p>
+
+
 Install and start Redis (used as the broker and result backend for this lab):
 ```bash
 sudo apt install -y redis-server
@@ -278,6 +283,10 @@ Press CTRL+C to quit
  * Debugger PIN: 827-844-583
 ```
 
+<p align="center">
+  <img src="./image/start-flask-api.png" alt="Start Flask API" width="650">
+</p>
+
 ### Terminal 2 — Start the Celery Worker
 
 ```bash
@@ -308,6 +317,10 @@ Expected output (note the `[tasks]` section lists `send_email_task`, confirming 
 [INFO/MainProcess] celery@iftakhar-PC ready.
 ```
 
+<p align="center">
+  <img src="./image/start-celery-worker.png" alt="Start Celery Worker" width="650">
+</p>
+
 ### Terminal 3 — Send a Request
 
 ```bash
@@ -324,16 +337,8 @@ Expected response (returned immediately, without waiting for the 10-second task)
 }
 ```
 
-**Screenshot — Flask API log after receiving the request:**
-
 <p align="center">
-  <img src="./image/flask-server-request-log.png" alt="Flask server log showing POST and GET requests" width="650">
-</p>
-
-**Screenshot — Celery worker log picking up and completing the task:**
-
-<p align="center">
-  <img src="./image/celery-worker-task-success-log.png" alt="Celery worker log showing task received and succeeded" width="650">
+  <img src="./image/send-email-request.png" alt="Send POST request" width="650">
 </p>
 
 Now check the task status using the `task_id` returned above:
@@ -349,12 +354,6 @@ Checked immediately, the task may still show `PENDING`. Checked again after ~10 
   "task_id": "c67eb4a5-6031-4bab-ae80-4dd8e0d42832"
 }
 ```
-
-**Screenshot — `send-email` request followed by `task-status` check showing `SUCCESS`:**
-
-<p align="center">
-  <img src="./image/send-email-and-task-status-output.png" alt="curl output for send-email and task-status endpoints" width="650">
-</p>
 
 ## Chapter 6: Deciding When to Use Celery
 
