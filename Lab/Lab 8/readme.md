@@ -131,6 +131,12 @@ Explanation:
 
 ## Step 3: Start Flower
 
+Make sure the Celery worker is running in one terminal (with events enabled via `-E` or default configuration):
+
+<p align="center">
+  <img src="./images/celery-worker-running.png" alt="Celery Worker Running with Events Terminal Output" width="650">
+</p>
+
 With the Redis server and the Lab 7 Celery worker both already running, start Flower in a third terminal:
 
 ```bash
@@ -148,6 +154,10 @@ Expected output (tail):
 [I 260730 10:15:02 mixins:229] Connected to redis://localhost:6379/0
 ```
 
+<p align="center">
+  <img src="./images/start-flower.png" alt="Flower Startup Terminal Output" width="650">
+</p>
+
 Explanation:
 
 - The `Broker:` line confirms Flower resolved the same Redis DB 0 the worker publishes to; a mismatch here means Flower will show zero workers and zero tasks even while the worker is healthy.
@@ -162,6 +172,10 @@ curl -s -X POST http://localhost:5000/tasks \
   -H "Content-Type: application/json" \
   -d '{"payload": "order-2001", "fail_probability": 0.0}'
 ```
+
+<p align="center">
+  <img src="./images/flask-api-running.png" alt="Flask API Server Terminal Output" width="650">
+</p>
 
 Query Flower's worker list:
 
@@ -265,6 +279,10 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
+<p align="center">
+  <img src="./images/nginx-flower-conf.png" alt="Nginx Configuration and Service Setup Terminal Output" width="650">
+</p>
+
 Explanation:
 
 - `listen 8080` puts Nginx on a distinct port from Flower's own `5555`, matching the public/internal split in Figure 2. In a real deployment, port 8080 (or 443 with TLS) is the only one opened to the network the client sits on; port 5555 stays bound to `127.0.0.1` or an internal-only interface.
@@ -340,6 +358,10 @@ Expected output:
 ```
 200
 ```
+
+<p align="center">
+  <img src="./images/nginx-flower-auth-test.png" alt="Nginx Proxy Verification Terminal Output" width="650">
+</p>
 
 ### Summary
 
