@@ -108,10 +108,10 @@ A `celery_app.py` module that creates a Celery application instance configured t
 
 ### Implementation
 
-**File: `app/celery_app.py`**
+Create `app/celery_app.py` using the following command:
 
-```python
-# app/celery_app.py
+```bash
+cat << 'EOF' > app/celery_app.py
 from celery import Celery
 
 celery = Celery(
@@ -119,6 +119,7 @@ celery = Celery(
     broker="redis://localhost:6379/0",
     backend="redis://localhost:6379/1",
 )
+EOF
 ```
 
 ### Understanding the Code
@@ -137,10 +138,10 @@ Two Celery tasks: one that simulates sending an email, and one that simulates ge
 
 ### Implementation
 
-**File: `app/tasks.py`**
+Create `app/tasks.py` using the following command:
 
-```python
-# app/tasks.py
+```bash
+cat << 'EOF' > app/tasks.py
 import time
 from app.celery_app import celery
 
@@ -153,6 +154,7 @@ def send_email(recipient):
 def generate_pdf(document_id):
     time.sleep(8)  # simulate slow PDF rendering
     return f"PDF generated for document {document_id}"
+EOF
 ```
 
 ### Understanding the Code
@@ -175,10 +177,10 @@ A Flask application with two routes: one that queues an email task, and one that
 
 ### Implementation
 
-**File: `app/main.py`**
+Create `app/main.py` using the following command:
 
-```python
-# app/main.py
+```bash
+cat << 'EOF' > app/main.py
 from flask import Flask, jsonify, request
 from app.tasks import send_email
 from app.celery_app import celery
@@ -199,6 +201,10 @@ def check_status(task_id):
         "state": result.state,
         "result": result.result if result.ready() else None
     })
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001)
+EOF
 ```
 
 ### Understanding the Code

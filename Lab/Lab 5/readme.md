@@ -178,14 +178,10 @@ With the theory and architecture covered, this chapter builds a small working Fl
 
 ### Creating `app.py`
 
-Inside the `celery-lab` directory, create the application file:
+Inside the `celery-lab` directory, create `app.py` by copying and pasting the following command into your terminal:
+
 ```bash
-nano app.py
-```
-
-Paste in the following code:
-
-```python
+cat << 'EOF' > app.py
 import time
 from flask import Flask, jsonify, request
 from celery import Celery
@@ -245,9 +241,8 @@ def task_status(task_id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+EOF
 ```
-
-Save and exit: `Ctrl+O` → `Enter` → `Ctrl+X`
 
 > **Note on the task name:** The `@celery.task(name='send_email_task')` decorator explicitly names the task. Without this, the task's registered name depends on how the module was imported (`__main__.send_email_task` if run directly vs. `app.send_email_task` if imported as `app`). Since the Flask process and the Celery worker process import the file differently, a missing explicit name causes a `KeyError: unregistered task` error in the worker. Naming the task explicitly avoids this mismatch entirely.
 

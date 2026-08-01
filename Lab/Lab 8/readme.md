@@ -72,13 +72,15 @@ Flower runs as a third process alongside the Flask API and the Celery worker, al
 
 ## Step 1: Add Flower to the project dependencies
 
-Update `requirements.txt` to add Flower. Create the file with the following contents:
+Update `requirements.txt` by running:
 
-```
+```bash
+cat << 'EOF' > requirements.txt
 flask==3.0.3
 celery==5.4.0
 redis==5.0.8
 flower==2.0.1
+EOF
 ```
 
 Install the new dependency:
@@ -94,9 +96,11 @@ Explanation:
 
 ## Step 2: Create the Flower startup script
 
-Create a file named `scripts/start_flower.sh` with the following contents:
+Create `scripts/start_flower.sh` using the following command:
 
 ```bash
+mkdir -p scripts
+cat << 'EOF' > scripts/start_flower.sh
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -111,6 +115,7 @@ celery -A celery_app.celery_app flower \
   --db=flower_data/flower.db \
   --basic_auth=admin:change-me-in-lab \
   --url_prefix=""
+EOF
 ```
 
 Make the script executable:
@@ -240,9 +245,11 @@ Create the Nginx credentials file:
 sudo htpasswd -c /etc/nginx/.flower_htpasswd admin
 ```
 
-Enter a password when prompted. Create a file named `nginx/flower.conf` with the following contents:
+Enter a password when prompted. Create `nginx/flower.conf` using the following command:
 
-```nginx
+```bash
+mkdir -p nginx
+cat << 'EOF' > nginx/flower.conf
 server {
     listen 8080;
     server_name flower.lab.local;
@@ -262,6 +269,7 @@ server {
         proxy_set_header Connection "upgrade";
     }
 }
+EOF
 ```
 
 Link the config and reload Nginx:

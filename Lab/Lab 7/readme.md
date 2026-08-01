@@ -89,12 +89,14 @@ python3.11 -m venv venv
 source venv/bin/activate
 ```
 
-Create a file named `requirements.txt` with the following contents:
+Create `requirements.txt` by running:
 
-```
+```bash
+cat << 'EOF' > requirements.txt
 flask==3.0.3
 celery==5.4.0
 redis==5.0.8
+EOF
 ```
 
 Install the dependencies:
@@ -112,9 +114,10 @@ Explanation:
 
 ## Step 2: Configure the Celery application
 
-Create a file named `celery_app.py` with the following contents:
+Create `celery_app.py` using the following command:
 
-```python
+```bash
+cat << 'EOF' > celery_app.py
 import logging
 from celery import Celery
 from celery.signals import task_prerun, task_postrun, task_failure, task_retry
@@ -164,6 +167,7 @@ def log_task_retry(request, reason, **kwargs):
 @task_failure.connect
 def log_task_failure(task_id, exception, *args, **kwargs):
     logger.error("task_id=%s state=FAILURE exception=%s", task_id, repr(exception))
+EOF
 ```
 
 Explanation:
@@ -176,9 +180,10 @@ Explanation:
 
 ## Step 3: Implement the task with retries, backoff, and timeouts
 
-Create a file named `tasks.py` with the following contents:
+Create `tasks.py` using the following command:
 
-```python
+```bash
+cat << 'EOF' > tasks.py
 import logging
 import random
 import time
@@ -225,6 +230,7 @@ def call_upstream_service(self, payload: str, fail_probability: float = 0.7):
             "task_id=%s attempt=%s failed: %s", self.request.id, self.request.retries + 1, exc
         )
         raise
+EOF
 ```
 
 Explanation:
@@ -240,9 +246,10 @@ Explanation:
 
 ## Step 4: Build the Flask API
 
-Create a file named `app.py` with the following contents:
+Create `app.py` using the following command:
 
-```python
+```bash
+cat << 'EOF' > app.py
 import logging
 
 from celery.result import AsyncResult
@@ -294,6 +301,7 @@ def get_task_status(task_id):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+EOF
 ```
 
 Explanation:
