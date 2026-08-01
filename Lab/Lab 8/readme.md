@@ -6,8 +6,6 @@ You will extend the `celery-retry-lab` project from Lab 7 with Flower, a real-ti
   <img src="./images/flower-monitoring-architecture.gif" alt="Flower monitoring architecture" width="650">
 </p>
 
-*Figure 1. The browser talks to the Flower dashboard. Flower does not talk to the Flask API or the task code directly — it connects to the same Redis broker/backend the Celery worker uses. The worker emits an event every time a task changes state, and Flower consumes that event stream to keep its dashboard and REST API up to date.*
-
 ## Concepts
 
 | Term | Meaning |
@@ -231,13 +229,11 @@ Expected output shape for one entry:
 
 ## Step 5: Secure the dashboard with an Nginx reverse proxy
 
-This step matches the network layout in Figure 2: the client only ever reaches Nginx, Nginx enforces its own authentication check, and only then forwards the request to Flower on the internal network. Flower's own `--basic_auth` from Step 2 stays in place as a second layer.
+This step matches the network layout shown below: the client only ever reaches Nginx, Nginx enforces its own authentication check, and only then forwards the request to Flower on the internal network. Flower's own `--basic_auth` from Step 2 stays in place as a second layer.
 
 <p align="center">
-  <img src="./images/12.gif" alt="Flower secured network zones" width="650">
+  <img src="./images/flower-secured-network-zones14.gif" alt="Flower secured network zones" width="650">
 </p>
-
-*Figure 2. The client's browser request lands on Nginx, which sits in the public network and enforces basic auth before proxying anywhere. Flower and the Redis broker/worker stay in the internal network and are never exposed directly; Flower's own role is limited to reading task state from Redis and rendering it.*
 
 Create the Nginx credentials file:
 
@@ -293,7 +289,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 Explanation:
 
-- `listen 8080` puts Nginx on a distinct port from Flower's own `5555`, matching the public/internal split in Figure 2. In a real deployment, port 8080 (or 443 with TLS) is the only one opened to the network the client sits on; port 5555 stays bound to `127.0.0.1` or an internal-only interface.
+- `listen 8080` puts Nginx on a distinct port from Flower's own `5555`, matching the public/internal network layout split. In a real deployment, port 8080 (or 443 with TLS) is the only one opened to the network the client sits on; port 5555 stays bound to `127.0.0.1` or an internal-only interface.
 - `auth_basic` and `auth_basic_user_file` add an authentication layer at the proxy, independent of Flower's own `--basic_auth`. A request must satisfy both to reach the dashboard content, since Nginx checks its credentials first and Flower checks its own credentials on the proxied request.
 - `proxy_pass http://127.0.0.1:5555` forwards authenticated requests to the local Flower process; this is the only path into Flower once Nginx is the sole listener on a public interface.
 - The `Upgrade`/`Connection` headers keep WebSocket connections working, which Flower's dashboard uses for live updates without polling.

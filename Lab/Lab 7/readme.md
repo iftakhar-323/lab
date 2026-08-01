@@ -24,13 +24,9 @@ A Celery task moves through a fixed set of states from the moment it is submitte
   <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="650">
 </p>
 
-*Figure 1. The five states a Celery task can be in. A task starts PENDING, moves to STARTED once a worker picks it up, and from there either settles at SUCCESS or, on a caught exception, moves to RETRY and loops back to STARTED for another attempt. The loop repeats until the task succeeds or `max_retries` is exhausted, at which point it settles at FAILURE.*
-
 <p align="center">
   <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="650">
 </p>
-
-*Figure 2. What happens inside a single retry cycle. When the task raises `UpstreamServiceError`, Celery checks whether retries remain. If they do, it schedules a retry after an exponential backoff delay and re-enters the task; if not, the task is marked FAILURE with no further attempts. A task that returns without raising an exception exits the loop immediately and the backend stores its result as SUCCESS.*
 
 ## Objectives
 
