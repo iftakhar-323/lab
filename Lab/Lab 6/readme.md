@@ -287,16 +287,6 @@ After the 5-second simulated delay completes, re-running the same command return
 
 > **Note:** Use the `task_id` value returned by your **own** curl request from the previous step, not the example ID shown above — every submission gets a unique ID.
 
-## Checkpoint
-
-Verify the following before moving on.
-
-- [x] Redis is running and accessible on port 6379
-- [x] Celery worker starts without connection errors, connects to `redis://localhost:6379/0`
-- [x] `/send-email` returns a task ID with status `202`
-- [x] `/status/<task_id>` reflects state transitions from `PENDING` to `SUCCESS`
-- [x] The Flask process remains responsive while a task is still executing
-
 ## Experiment
 
 Stop the Redis container while the Flask server and Celery worker are still running.
