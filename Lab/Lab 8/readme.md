@@ -234,7 +234,7 @@ Expected output shape for one entry:
 This step matches the network layout in Figure 2: the client only ever reaches Nginx, Nginx enforces its own authentication check, and only then forwards the request to Flower on the internal network. Flower's own `--basic_auth` from Step 2 stays in place as a second layer.
 
 <p align="center">
-  <img src="./images/flower-secured-network-zones.gif" alt="Flower secured network zones" width="650">
+  <img src="./images/12.gif" alt="Flower secured network zones" width="650">
 </p>
 
 *Figure 2. The client's browser request lands on Nginx, which sits in the public network and enforces basic auth before proxying anywhere. Flower and the Redis broker/worker stay in the internal network and are never exposed directly; Flower's own role is limited to reading task state from Redis and rendering it.*
