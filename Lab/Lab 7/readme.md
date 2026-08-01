@@ -341,6 +341,10 @@ Expected output:
  * Running on http://0.0.0.0:5000
 ```
 
+<p align="center">
+  <img src="./image/flask-server-startup.png" alt="Flask API Server Startup Terminal Output" width="650">
+</p>
+
 ## Verification
 
 ### Scenario 1: Guaranteed success (`fail_probability = 0.0`)
