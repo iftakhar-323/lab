@@ -6,10 +6,6 @@ You will extend the `celery-retry-lab` project from Lab 7 with Flower, a real-ti
   <img src="./images/lab_8.svg" alt="Lab 8 System Overview Diagram" width="650">
 </p>
 
-<p align="center">
-  <img src="./images/flower-monitoring-architecture.gif" alt="Flower monitoring architecture" width="650">
-</p>
-
 ## Concepts
 
 | Term | Meaning |

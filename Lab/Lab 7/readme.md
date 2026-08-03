@@ -20,13 +20,25 @@ You will build a Flask service backed by Celery that retries failing tasks with 
 
 A Celery task moves through a fixed set of states from the moment it is submitted to the moment it settles. On submission the task is PENDING. Once a worker starts executing it, the state becomes STARTED. If the task function raises an exception that matches the task's `autoretry_for` tuple, Celery catches it, computes a backoff delay, moves the state to RETRY, and re-queues the task with the same ID. This RETRY-to-STARTED cycle repeats until the task either returns successfully (SUCCESS) or exhausts `max_retries` (FAILURE). Every transition and every exception is written to the log so the sequence can be reconstructed from `docker compose logs -f worker` or the worker's stdout.
 
+### System Architecture & Workflow Overview
+
+The high-level architecture diagram below depicts the end-to-end task lifecycle, client interaction, Redis message broker queues, and worker execution flow:
+
 <p align="center">
   <img src="./image/lab_7.drawio.svg" alt="Lab 7 System Overview Diagram" width="650">
 </p>
 
+### Celery Task State Transitions
+
+The state diagram below demonstrates how a task moves between PENDING, STARTED, RETRY, SUCCESS, and FAILURE states during execution:
+
 <p align="center">
   <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="650">
 </p>
+
+### Exponential Backoff & Delay Flow
+
+When a task fails and triggers a retry attempt, Celery computes an increasing delay using exponential backoff to avoid overloading external services:
 
 <p align="center">
   <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="650">
