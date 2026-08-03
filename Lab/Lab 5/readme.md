@@ -23,6 +23,10 @@ By the end of this lab you will be able to:
 - Familiarity with Python and Flask
 - Basic understanding of processes and message queues (helpful but not required)
 
+<p align="center">
+  <img src="./image/Untitled Diagram.drawio (5).svg" alt="Lab 5 Architecture Overview" width="650">
+</p>
+
 ## Environment Setup
 
 Update system packages:

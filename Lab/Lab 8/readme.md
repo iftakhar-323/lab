@@ -3,6 +3,10 @@
 You will extend the `celery-retry-lab` project from Lab 7 with Flower, a real-time monitoring dashboard for Celery. Flower attaches to the same Redis broker as the existing worker, gives you a live view of task state, retries, and worker activity, and exposes a REST API you can query from the command line. You will then place Flower behind an Nginx reverse proxy with basic authentication so the dashboard is not reachable directly from outside the internal network.
 
 <p align="center">
+  <img src="./images/lab_8.svg" alt="Lab 8 System Overview Diagram" width="650">
+</p>
+
+<p align="center">
   <img src="./images/flower-monitoring-architecture.gif" alt="Flower monitoring architecture" width="650">
 </p>
 
