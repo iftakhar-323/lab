@@ -25,7 +25,7 @@ A Celery task moves through a fixed set of states from the moment it is submitte
 The high-level architecture diagram below depicts the end-to-end task lifecycle, client interaction, Redis message broker queues, and worker execution flow:
 
 <p align="center">
-  <img src="./image/lab_7.drawio.svg" alt="Lab 7 System Overview Diagram" width="650">
+  <img src="./image/lab_7.drawio.svg" alt="Lab 7 System Overview Diagram" width="100%">
 </p>
 
 ### Celery Task State Transitions
@@ -33,7 +33,7 @@ The high-level architecture diagram below depicts the end-to-end task lifecycle,
 The state diagram below demonstrates how a task moves between PENDING, STARTED, RETRY, SUCCESS, and FAILURE states during execution:
 
 <p align="center">
-  <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="650">
+  <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="100%">
 </p>
 
 ### Exponential Backoff & Delay Flow
@@ -41,7 +41,7 @@ The state diagram below demonstrates how a task moves between PENDING, STARTED, 
 When a task fails and triggers a retry attempt, Celery computes an increasing delay using exponential backoff to avoid overloading external services:
 
 <p align="center">
-  <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="650">
+  <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="100%">
 </p>
 
 ## Objectives

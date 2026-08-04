@@ -3,7 +3,7 @@
 You will extend the `celery-retry-lab` project from Lab 7 with Flower, a real-time monitoring dashboard for Celery. Flower attaches to the same Redis broker as the existing worker, gives you a live view of task state, retries, and worker activity, and exposes a REST API you can query from the command line. You will then place Flower behind an Nginx reverse proxy with basic authentication so the dashboard is not reachable directly from outside the internal network.
 
 <p align="center">
-  <img src="./images/lab_8.svg" alt="Lab 8 System Overview Diagram" width="650">
+  <img src="./images/lab_8.svg" alt="Lab 8 System Overview Diagram" width="100%">
 </p>
 
 ## Concepts
@@ -232,7 +232,7 @@ Expected output shape for one entry:
 This step matches the network layout shown below: the client only ever reaches Nginx, Nginx enforces its own authentication check, and only then forwards the request to Flower on the internal network. Flower's own `--basic_auth` from Step 2 stays in place as a second layer.
 
 <p align="center">
-  <img src="./images/flower-secured-network-zones14.gif" alt="Flower secured network zones" width="650">
+  <img src="./images/flower-secured-network-zones14.gif" alt="Flower secured network zones" width="100%">
 </p>
 
 Create the Nginx credentials file:

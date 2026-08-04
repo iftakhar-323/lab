@@ -11,7 +11,7 @@ This lab is intended for students who have completed Lab 5 and understand the co
 By working through this lab, you gain the ability to offload long-running work from an API request and track its progress asynchronously — a pattern used in production systems that need to remain responsive under load.
 
 <p align="center">
-  <img src="./images/lab_6.drawio.svg" alt="Lab 6 Architecture Overview" width="650">
+  <img src="./images/lab_6.drawio.svg" alt="Lab 6 Architecture Overview" width="100%">
 </p>
 
 ## Learning Objectives
@@ -168,7 +168,7 @@ The `@celery.task` decorator registers a function with the Celery application so
 The Flask API is responsible for accepting client requests and submitting tasks to Celery. It does not execute the task logic itself.
 
 <p align="center">
-  <img src="./images/task-lifecycle.gif" alt="Task lifecycle" width="650">
+  <img src="./images/task-lifecycle.gif" alt="Task lifecycle" width="100%">
 </p>
 
 ### What You Will Build

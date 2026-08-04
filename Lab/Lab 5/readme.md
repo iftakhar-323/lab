@@ -24,7 +24,7 @@ By the end of this lab you will be able to:
 - Basic understanding of processes and message queues (helpful but not required)
 
 <p align="center">
-  <img src="./image/lab_5_.drawio.svg" alt="Lab 5 Architecture Overview" width="650">
+  <img src="./image/lab_5_.drawio.svg" alt="Lab 5 Architecture Overview" width="100%">
 </p>
 
 ## Environment Setup
@@ -95,7 +95,7 @@ Adding more API server instances only partially addresses this. It increases the
 **Without Celery (Synchronous):**
 
 <p align="center">
-  <img src="./image/without-celery-synchronous.gif" alt="Without Celery (Synchronous) request flow" width="650">
+  <img src="./image/without-celery-synchronous.gif" alt="Without Celery (Synchronous) request flow" width="100%">
 </p>
 
 ```text
@@ -108,7 +108,7 @@ Only after the task completes does the API send a response back to the client.
 **With Celery (Asynchronous):**
 
 <p align="center">
-  <img src="./image/with-celery-asynchronous.gif" alt="With Celery (Asynchronous) request flow" width="650">
+  <img src="./image/with-celery-asynchronous.gif" alt="With Celery (Asynchronous) request flow" width="100%">
 </p>
 
 ```text
@@ -131,7 +131,7 @@ Since the API does not execute the task itself, an intermediary is required to r
 ### The Architecture Diagram
 
 <p align="center">
-  <img src="./image/celery-architecture.gif" alt="Celery Architecture" width="650">
+  <img src="./image/celery-architecture.gif" alt="Celery Architecture" width="100%">
 </p>
 
 | Component | Responsibility |
@@ -158,7 +158,7 @@ With the individual components defined, this section traces a single task throug
 ### The Workflow Diagram
 
 <p align="center">
-  <img src="./image/end-to-end-workflow.gif" alt="End-to-End Workflow" width="650">
+  <img src="./image/end-to-end-workflow.gif" alt="End-to-End Workflow" width="100%">
 </p>
 
 At the moment the Flask API returns its HTTP response, the underlying task (sending the email or generating the PDF) has not been completed yet. The API returns a response as soon as the task has been created and placed on the broker queue. The actual execution happens afterward, in the Celery worker process, independent of the API response.
