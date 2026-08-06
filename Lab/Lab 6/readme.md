@@ -12,39 +12,70 @@ Building scalable background processing in production requires a clean, modular 
 
 ## Step-by-Step Implementation
 
-### Step 1: Environment & Container Setup
+### Step 1: Environment & Project Setup
 
-1. Create project workspace and virtual environment:
-   ```bash
-   mkdir flask-celery-lab && cd flask-celery-lab
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install flask "celery[redis]"
-   ```
+Update the system package index:
+```bash
+sudo apt update
+```
 
-2. Start Redis container via Docker:
-   ```bash
-   docker run -d --name redis-broker -p 6379:6379 redis:7-alpine
-   redis-cli ping # Expected: PONG
-   ```
+Create a project directory and a virtual environment:
+```bash
+mkdir flask-celery-lab
+cd flask-celery-lab
+python3 -m venv venv
+```
 
-3. Create application folder structure:
-   ```bash
-   mkdir app
-   touch app/__init__.py app/celery_app.py app/tasks.py app/main.py
-   ```
+Activate the virtual environment:
+```bash
+source venv/bin/activate
+```
+
+> **Note:** The virtual environment must be activated separately in **every new terminal tab**. If a terminal prompt does not show `(venv)` at the start, Python and pip commands will use the system Python instead of the project's virtual environment.
+
+Install the required packages:
+```bash
+pip install flask "celery[redis]"
+```
+
+Start a Redis instance using Docker:
+```bash
+docker run -d --name redis-broker -p 6379:6379 redis:7-alpine
+```
+
+Confirm Redis is reachable:
+```bash
+redis-cli ping
+# → PONG
+```
+
+> **Troubleshooting — port already in use:** If `docker run` fails with `Conflict. The container name "/redis-broker" is already in use`, a container with that name already exists. Either reuse it (`docker start redis-broker`) or remove it and create a fresh one:
+> ```bash
+> docker rm -f redis-broker
+> docker run -d --name redis-broker -p 6379:6379 redis:7-alpine
+> ```
+> If instead you see `failed to bind host port 0.0.0.0:6379/tcp: address already in use`, check with `sudo lsof -i :6379` and stop any system redis service (`sudo systemctl stop redis-server`).
+
+Create the project structure:
+```bash
+mkdir app
+touch app/__init__.py app/celery_app.py app/tasks.py app/main.py
+```
 
 <p align="center">
-  <img src="./images/project-structure.png" alt="Project structure created in terminal" width="650">
+  <img src="./images/project-structure.png" alt="Project structure created in the terminal" width="650">
 </p>
 
 ---
 
-### Step 2: Configure Celery Instance (`app/celery_app.py`)
+### Step 2: Connecting Celery to Redis (`app/celery_app.py`)
 
-Create `app/celery_app.py` to establish connection parameters to Redis:
+Celery requires a message broker to hold pending tasks and a result backend to store task outcomes.
 
-```python
+Create `app/celery_app.py` using the following command:
+
+```bash
+cat << 'EOF' > app/celery_app.py
 from celery import Celery
 
 celery = Celery(
@@ -52,36 +83,54 @@ celery = Celery(
     broker="redis://localhost:6379/0",
     backend="redis://localhost:6379/1",
 )
+EOF
 ```
+
+**Understanding the Code:**
+The `Celery` constructor takes a name that identifies the application. The `broker` argument tells Celery where to publish and consume task messages. The `backend` argument tells Celery where to store task state and return values. Database `0` on Redis is used for the broker, and database `1` for the backend.
 
 ---
 
-### Step 3: Define Background Tasks (`app/tasks.py`)
+### Step 3: Defining Background Tasks (`app/tasks.py`)
 
-Create `app/tasks.py` containing long-running task definitions:
+A Celery task is a regular Python function decorated so that Celery can route calls to it through the broker.
 
-```python
+Create `app/tasks.py` using the following command:
+
+```bash
+cat << 'EOF' > app/tasks.py
 import time
 from app.celery_app import celery
 
 @celery.task
 def send_email(recipient):
-    time.sleep(5)  # Simulate email processing
+    time.sleep(5)  # simulate slow email delivery
     return f"Email sent to {recipient}"
 
 @celery.task
 def generate_pdf(document_id):
-    time.sleep(8)  # Simulate PDF rendering
+    time.sleep(8)  # simulate slow PDF rendering
     return f"PDF generated for document {document_id}"
+EOF
 ```
+
+**Understanding the Code:**
+The `@celery.task` decorator registers a function with the Celery application. Once registered, the function gains methods such as `.delay()` and `.apply_async()`, which submit the function call as a message to the broker instead of executing it immediately in the current process.
 
 ---
 
-### Step 4: Implement Flask Routes (`app/main.py`)
+### Step 4: Submitting Tasks from Flask (`app/main.py`)
 
-Create `app/main.py` to expose submission and polling endpoints:
+The Flask API is responsible for accepting client requests and submitting tasks to Celery.
 
-```python
+<p align="center">
+  <img src="./images/task-lifecycle.gif" alt="Task lifecycle" width="100%">
+</p>
+
+Create `app/main.py` using the following command:
+
+```bash
+cat << 'EOF' > app/main.py
 from flask import Flask, jsonify, request
 from app.tasks import send_email
 from app.celery_app import celery
@@ -105,36 +154,80 @@ def check_status(task_id):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
+EOF
 ```
+
+**Understanding the Code:**
+The `202 Accepted` status code is used because the request has been accepted for processing, but work is not yet complete. `celery.AsyncResult(task_id)` reconstructs a result handle from a task ID, allowing state to be queried from any process via the shared Redis backend.
 
 ---
 
 ### Step 5: Test and Verify
 
-1. **Start Celery Worker** (Terminal 1):
+1. Start the Celery worker in **Terminal 1**:
    ```bash
+   source venv/bin/activate
    celery -A app.celery_app.celery worker --loglevel=info
    ```
 
-2. **Start Flask Server** (Terminal 2):
+   <p align="center">
+     <img src="./images/celery-worker-start.png" alt="Celery worker starting up successfully" width="650">
+   </p>
+
+2. Start the Flask application in **Terminal 2** (port 5001):
    ```bash
+   source venv/bin/activate
    python -m flask --app app.main run --host 0.0.0.0 --port 5001
    ```
 
-3. **Execute Requests** (Terminal 3):
+   <p align="center">
+     <img src="./images/flask-server-running.png" alt="Flask development server running on port 5001" width="650">
+   </p>
+
+3. Submit a task from **Terminal 3**:
    ```bash
-   # Submit task
    curl -X POST http://localhost:5001/send-email \
      -H "Content-Type: application/json" \
      -d '{"recipient": "user@example.com"}'
+   ```
 
-   # Check task status
+   <p align="center">
+     <img src="./images/send-email-request.png" alt="curl POST to /send-email returning a task_id JSON response" width="650">
+   </p>
+
+4. Check the task status using the returned ID:
+   ```bash
    curl http://localhost:5001/status/<TASK_ID>
    ```
 
-<p align="center">
-  <img src="./images/task-status-success.png" alt="Task status success" width="650">
-</p>
+   Immediately after submission:
+   ```json
+   {"task_id":"05323108-90de-4cce-8acb-cb0c847f2cf6","state":"PENDING","result":null}
+   ```
+
+   After the 5-second simulated delay completes:
+   ```json
+   {"task_id":"05323108-90de-4cce-8acb-cb0c847f2cf6","state":"SUCCESS","result":"Email sent to user@example.com"}
+   ```
+
+   <p align="center">
+     <img src="./images/task-status-success.png" alt="curl status check output showing SUCCESS" width="650">
+   </p>
+
+---
+
+### Experiment: Broker Resilience
+
+Stop the Redis container while the Flask server and Celery worker are still running:
+```bash
+docker stop redis-broker
+```
+Submit a new task using the `/send-email` endpoint and observe the result.
+
+Restore Redis and confirm that queued tasks are processed:
+```bash
+docker start redis-broker
+```
 
 ---
 
