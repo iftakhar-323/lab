@@ -30,16 +30,10 @@ Distributed background tasks frequently encounter external service outages, netw
 
 ---
 
-### Task Lifecycle & Backoff Diagrams
+### Task Lifecycle Flow
 
-#### Celery Task State Transitions
 <p align="center">
-  <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="100%">
-</p>
-
-#### Exponential Backoff & Delay Flow
-<p align="center">
-  <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="100%">
+  <img src="./image/Task Lifecycle.drawio.svg" alt="Task Lifecycle Diagram" width="100%">
 </p>
 
 ---
