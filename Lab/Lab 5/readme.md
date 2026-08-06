@@ -24,7 +24,7 @@ By the end of this lab you will be able to:
 - Basic understanding of processes and message queues (helpful but not required)
 
 <p align="center">
-  <img src="./image/lab_5_.drawio.svg" alt="Lab 5 Architecture Overview" width="100%">
+  <img src="./image/lab_5_final.drawio.svg" alt="Lab 5 Architecture Overview" width="100%">
 </p>
 
 ## Environment Setup

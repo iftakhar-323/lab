@@ -25,7 +25,7 @@ A Celery task moves through a fixed set of states from the moment it is submitte
 The high-level architecture diagram below depicts the end-to-end task lifecycle, client interaction, Redis message broker queues, and worker execution flow:
 
 <p align="center">
-  <img src="./image/lab_7.drawio.svg" alt="Lab 7 System Overview Diagram" width="100%">
+  <img src="./image/lab_7_final.drawio.svg" alt="Lab 7 System Overview Diagram" width="100%">
 </p>
 
 ### Celery Task State Transitions
