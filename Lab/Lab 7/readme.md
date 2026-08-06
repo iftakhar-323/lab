@@ -10,7 +10,7 @@ Distributed background tasks frequently encounter external service outages, netw
 
 ---
 
-## Concepts & Architecture
+## 1. Core Concepts & Architecture
 
 ### Key Concepts
 
@@ -18,58 +18,38 @@ Distributed background tasks frequently encounter external service outages, netw
 |---|---|
 | PENDING | Task ID exists in the backend but no worker has picked it up yet, or the ID is unknown. |
 | STARTED | A worker has picked up the task and begun execution. Requires `task_track_started=True`. |
-| RETRY | The task raised an exception, caught by `autoretry_for` or an explicit `self.retry()` call, and has been rescheduled. |
-| SUCCESS | The task function returned without raising an exception. The return value is stored in the result backend. |
-| FAILURE | The task exhausted its retry budget, or raised an exception not covered by the retry policy. |
-| `max_retries` | Upper bound on retry attempts before the task is marked FAILURE. |
+| RETRY | The task raised an exception, caught by `autoretry_for` or explicit `self.retry()`, and rescheduled. |
+| SUCCESS | Task function returned without raising an exception; result stored in result backend. |
+| FAILURE | Task exhausted its retry budget or raised an unhandled exception. |
+| `max_retries` | Upper bound on retry attempts before marking task as FAILURE. |
 | `retry_backoff` | When `True`, delay before each retry grows exponentially (1s, 2s, 4s, 8s, ...). |
-| `retry_backoff_max` | Ceiling on the backoff delay, in seconds, regardless of retry count. |
-| `retry_jitter` | Adds random variance to the backoff delay to prevent synchronized retries across workers. |
-| `soft_time_limit` | Seconds after which Celery raises `SoftTimeLimitExceeded` inside the task, allowing cleanup. |
-| `time_limit` | Seconds after which Celery kills the worker process running the task, no cleanup possible. |
+| `retry_backoff_max` | Ceiling on the backoff delay in seconds regardless of retry count. |
+| `retry_jitter` | Adds random variance to backoff delay preventing synchronized retry spikes. |
+| `soft_time_limit` | Seconds after which Celery raises `SoftTimeLimitExceeded` inside task allowing cleanup. |
+| `time_limit` | Seconds after which Celery kills worker process running the task without cleanup. |
 
-### Celery Task State Transitions
+---
 
-The state diagram below demonstrates how a task moves between PENDING, STARTED, RETRY, SUCCESS, and FAILURE states during execution:
+### Task Lifecycle & Backoff Diagrams
 
+#### Celery Task State Transitions
 <p align="center">
   <img src="./image/celery-task-states-retry-loop.gif" alt="Celery Task States with Retry Loop" width="100%">
 </p>
 
-### Exponential Backoff & Delay Flow
-
-When a task fails and triggers a retry attempt, Celery computes an increasing delay using exponential backoff to avoid overloading external services:
-
+#### Exponential Backoff & Delay Flow
 <p align="center">
   <img src="./image/celery-retry-backoff-flow.gif" alt="Celery Retry and Backoff Flow" width="100%">
 </p>
 
-### Objectives
+---
 
-- Build a Flask API with an endpoint to submit a task and an endpoint to check its status by task ID.
-- Configure Celery with Redis as broker and result backend, with `task_track_started` enabled.
-- Implement automatic retries with exponential backoff and a maximum retry ceiling on a task that simulates an unreliable external call.
-- Implement `soft_time_limit` and `time_limit` on the same task to bound execution time.
-- Implement structured logging that records every state transition and every caught exception with the task ID.
-- Verify all task outcomes: SUCCESS, RETRY-then-SUCCESS, and FAILURE after retries are exhausted.
+### Objectives & Target Structure
 
-### Prerequisites
-
-- Ubuntu 22.04 LTS.
-- Python 3.11.
-- Redis 7 running locally on port 6379.
-- `curl` for verification requests.
-
-Install system packages and Redis:
-```bash
-sudo apt update
-sudo apt install -y python3.11 python3.11-venv redis-server curl
-sudo systemctl enable redis-server
-sudo systemctl start redis-server
-redis-cli ping # Expected: PONG
-```
-
-### What You Will Build
+- Build Flask API endpoints to submit tasks and poll status by ID.
+- Configure Celery with Redis broker (DB 0) and result backend (DB 1).
+- Implement automatic retries with exponential backoff and maximum ceiling.
+- Implement soft/hard execution time limits and signal-based event logging.
 
 ```
 celery-retry-lab/
@@ -83,43 +63,41 @@ celery-retry-lab/
 
 ---
 
-## Step-by-Step Implementation
+## 2. Environment Setup & Prerequisites
 
-### Step 1: Create the project and install dependencies
+1. Install system prerequisites and Redis server:
+   ```bash
+   sudo apt update
+   sudo apt install -y python3.11 python3.11-venv redis-server curl
+   sudo systemctl enable redis-server
+   sudo systemctl start redis-server
+   redis-cli ping # Expected: PONG
+   ```
 
-Create the project directory and a virtual environment:
+2. Create project directory and virtual environment:
+   ```bash
+   mkdir -p celery-retry-lab/logs
+   cd celery-retry-lab
+   python3.11 -m venv venv
+   source venv/bin/activate
+   ```
 
-```bash
-mkdir -p celery-retry-lab/logs
-cd celery-retry-lab
-python3.11 -m venv venv
-source venv/bin/activate
-```
+3. Create `requirements.txt` and install dependencies:
+   ```bash
+   cat << 'EOF' > requirements.txt
+   flask==3.0.3
+   celery==5.4.0
+   redis==5.0.8
+   EOF
 
-Create `requirements.txt` by running:
-
-```bash
-cat << 'EOF' > requirements.txt
-flask==3.0.3
-celery==5.4.0
-redis==5.0.8
-EOF
-```
-
-Install the dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-**Explanation:**
-- `flask` serves the two HTTP endpoints: task submission and task status lookup.
-- `celery` provides the task queue, worker, retry, and timeout machinery.
-- `redis` is the Python client Celery uses to talk to the Redis broker and result backend.
+   pip install -r requirements.txt
+   ```
 
 ---
 
-### Step 2: Configure the Celery application (`celery_app.py`)
+## 3. Step-by-Step Code Implementation
+
+### Step 3.1: Configure Celery Application (`celery_app.py`)
 
 Create `celery_app.py` using the following command:
 
@@ -177,15 +155,9 @@ def log_task_failure(task_id, exception, *args, **kwargs):
 EOF
 ```
 
-**Explanation:**
-- The broker is Redis DB 0 and the result backend is Redis DB 1.
-- `task_track_started=True` enables emitting the STARTED state.
-- `result_extended=True` stores extra metadata alongside the result.
-- Signal handlers (`task_prerun`, `task_postrun`, `task_retry`, `task_failure`) log every state transition to file and stdout.
-
 ---
 
-### Step 3: Implement the task with retries, backoff, and timeouts (`tasks.py`)
+### Step 3.2: Implement Retrying Task (`tasks.py`)
 
 Create `tasks.py` using the following command:
 
@@ -240,17 +212,9 @@ def call_upstream_service(self, payload: str, fail_probability: float = 0.7):
 EOF
 ```
 
-**Explanation:**
-- `bind=True` gives access to `self.request` (task ID and retry count).
-- `autoretry_for=(UpstreamServiceError,)` retries automatically on this exception type.
-- `retry_backoff=True` with `retry_backoff_max=30` produces exponential backoff up to 30s.
-- `retry_jitter=True` adds random variance to retry delays.
-- `max_retries=4` allows up to 5 total attempts before settled as FAILURE.
-- `soft_time_limit=8` and `time_limit=12` bound execution time.
-
 ---
 
-### Step 4: Build the Flask API (`app.py`)
+### Step 3.3: Build Flask API (`app.py`)
 
 Create `app.py` using the following command:
 
@@ -310,15 +274,13 @@ if __name__ == "__main__":
 EOF
 ```
 
-**Explanation:**
-- `POST /tasks` validates `payload`, queues task with `apply_async`, and returns `202 Accepted` immediately.
-- `GET /tasks/<task_id>` queries `AsyncResult` and formats responses for each state (`PENDING`, `STARTED`, `RETRY`, `SUCCESS`, `FAILURE`).
-
 ---
 
-### Step 5: Run the worker and the API
+## 4. Execution & Verification Scenarios
 
-1. Terminal 1 — Start Celery worker:
+### Service Startup
+
+1. **Terminal 1 — Celery Worker:**
    ```bash
    cd celery-retry-lab
    source venv/bin/activate
@@ -329,7 +291,7 @@ EOF
      <img src="./image/celery-worker-startup.png" alt="Celery Worker Startup Terminal Output" width="650">
    </p>
 
-2. Terminal 2 — Start Flask API:
+2. **Terminal 2 — Flask Server:**
    ```bash
    cd celery-retry-lab
    source venv/bin/activate
@@ -342,105 +304,58 @@ EOF
 
 ---
 
-## Verification & Scenarios
+### Verification Scenarios
 
-### Scenario 1: Guaranteed success (`fail_probability = 0.0`)
-
-Submit task:
+#### Scenario 1: Guaranteed Success (`fail_probability = 0.0`)
 ```bash
 curl -s -X POST http://localhost:5000/tasks \
   -H "Content-Type: application/json" \
   -d '{"payload": "order-1001", "fail_probability": 0.0}'
-# → {"task_id": "5f2b9e3a-1c44-4a6a-9d21-7a5e2f9b1a01", "state": "PENDING"}
-```
 
-Poll status:
-```bash
-curl -s http://localhost:5000/tasks/5f2b9e3a-1c44-4a6a-9d21-7a5e2f9b1a01
-```
-
-Expected output:
-```json
-{
-  "task_id": "5f2b9e3a-1c44-4a6a-9d21-7a5e2f9b1a01",
-  "state": "SUCCESS",
-  "result": {"payload": "order-1001", "processed": true, "attempts": 1}
-}
+curl -s http://localhost:5000/tasks/<TASK_ID>
+# → {"state": "SUCCESS", "result": {"attempts": 1, ...}}
 ```
 
 <p align="center">
   <img src="./image/scenario-1-guaranteed-success.png" alt="Scenario 1 Guaranteed Success Terminal Output" width="650">
 </p>
 
----
-
-### Scenario 2: Retry then success (`fail_probability = 0.7`)
-
-Submit task:
+#### Scenario 2: Retry then Success (`fail_probability = 0.7`)
 ```bash
 curl -s -X POST http://localhost:5000/tasks \
   -H "Content-Type: application/json" \
   -d '{"payload": "order-1002"}'
-```
 
-Poll status during retry:
-```json
-{
-  "task_id": "8a1d4c77-9e02-4b31-8f6e-3c0a2d5b7c12",
-  "state": "RETRY",
-  "detail": "task failed and is scheduled for retry"
-}
-```
-
-Poll status after backoff completion:
-```json
-{
-  "task_id": "8a1d4c77-9e02-4b31-8f6e-3c0a2d5b7c12",
-  "state": "SUCCESS",
-  "result": {"payload": "order-1002", "processed": true, "attempts": 3}
-}
+curl -s http://localhost:5000/tasks/<TASK_ID>
+# → {"state": "RETRY", "detail": "task failed and is scheduled for retry"}
+# After backoff completion → {"state": "SUCCESS", "result": {"attempts": 3, ...}}
 ```
 
 <p align="center">
   <img src="./image/scenario-2-retry-success.png" alt="Scenario 2 Retry Then Success Terminal Output" width="650">
 </p>
 
----
-
-### Scenario 3: Retries exhausted (`fail_probability = 1.0`)
-
-Submit task:
+#### Scenario 3: Retries Exhausted (`fail_probability = 1.0`)
 ```bash
 curl -s -X POST http://localhost:5000/tasks \
   -H "Content-Type: application/json" \
   -d '{"payload": "order-1003", "fail_probability": 1.0}'
-```
 
-Poll after retries are exhausted (~30s):
-```json
-{
-  "task_id": "c3e9f1a0-6b58-4d19-a2c7-1e9f4a8b0d33",
-  "state": "FAILURE",
-  "error": "upstream rejected payload 'order-1003'"
-}
+curl -s http://localhost:5000/tasks/<TASK_ID>
+# → {"state": "FAILURE", "error": "upstream rejected payload 'order-1003'"}
 ```
 
 <p align="center">
   <img src="./image/scenario-3-retries-exhausted.png" alt="Scenario 3 Retries Exhausted Terminal Output" width="650">
 </p>
 
----
-
-### Scenario 4 & 5: Invalid submission & Unknown task ID
-
+#### Scenario 4 & 5: Invalid Submission & Unknown Task ID
 ```bash
-# Missing payload
 curl -s -X POST http://localhost:5000/tasks -H "Content-Type: application/json" -d '{}'
 # → {"error": "field 'payload' is required"}
 
-# Unknown ID
 curl -s http://localhost:5000/tasks/does-not-exist
-# → {"task_id": "does-not-exist", "state": "PENDING", "detail": "task ID unknown..."}
+# → {"state": "PENDING", "detail": "task ID unknown or not yet started"}
 ```
 
 <p align="center">
