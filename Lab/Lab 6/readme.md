@@ -23,7 +23,7 @@ Celery requires two infrastructure roles:
 A Celery task progresses through submission, queueing, execution, and state storage:
 
 <p align="center">
-  <img src="./images/task-lifecycle.gif" alt="Task lifecycle" width="100%">
+  <img src="./images/Task Lifecycle.drawio.svg" alt="Task Lifecycle Diagram" width="100%">
 </p>
 
 - The `@celery.task` decorator registers functions with Celery.
