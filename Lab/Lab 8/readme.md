@@ -5,7 +5,7 @@
 Real-time visibility into background worker health, task queue depth, execution latency, and failure rates is essential for operating distributed applications. Flower provides a web-based management dashboard and REST API for Celery clusters by passively consuming worker event streams from Redis. In this lab, you will deploy Flower with SQLite state persistence, enforce HTTP basic authentication, and secure access behind an Nginx reverse proxy running at the network edge.
 
 <p align="center">
-  <img src="./images/lab_8_final.drawio.svg" alt="Lab 8 System Overview Diagram" width="100%">
+  <img src="./images/lab_8_final_update.drawio.svg" alt="Lab 8 System Overview Diagram" width="100%">
 </p>
 
 ---
@@ -27,12 +27,10 @@ Real-time visibility into background worker health, task queue depth, execution 
 
 ---
 
-### Network Architecture & Security Zones
-
-By placing Nginx in front of Flower on public port `8080`, external clients authenticate at the edge proxy, while Flower and Redis remain isolated on internal ports (`5555`, `6379`).
+### Flower Monitoring Architecture
 
 <p align="center">
-  <img src="./images/flower-secured-network-zones14.gif" alt="Flower secured network zones" width="100%">
+  <img src="./images/flower-monitoring-architecture_final.drawio.svg" alt="Flower Monitoring Architecture Diagram" width="100%">
 </p>
 
 ---
