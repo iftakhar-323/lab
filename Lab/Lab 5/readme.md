@@ -115,6 +115,10 @@ Offload a task to Celery when it depends on an external, slow, or unreliable res
    pip install flask celery redis
    ```
 
+   <p align="center">
+     <img src="./image/pip-install-flask-celery-redis.png" alt="Install Flask, Celery, and Redis" width="650">
+   </p>
+
 5. Install and start Redis server:
    ```bash
    sudo apt install -y redis-server
@@ -212,12 +216,20 @@ source venv/bin/activate
 python3 app.py
 ```
 
+<p align="center">
+  <img src="./image/start-flask-api.png" alt="Start Flask API" width="650">
+</p>
+
 ### Terminal 2 — Start the Celery Worker
 ```bash
 cd celery-lab
 source venv/bin/activate
 celery -A app.celery worker --loglevel=info
 ```
+
+<p align="center">
+  <img src="./image/start-celery-worker.png" alt="Start Celery Worker" width="650">
+</p>
 
 ### Terminal 3 — Send Request & Check Status
 ```bash
@@ -226,6 +238,10 @@ curl -X POST http://127.0.0.1:5000/send-email \
   -H "Content-Type: application/json" \
   -d '{"to": "user@example.com"}'
 ```
+
+<p align="center">
+  <img src="./image/send-email-request.png" alt="Send POST request" width="650">
+</p>
 
 Check task status:
 ```bash
