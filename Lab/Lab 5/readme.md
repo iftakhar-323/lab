@@ -22,10 +22,6 @@ Adding more API server instances only partially addresses this. It increases the
 
 **Without Celery (Synchronous):**
 
-<p align="center">
-  <img src="./image/without-celery-synchronous.gif" alt="Without Celery (Synchronous) request flow" width="100%">
-</p>
-
 ```text
 The client sends a request.
 The Flask API performs the long task (such as sending an email or generating a PDF) immediately.
@@ -35,10 +31,6 @@ Only after the task completes does the API send a response back to the client.
 
 **With Celery (Asynchronous):**
 
-<p align="center">
-  <img src="./image/with-celery-asynchronous.gif" alt="With Celery (Asynchronous) request flow" width="100%">
-</p>
-
 ```text
 The client sends a request to the Flask API.
 The Flask API creates a background task and places it in the Redis queue.
@@ -46,17 +38,13 @@ The API immediately returns a response to the client without waiting.
 A Celery worker picks up the task from the Redis queue and executes the long-running task in the background.
 ```
 
-In the synchronous diagram, `Response (User waits)` sits at the end of the chain. In the asynchronous diagram, `Response (Immediate)` branches off early while the `Celery Worker → Background Execution` chain runs in parallel.
+In the synchronous flow, the client waits at the end of the entire execution chain. In the asynchronous flow, the client receives a response immediately while the background execution runs in parallel.
 
 ---
 
 ### The Celery Architecture Components
 
 Celery solves the blocking problem by moving task execution out of the API process entirely using an intermediary message broker.
-
-<p align="center">
-  <img src="./image/celery-architecture.gif" alt="Celery Architecture" width="100%">
-</p>
 
 | Component | Responsibility |
 |---|---|
@@ -74,7 +62,7 @@ Celery solves the blocking problem by moving task execution out of the API proce
 ### Tracing the End-to-End Workflow
 
 <p align="center">
-  <img src="./image/end-to-end-workflow.gif" alt="End-to-End Workflow" width="100%">
+  <img src="./image/End-to-End Workflow_final.drawio.svg" alt="End-to-End Workflow Overview" width="100%">
 </p>
 
 At the moment the Flask API returns its HTTP response, the underlying task has not completed yet. The API returns a response as soon as the task message is queued in Redis. The actual execution happens afterward in the worker process.
@@ -126,10 +114,6 @@ Offload a task to Celery when it depends on an external, slow, or unreliable res
    ```bash
    pip install flask celery redis
    ```
-
-   <p align="center">
-     <img src="./image/pip-install-flask-celery-redis.png" alt="Install Flask, Celery, and Redis" width="650">
-   </p>
 
 5. Install and start Redis server:
    ```bash
@@ -228,20 +212,12 @@ source venv/bin/activate
 python3 app.py
 ```
 
-<p align="center">
-  <img src="./image/start-flask-api.png" alt="Start Flask API" width="650">
-</p>
-
 ### Terminal 2 — Start the Celery Worker
 ```bash
 cd celery-lab
 source venv/bin/activate
 celery -A app.celery worker --loglevel=info
 ```
-
-<p align="center">
-  <img src="./image/start-celery-worker.png" alt="Start Celery Worker" width="650">
-</p>
 
 ### Terminal 3 — Send Request & Check Status
 ```bash
@@ -250,10 +226,6 @@ curl -X POST http://127.0.0.1:5000/send-email \
   -H "Content-Type: application/json" \
   -d '{"to": "user@example.com"}'
 ```
-
-<p align="center">
-  <img src="./image/send-email-request.png" alt="Send POST request" width="650">
-</p>
 
 Check task status:
 ```bash
