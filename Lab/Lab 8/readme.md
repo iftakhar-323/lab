@@ -30,7 +30,7 @@ Real-time visibility into background worker health, task queue depth, execution 
 ### Flower Monitoring Architecture
 
 <p align="center">
-  <img src="./images/flower-monitoring-architecture_final.drawio.svg" alt="Flower Monitoring Architecture Diagram" width="100%">
+  <img src="./images/flower-monitoring-architecture_final.drawio.svg" alt="Flower Monitoring Architecture Diagram" width="70%">
 </p>
 
 ---
