@@ -1,4 +1,0 @@
---- [User 7] Starting E2E Journey ---
-curl: (7) Failed to connect to 127.0.0.1 port 8085 after 0 ms: Couldn't connect to server
-Step 1: Account Created in 17ms (ID: , VPC: )
-FAIL: Could not create account: {}
