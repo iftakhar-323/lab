@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+
+# Application and scratch directories
+citus-infra/
+flask-citus-app/
+**/flask-citus-app/
+
+# OS and Editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# SSH keys and pem files
+*.pem
+id_rsa*
+config
+
