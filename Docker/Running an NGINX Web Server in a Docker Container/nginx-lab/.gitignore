@@ -1,0 +1,11 @@
+# Local logs and scratch files generated while running the lab
+*.log
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Optional: ignore the rendered HTML if contributors regenerate it from run.sh
+# html/index.html

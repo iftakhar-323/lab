@@ -1,0 +1,551 @@
+[
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /healthz",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"status\":\"ok\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /accounts/create",
+    "expected": 201,
+    "actual": 201,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"account_id\":\"038a598b0e934d0f8519a37a6ba81741\",\"created_at\":\"2026-09-11T16:07:36.452516598+06:00\",\"email\":\"alpha@example.com\",\"name\":\"tenant-alpha\","
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /accounts/create (invalid)",
+    "expected": 400,
+    "actual": 400,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"Key: 'createAccountRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag\\nKey: 'createAccountRequest.Email' Error:Fie"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /accounts/038a598b0e934d0f8519a37a6ba81741",
+    "expected": "200 with id",
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "BUG-07 (Divergence: id vs account_id)",
+    "response": "{\"id\":\"038a598b0e934d0f8519a37a6ba81741\",\"name\":\"tenant-alpha\",\"email\":\"alpha@example.com\",\"vpc_id\":\"vpc-038a598b\",\"created_at\":\"2026-09-11T16:07:36.4"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /accounts/fake-acct",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"account not found: account fake-acct-nonexistent not found\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /accounts/list",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"accounts\":[{\"id\":\"038a598b0e934d0f8519a37a6ba81741\",\"name\":\"tenant-alpha\",\"email\":\"alpha@example.com\",\"vpc_id\":\"vpc-038a598b\",\"created_at\":\"2026-09-"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /nodes/list",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"nodes\":[]}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /nodes (standard REST)",
+    "expected": 200,
+    "actual": 404,
+    "verdict": "FAIL",
+    "bug_id": "BUG-10 (Route divergence: requires /list)",
+    "response": "404 page not found"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /nodes/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"node not found\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /vms/list",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"vms\":[]}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /vms/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"not found\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /vms/create (no orch)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"orchestrator not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /vms/:id/restart (no orch)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"orchestrator not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /vms/:id/ssh (no orch)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"orchestrator not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "DELETE /vms/terminate/:id (no orch)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"orchestrator not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /proxy-ips (no orch)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"orchestrator not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /proxy-ips/:proxyIP (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"proxy IP not allocated\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "DELETE /proxy-ips/:proxyIP (no orch)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"orchestrator not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /vpcs/:vpcID/proxy-setup-key",
+    "expected": 503,
+    "actual": 502,
+    "verdict": "FAIL",
+    "bug_id": "",
+    "response": "{\"error\":\"ensure setup key: pnet not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /images/list",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"images\":[]}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /images/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"image not found\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /images/create (no builder)",
+    "expected": 501,
+    "actual": 501,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"image builder not configured\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "POST /vms/:id/snapshots (no temporal)",
+    "expected": 501,
+    "actual": 501,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"snapshots require temporal.flows.snapshot; this deployment has no non-workflow path for checkpointing a VM\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /snapshots/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"not found\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "GET /operations/* (no temporal)",
+    "expected": 503,
+    "actual": 503,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"temporal not configured\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /healthz",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"status\":\"ok\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /customers (valid)",
+    "expected": 201,
+    "actual": 201,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"customer_id\":\"038a598b0e934d0f8519a37a6ba81741\",\"tier\":\"standard\",\"ns_ready\":false,\"created_at\":\"0001-01-01T00:00:00Z\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /customers (duplicate conflict)",
+    "expected": "409 or updated DB",
+    "actual": 201,
+    "verdict": "FAIL",
+    "bug_id": "BUG-08 (Phantom 201 & zero timestamp)",
+    "response": "{\"customer_id\":\"038a598b0e934d0f8519a37a6ba81741\",\"tier\":\"enterprise\",\"ns_ready\":false,\"created_at\":\"0001-01-01T00:00:00Z\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /customers (unknown account)",
+    "expected": 400,
+    "actual": 400,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"unknown cloud-engine account: unknown-nonexistent-acct\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /customers/038a598b0e934d0f8519a37a6ba81741",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"customer_id\":\"038a598b0e934d0f8519a37a6ba81741\",\"tier\":\"standard\",\"ns_ready\":false,\"created_at\":\"2026-09-11T16:07:36.478198+06:00\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /customers/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"customer not found\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /customers/038a598b0e934d0f8519a37a6ba81741/status",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"active_exposes\":0,\"active_lbs\":0,\"active_proxy_nodes\":0,\"customer_id\":\"038a598b0e934d0f8519a37a6ba81741\",\"ns_ready\":false}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /proxy-nodes (register)",
+    "expected": 201,
+    "actual": 201,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"node_id\":\"proxy-node-1\",\"status\":\"registered\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /proxy-nodes (list)",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"proxy_nodes\":[{\"id\":\"73d2dd0a-cbcc-4de5-8548-0aee1e881346\",\"node_id\":\"proxy-node-1\",\"physical_ip\":\"192.168.10.5\",\"status\":\"active\",\"registered_at\":\""
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /proxy-nodes/:id/heartbeat (valid)",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"ack\":true}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /proxy-nodes/:id/heartbeat (fake)",
+    "expected": 404,
+    "actual": 200,
+    "verdict": "FAIL",
+    "bug_id": "BUG-09 (200 OK on fake node heartbeat)",
+    "response": "{\"ack\":true}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "DELETE /proxy-nodes/:id (fake delete)",
+    "expected": 404,
+    "actual": 200,
+    "verdict": "FAIL",
+    "bug_id": "BUG-09 (200 OK on fake node delete)",
+    "response": "{\"deleted\":\"fake-node-888\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /vip-pool/status",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"allocated\":0,\"pool_cidr\":\"203.0.113.0/24\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /vip-pool/allocations",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"allocations\":[]}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /bgp/peers (no param)",
+    "expected": 400,
+    "actual": 400,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"agent_ip query param required\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /bgp/peers (valid param)",
+    "expected": 200,
+    "actual": 0,
+    "verdict": "FAIL",
+    "bug_id": "",
+    "response": "timed out"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /expose (non-existent VM)",
+    "expected": 400,
+    "actual": 400,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"vm vm-nonexistent: cloud-engine error: get vm vm-nonexistent: cloudengine: not found: /vms/vm-nonexistent\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /expose (list)",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"exposes\":[]}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /expose/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"expose not found\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "PATCH /expose/:id/weights (fake)",
+    "expected": 404,
+    "actual": 200,
+    "verdict": "FAIL",
+    "bug_id": "BUG-03 (200 OK on fake expose weights update)",
+    "response": "{\"updated\":\"fake-expose-999\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "DELETE /expose/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"expose not found\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "POST /loadbalancers (fake backend)",
+    "expected": 400,
+    "actual": 400,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"port 80 is reserved for the shared expose listeners (expose-listener-80); choose a different listener port\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /loadbalancers (list)",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"load_balancers\":[]}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /loadbalancers/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"load balancer not found\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "PATCH /loadbalancers/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"load balancer not found\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "DELETE /loadbalancers/:id (fake)",
+    "expected": 404,
+    "actual": 404,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"load balancer not found\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "DELETE /loadbalancers/:id/backends/:backend_id (fake)",
+    "expected": 404,
+    "actual": 200,
+    "verdict": "FAIL",
+    "bug_id": "BUG-04 (200 OK on fake LB backend delete)",
+    "response": "{\"removed\":\"fake-backend-888\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "GET /operations/* (no temporal)",
+    "expected": 501,
+    "actual": 501,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"error\":\"operations are unavailable: temporal is disabled\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "DELETE /customers/:id (fake delete)",
+    "expected": 404,
+    "actual": 200,
+    "verdict": "FAIL",
+    "bug_id": "BUG-09 (200 OK on fake customer delete)",
+    "response": "{\"deleted\":\"fake-customer-999\"}"
+  },
+  {
+    "suite": "Proxy-Engine",
+    "endpoint": "DELETE /customers/038a598b0e934d0f8519a37a6ba81741 (valid delete)",
+    "expected": 200,
+    "actual": 200,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "{\"deleted\":\"038a598b0e934d0f8519a37a6ba81741\"}"
+  },
+  {
+    "suite": "Cloud-Engine",
+    "endpoint": "DELETE /accounts/delete/038a598b0e934d0f8519a37a6ba81741 (valid)",
+    "expected": 204,
+    "actual": 204,
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": ""
+  },
+  {
+    "suite": "Load-Test",
+    "endpoint": "POST 10x Concurrent POST /accounts/create",
+    "expected": "10x 201, unique VNIs",
+    "actual": "10/10 201s",
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "VNIs: [101, 104, 108, 103, 110, 109, 105, 102, 106, 107]"
+  },
+  {
+    "suite": "Load-Test",
+    "endpoint": "POST 10x Concurrent POST /customers (Same ID)",
+    "expected": "1x 201 or 409 Conflict",
+    "actual": "10x 201",
+    "verdict": "FAIL",
+    "bug_id": "BUG-08 (Concurrency Race on Customer Creation)",
+    "response": "10 zero timestamps"
+  },
+  {
+    "suite": "Load-Test",
+    "endpoint": "POST 10x Concurrent POST /proxy-nodes",
+    "expected": "10x 201",
+    "actual": "10/10 201s",
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "All completed in 0.01s"
+  },
+  {
+    "suite": "Load-Test",
+    "endpoint": "GET 10x Concurrent GET /vip-pool/status",
+    "expected": "10x 200",
+    "actual": "10/10 200s",
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "Duration: 0.01s"
+  },
+  {
+    "suite": "Load-Test",
+    "endpoint": "GET 10x Concurrent GET /accounts/list",
+    "expected": "10x 200",
+    "actual": "10/10 200s",
+    "verdict": "PASS",
+    "bug_id": "",
+    "response": "Duration: 0.01s"
+  }
+]

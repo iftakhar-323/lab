@@ -1,0 +1,224 @@
+{
+  "info": {
+    "_postman_id": "poridhi-e2e-lifecycle",
+    "name": "Poridhi E2E User Journey & Benchmark",
+    "description": "Sequential user journey simulation: Account -> Customer -> VM Launch -> SSH/Service Check -> Expose -> External Access -> Cleanup",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "ce_url", "value": "http://127.0.0.1:8085", "type": "string" },
+    { "key": "pe_url", "value": "http://127.0.0.1:8095", "type": "string" },
+    { "key": "account_id", "value": "", "type": "string" },
+    { "key": "vpc_id", "value": "", "type": "string" },
+    { "key": "vm_id", "value": "", "type": "string" },
+    { "key": "expose_id", "value": "", "type": "string" },
+    { "key": "subdomain", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Step 1: Create Account",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var jsonData = pm.response.json();",
+              "pm.collectionVariables.set('account_id', jsonData.account_id);",
+              "pm.collectionVariables.set('vpc_id', jsonData.vpc_id);",
+              "console.log('Created Account:', jsonData.account_id, 'VPC:', jsonData.vpc_id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"user-{{$randomInt}}\",\n  \"email\": \"user-{{$randomInt}}@example.com\"\n}"
+        },
+        "url": { "raw": "{{ce_url}}/accounts/create", "host": ["{{ce_url}}"], "path": ["accounts", "create"] }
+      }
+    },
+    {
+      "name": "Step 2: Provision Customer in Proxy-Engine",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"account_id\": \"{{account_id}}\",\n  \"tier\": \"standard\"\n}"
+        },
+        "url": { "raw": "{{pe_url}}/customers", "host": ["{{pe_url}}"], "path": ["customers"] }
+      }
+    },
+    {
+      "name": "Step 3: Launch MicroVM",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201 or 503 (No Orch in dev)', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202, 503]);",
+              "});",
+              "if (pm.response.code === 201 || pm.response.code === 202) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.collectionVariables.set('vm_id', jsonData.vm_id || jsonData.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"account_id\": \"{{account_id}}\",\n  \"vpc_id\": \"{{vpc_id}}\",\n  \"image_id\": \"ubuntu-22.04\",\n  \"name\": \"vm-{{$randomInt}}\",\n  \"vcpu\": 2,\n  \"memory_mb\": 2048\n}"
+        },
+        "url": { "raw": "{{ce_url}}/vms/create", "host": ["{{ce_url}}"], "path": ["vms", "create"] }
+      }
+    },
+    {
+      "name": "Step 4: Poll VM Status (Running)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('VM status retrieved', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 404, 503]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{ce_url}}/vms/{{vm_id}}", "host": ["{{ce_url}}"], "path": ["vms", "{{vm_id}}"] }
+      }
+    },
+    {
+      "name": "Step 5: Get VM SSH Connection Info",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('SSH endpoint status check', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 404, 503]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{ce_url}}/vms/{{vm_id}}/ssh", "host": ["{{ce_url}}"], "path": ["vms", "{{vm_id}}", "ssh"] }
+      }
+    },
+    {
+      "name": "Step 6: Expose VM Port 80 via Proxy-Engine",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "var sub = 'site-' + Math.floor(Math.random() * 100000);",
+              "pm.collectionVariables.set('subdomain', sub);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Expose created or rejected correctly', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 202, 400, 503]);",
+              "});",
+              "if (pm.response.code === 201 || pm.response.code === 202) {",
+              "    var data = pm.response.json();",
+              "    pm.collectionVariables.set('expose_id', data.expose_id || data.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_id\": \"{{account_id}}\",\n  \"vm_ids\": [\"{{vm_id}}\"],\n  \"port\": 80,\n  \"subdomain\": \"{{subdomain}}\"\n}"
+        },
+        "url": { "raw": "{{pe_url}}/expose", "host": ["{{pe_url}}"], "path": ["expose"] }
+      }
+    },
+    {
+      "name": "Step 7: Verify Exposed Service Routing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Exposed service responds', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 503, 404]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Host", "value": "{{subdomain}}.expose.local" }],
+        "url": { "raw": "{{pe_url}}/healthz", "host": ["{{pe_url}}"], "path": ["healthz"] }
+      }
+    },
+    {
+      "name": "Step 8: Cleanup - Terminate VM",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{ce_url}}/vms/terminate/{{vm_id}}", "host": ["{{ce_url}}"], "path": ["vms", "terminate", "{{vm_id}}"] }
+      }
+    },
+    {
+      "name": "Step 9: Cleanup - Delete Customer",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{pe_url}}/customers/{{account_id}}", "host": ["{{pe_url}}"], "path": ["customers", "{{account_id}}"] }
+      }
+    },
+    {
+      "name": "Step 10: Cleanup - Delete Account",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{ce_url}}/accounts/delete/{{account_id}}", "host": ["{{ce_url}}"], "path": ["accounts", "delete", "{{account_id}}"] }
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,60 @@
+2026-07-30 19:03:34,579 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.108:5000
+2026-07-30 19:03:34,580 [INFO] [33mPress CTRL+C to quit[0m
+2026-07-30 19:06:30,883 [INFO] task_id=fa2c0df3-0da6-473a-b690-2bc33b20ec62 state=PENDING submitted via API
+2026-07-30 19:06:30,883 [INFO] 127.0.0.1 - - [30/Jul/2026 19:06:30] "[35m[1mPOST /tasks HTTP/1.1[0m" 202 -
+2026-07-30 19:06:55,320 [INFO] 127.0.0.1 - - [30/Jul/2026 19:06:55] "GET /tasks/fa2c0df3-0da6-473a-b690-2bc33b20ec62 HTTP/1.1" 200 -
+2026-07-30 19:07:21,551 [INFO] task_id=24bde034-bf84-4379-8e51-b9eccbfb5779 state=PENDING submitted via API
+2026-07-30 19:07:21,551 [INFO] 127.0.0.1 - - [30/Jul/2026 19:07:21] "[35m[1mPOST /tasks HTTP/1.1[0m" 202 -
+2026-07-30 19:07:42,942 [INFO] 127.0.0.1 - - [30/Jul/2026 19:07:42] "GET /tasks/24bde034-bf84-4379-8e51-b9eccbfb5779 HTTP/1.1" 200 -
+2026-07-30 19:09:22,674 [INFO] task_id=8d07db24-01d6-4e60-a66a-d6cc762ffbae state=PENDING submitted via API
+2026-07-30 19:09:22,675 [INFO] 127.0.0.1 - - [30/Jul/2026 19:09:22] "[35m[1mPOST /tasks HTTP/1.1[0m" 202 -
+2026-07-30 19:10:24,143 [INFO] 127.0.0.1 - - [30/Jul/2026 19:10:24] "GET /tasks/8d07db24-01d6-4e60-a66a-d6cc762ffbae HTTP/1.1" 200 -
+2026-07-30 19:11:19,394 [INFO] 127.0.0.1 - - [30/Jul/2026 19:11:19] "[31m[1mPOST /tasks HTTP/1.1[0m" 400 -
+2026-07-30 19:11:26,833 [INFO] 127.0.0.1 - - [30/Jul/2026 19:11:26] "GET /tasks/does-not-exist HTTP/1.1" 200 -
+2026-07-30 20:05:53,128 [INFO] Visit me at http://0.0.0.0:5555
+2026-07-30 20:05:53,137 [INFO] Broker: redis://localhost:6379/0
+2026-07-30 20:05:53,138 [INFO] Registered tasks: 
+['celery.accumulate',
+ 'celery.backend_cleanup',
+ 'celery.chain',
+ 'celery.chord',
+ 'celery.chord_unlock',
+ 'celery.chunks',
+ 'celery.group',
+ 'celery.map',
+ 'celery.starmap']
+2026-07-30 20:05:53,143 [INFO] Connected to redis://localhost:6379/0
+2026-07-30 20:05:54,177 [WARNING] Inspect method scheduled failed
+2026-07-30 20:05:54,179 [WARNING] Inspect method registered failed
+2026-07-30 20:05:54,179 [WARNING] Inspect method active failed
+2026-07-30 20:05:54,179 [WARNING] Inspect method revoked failed
+2026-07-30 20:05:54,179 [WARNING] Inspect method stats failed
+2026-07-30 20:05:54,179 [WARNING] Inspect method reserved failed
+2026-07-30 20:05:54,180 [WARNING] Inspect method conf failed
+2026-07-30 20:05:54,180 [WARNING] Inspect method active_queues failed
+2026-07-30 20:09:18,499 [INFO] Visit me at http://0.0.0.0:5555
+2026-07-30 20:09:18,508 [INFO] Broker: redis://localhost:6379/0
+2026-07-30 20:09:18,510 [INFO] Registered tasks: 
+['celery.accumulate',
+ 'celery.backend_cleanup',
+ 'celery.chain',
+ 'celery.chord',
+ 'celery.chord_unlock',
+ 'celery.chunks',
+ 'celery.group',
+ 'celery.map',
+ 'celery.starmap',
+ 'tasks.call_upstream_service']
+2026-07-30 20:09:18,514 [INFO] Connected to redis://localhost:6379/0
+2026-07-30 20:11:35,890 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.108:5000
+2026-07-30 20:11:35,890 [INFO] [33mPress CTRL+C to quit[0m
+2026-07-30 20:19:40,571 [INFO] task_id=a039aa53-927b-4495-970c-cdc53b09c705 state=PENDING submitted via API
+2026-07-30 20:19:40,572 [INFO] 127.0.0.1 - - [30/Jul/2026 20:19:40] "[35m[1mPOST /tasks HTTP/1.1[0m" 202 -
+2026-07-30 20:21:11,903 [INFO] task_id=2fc18a4d-0935-44e1-aff7-800267507be9 state=PENDING submitted via API
+2026-07-30 20:21:11,903 [INFO] 127.0.0.1 - - [30/Jul/2026 20:21:11] "[35m[1mPOST /tasks HTTP/1.1[0m" 202 -

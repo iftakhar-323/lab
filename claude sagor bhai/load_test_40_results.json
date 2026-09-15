@@ -1,0 +1,55 @@
+[
+  {
+    "test": "40 Concurrent POST /accounts/create",
+    "concurrency": 40,
+    "duration_sec": 0.46888232231140137,
+    "success_rate": "40/40",
+    "unique_vni": true,
+    "errors": []
+  },
+  {
+    "test": "40 Concurrent POST /customers (Distinct Accounts)",
+    "concurrency": 40,
+    "duration_sec": 0.05289649963378906,
+    "success_rate": "40/40",
+    "errors": []
+  },
+  {
+    "test": "40 Concurrent POST /customers (Same ID Collision)",
+    "concurrency": 40,
+    "duration_sec": 0.03265881538391113,
+    "codes": {
+      "201": 40
+    },
+    "zero_timestamps": 40,
+    "errors": []
+  },
+  {
+    "test": "40 Concurrent DELETE /customers (Same ID Deadlock Probe)",
+    "concurrency": 40,
+    "duration_sec": 0.05193376541137695,
+    "codes": {
+      "200": 40
+    },
+    "internal_server_errors": 0
+  },
+  {
+    "test": "40 Concurrent POST /proxy-nodes (Shared Node IDs)",
+    "concurrency": 40,
+    "duration_sec": 0.050925254821777344,
+    "codes": {
+      "201": 40
+    },
+    "errors": []
+  },
+  {
+    "test": "40 Concurrent POST /expose",
+    "concurrency": 40,
+    "duration_sec": 0.03258848190307617,
+    "codes": {
+      "400": 39,
+      "404": 1
+    },
+    "internal_server_errors": 0
+  }
+]

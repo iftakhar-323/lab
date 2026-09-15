@@ -1,0 +1,7 @@
+pg-primary:
+  image: postgres:16
+  container_name: pg-primary
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: appdb
