@@ -149,8 +149,8 @@ Expected Output:
 Navigate to your workspace directory, create the `app` folder, and configure the Python virtual environment:
 
 ```bash
-cd ~/flask-api-lab
-mkdir -p app && cd app
+mkdir -p ~/flask-api-lab/app
+cd ~/flask-api-lab/app
 
 python3 -m venv venv
 source venv/bin/activate
