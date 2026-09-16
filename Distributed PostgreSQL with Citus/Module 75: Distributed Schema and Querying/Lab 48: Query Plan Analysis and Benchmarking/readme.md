@@ -320,7 +320,11 @@ python3 benchmark.py
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/12_run_benchmark_explain.png" alt="Run Benchmark Script" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/12_run_benchmark_explain.png" alt="Run Benchmark Script - EXPLAIN Query Plan" width="700">
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/13_run_benchmark_concurrency.png" alt="Run Benchmark Script - Concurrency Benchmark" width="700">
 </p>
 
 ### Expected Output
@@ -340,22 +344,25 @@ Schema setup completed successfully.
      Task Count: 1
      Tasks Shown: All
      ->  Task
-           Node: host=worker1 port=5432 dbname=citus
-           ->  Seq Scan on orders_102008 orders  (cost=0.00..32.60 rows=11 width=20)
-                 Filter: (tenant_id = 501)
+           Node: host=worker2 port=5432 dbname=citus
+           ->  Bitmap Heap Scan on orders_102059 orders  (cost=4.22..14...
 
 [B] Global Query Plan without Distribution Key (Scatter-Gather):
    Aggregate  (cost=250.00..250.02 rows=1 width=8)
      ->  Custom Scan (Citus Adaptive)  (cost=0.00..0.00 rows=100000 width=8)
            Task Count: 32
-           Tasks Shown: None
+           Tasks Shown: One of 32
+           ->  Task
+                 Node: host=worker1 port=5432 dbname=citus
+                 ->  Aggregate  (cost=33.12..33.13 rows=1 width=8)
+                       ->  Seq Scan on orders_102042 orders  (cost=0.00..28.50 rows=1850 width=0)
 
 ============================================================
 2. WRITE CONCURRENCY BENCHMARK (1000 Inserts, 20 Workers)
 ============================================================
 Total Inserts:  1000
-Execution Time: 2.15 seconds
-Throughput:     465.12 inserts/second
+Execution Time: 1.79 seconds
+Throughput:     560.15 inserts/second
 ============================================================
 ```
 
