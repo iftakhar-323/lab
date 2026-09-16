@@ -63,6 +63,10 @@ mkdir -p ~/citus-cluster-lab
 cd ~/citus-cluster-lab
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/01_mkdir_cluster.png" alt="Create Citus Cluster Directory" width="700">
+</p>
+
 ---
 
 ## Step 2: Create Docker Compose Configuration
@@ -117,6 +121,10 @@ services:
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
+</p>
+
 ---
 
 ## Step 3: Deploy the Cluster using Docker Compose
@@ -127,11 +135,19 @@ Ensure any conflicting containers are stopped, then launch the stack in detached
 docker compose up -d || docker-compose up -d
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/03_docker_compose_up.png" alt="Start Citus Containers and pgAdmin" width="700">
+</p>
+
 Verify that all 4 containers (`citus_coordinator`, `citus_worker_1`, `citus_worker_2`, `citus_pgadmin`) are running and healthy:
 
 ```bash
 docker compose ps
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/04_docker_compose_ps.png" alt="Verify Citus and pgAdmin Containers" width="700">
+</p>
 
 ---
 
@@ -144,6 +160,10 @@ sleep 10
 docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
 docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/05_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
+</p>
 
 Verify that both worker nodes are registered and active in the cluster catalog:
 
