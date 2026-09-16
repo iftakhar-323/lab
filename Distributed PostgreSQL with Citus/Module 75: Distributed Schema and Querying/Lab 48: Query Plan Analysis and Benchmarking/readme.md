@@ -319,6 +319,10 @@ Execute the benchmarking script:
 python3 benchmark.py
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/12_run_benchmark_explain.png" alt="Run Benchmark Script" width="700">
+</p>
+
 ### Expected Output
 
 ```text
