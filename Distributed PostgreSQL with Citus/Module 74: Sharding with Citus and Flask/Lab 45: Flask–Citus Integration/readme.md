@@ -3,7 +3,7 @@
 In this lab, you will build a Python REST API using Flask and SQLAlchemy that connects to a distributed Citus database cluster. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose within your Poridhi environment. Then, you will create endpoints to handle multi-tenant data, inserting and querying records across sharded tables, and expose the application publicly using the **Poridhi Load Balancer**.
 
 <p align="center">
-  <img src="./images/architecture_diagram.svg" alt="Flask and Citus Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/architecture_diagram.svg" alt="Flask and Citus Architecture" width="750">
 </p>
 
 ---
@@ -55,7 +55,7 @@ cd ~/flask-citus-lab/citus
 ```
 
 <p align="center">
-  <img src="./images/01_mkdir_citus.png" alt="Create Citus Directory" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/01_mkdir_citus.png" alt="Create Citus Directory" width="700">
 </p>
 
 Create `docker-compose.yml`:
@@ -97,7 +97,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="./images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
 </p>
 
 Start the containers:
@@ -107,7 +107,7 @@ docker compose up -d || docker-compose up -d
 ```
 
 <p align="center">
-  <img src="./images/03_docker_compose_up.png" alt="Docker Compose Up Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/03_docker_compose_up.png" alt="Docker Compose Up Output" width="700">
 </p>
 
 Wait 10 seconds for the database engines to finish initial boot, then register the worker nodes with the coordinator:
@@ -119,7 +119,7 @@ docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('
 ```
 
 <p align="center">
-  <img src="./images/04_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/04_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
 </p>
 
 ---
@@ -133,7 +133,7 @@ docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT * FROM citus
 ```
 
 <p align="center">
-  <img src="./images/05_citus_active_workers.png" alt="Verify Active Citus Workers" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/05_citus_active_workers.png" alt="Verify Active Citus Workers" width="700">
 </p>
 
 ---
@@ -151,7 +151,7 @@ source venv/bin/activate
 ```
 
 <p align="center">
-  <img src="./images/06_setup_app_venv.png" alt="Setup App Directory and Virtual Environment" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/06_setup_app_venv.png" alt="Setup App Directory and Virtual Environment" width="700">
 </p>
 
 Create `requirements.txt`:
@@ -165,7 +165,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="./images/07_create_requirements.png" alt="Create requirements.txt" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/07_create_requirements.png" alt="Create requirements.txt" width="700">
 </p>
 
 Install the dependencies:
@@ -175,7 +175,7 @@ pip install -r requirements.txt
 ```
 
 <p align="center">
-  <img src="./images/08_pip_install.png" alt="Pip Install Dependencies" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/08_pip_install.png" alt="Pip Install Dependencies" width="700">
 </p>
 
 ---
@@ -215,7 +215,7 @@ def setup_database(app):
 ```
 
 <p align="center">
-  <img src="./images/10_create_database_py.png" alt="Create database.py" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/10_create_database_py.png" alt="Create database.py" width="700">
 </p>
 
 ---
@@ -279,7 +279,7 @@ if __name__ == '__main__':
 ```
 
 <p align="center">
-  <img src="./images/11_create_app_py.png" alt="Create app.py" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/11_create_app_py.png" alt="Create app.py" width="700">
 </p>
 
 ---
@@ -295,7 +295,7 @@ In the Poridhi cloud lab environment, the virtual machine runs inside a private 
    ```
 
    <p align="center">
-     <img src="./images/09_hostname_ip.png" alt="Get Hostname Private IP" width="700">
+     <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/09_hostname_ip.png" alt="Get Hostname Private IP" width="700">
    </p>
 2. Open the **Load Balancer** modal from the Poridhi lab interface (the Cloud icon in the header or sidebar).
 3. Enter the configuration:
@@ -306,7 +306,7 @@ In the Poridhi cloud lab environment, the virtual machine runs inside a private 
 4. Poridhi will provision an edge load balancer and provide an active URL (e.g., `http://<lab-id>-5000.lb.poridhi.io`).
 
 <p align="center">
-  <img src="./images/12_load_balancer_exposed.png" alt="Poridhi Load Balancer Exposed" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/12_load_balancer_exposed.png" alt="Poridhi Load Balancer Exposed" width="700">
 </p>
 
 ---
@@ -333,7 +333,7 @@ Events table distributed successfully across Citus workers.
 ```
 
 <p align="center">
-  <img src="./images/13_flask_run.png" alt="Flask Server Running Terminal Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/13_flask_run.png" alt="Flask Server Running Terminal Output" width="700">
 </p>
 
 ### 2. Verify via cURL or Poridhi Load Balancer URL
@@ -359,7 +359,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/14_load_balancer_browser.png" alt="Browser Health Check via Poridhi Load Balancer" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/14_load_balancer_browser.png" alt="Browser Health Check via Poridhi Load Balancer" width="700">
 </p>
 
 **Scenario 2: Create an event for Tenant 101**
@@ -382,7 +382,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/15_curl_post_tenant_101.png" alt="Create Event Tenant 101 cURL Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/15_curl_post_tenant_101.png" alt="Create Event Tenant 101 cURL Output" width="700">
 </p>
 
 **Scenario 3: Create an event for Tenant 102**
@@ -405,7 +405,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/16_curl_post_tenant_102.png" alt="Create Event Tenant 102 cURL Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/16_curl_post_tenant_102.png" alt="Create Event Tenant 102 cURL Output" width="700">
 </p>
 
 **Scenario 4: Retrieve events for Tenant 101**
@@ -427,7 +427,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/17_curl_get_tenant_101.png" alt="Retrieve Tenant 101 Events cURL Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/17_curl_get_tenant_101.png" alt="Retrieve Tenant 101 Events cURL Output" width="700">
 </p>
 
 **Scenario 5: Request with missing required fields**

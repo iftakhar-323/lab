@@ -3,7 +3,7 @@
 In this lab, you will design and implement a distributed relational database schema using Citus. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose in your Poridhi environment. Then, you will configure multi-tenant data models, deploying an `orders` transaction table as a sharded distributed table and a `products` catalog as a globally replicated reference table.
 
 <p align="center">
-  <img src="./images/architecture_diagram.svg" alt="Distributed Schema Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/architecture_diagram.svg" alt="Distributed Schema Architecture" width="750">
 </p>
 
 ---
@@ -58,7 +58,7 @@ cd ~/flask-schema-lab/citus
 ```
 
 <p align="center">
-  <img src="./images/01_mkdir_citus.png" alt="Create Citus Directory" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/01_mkdir_citus.png" alt="Create Citus Directory" width="700">
 </p>
 
 Create `docker-compose.yml`:
@@ -100,7 +100,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="./images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
 </p>
 
 Start the Citus cluster:
@@ -110,7 +110,7 @@ docker compose up -d || docker-compose up -d
 ```
 
 <p align="center">
-  <img src="./images/03_docker_compose_up.png" alt="Start Citus Containers" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/03_docker_compose_up.png" alt="Start Citus Containers" width="700">
 </p>
 
 Wait 10 seconds for PostgreSQL instances to initialize, then register the worker nodes with the coordinator:
@@ -122,7 +122,7 @@ docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('
 ```
 
 <p align="center">
-  <img src="./images/04_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/04_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
 </p>
 
 ---
@@ -146,7 +146,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/05_citus_active_workers.png" alt="Verify Active Citus Workers" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/05_citus_active_workers.png" alt="Verify Active Citus Workers" width="700">
 </p>
 
 ---
@@ -164,7 +164,7 @@ source venv/bin/activate
 ```
 
 <p align="center">
-  <img src="./images/06_setup_app_venv.png" alt="Setup App Directory and Virtual Environment" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/06_setup_app_venv.png" alt="Setup App Directory and Virtual Environment" width="700">
 </p>
 
 Create `requirements.txt`:
@@ -178,7 +178,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="./images/07_create_requirements.png" alt="Create requirements.txt" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/07_create_requirements.png" alt="Create requirements.txt" width="700">
 </p>
 
 Install the dependencies:
@@ -188,7 +188,7 @@ pip install -r requirements.txt
 ```
 
 <p align="center">
-  <img src="./images/08_pip_install.png" alt="Pip Install Dependencies" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/08_pip_install.png" alt="Pip Install Dependencies" width="700">
 </p>
 
 ---
@@ -226,7 +226,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="./images/10_cat_database_py.png" alt="Database Models in database.py" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/10_cat_database_py.png" alt="Database Models in database.py" width="700">
 </p>
 
 ---
@@ -278,7 +278,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="./images/11_create_setup_py.png" alt="Create setup.py" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/11_create_setup_py.png" alt="Create setup.py" width="700">
 </p>
 
 ---
@@ -302,7 +302,7 @@ Orders table distributed successfully across shards by tenant_id.
 ```
 
 <p align="center">
-  <img src="./images/12_run_setup_py.png" alt="Run setup.py Terminal Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/12_run_setup_py.png" alt="Run setup.py Terminal Output" width="700">
 </p>
 
 ---
@@ -329,7 +329,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/13_verify_citus_tables.png" alt="Verify Citus Tables Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/13_verify_citus_tables.png" alt="Verify Citus Tables Output" width="700">
 </p>
 
 Explanation:
@@ -360,7 +360,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="./images/14_verify_citus_shards.png" alt="Verify Citus Shards Placement" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/14_verify_citus_shards.png" alt="Verify Citus Shards Placement" width="700">
 </p>
 
 ---
