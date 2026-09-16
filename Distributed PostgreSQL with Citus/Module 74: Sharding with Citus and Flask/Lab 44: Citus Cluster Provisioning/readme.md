@@ -294,6 +294,21 @@ Confirm that rows can be queried from the coordinator:
 docker exec citus_coordinator psql -U citus -d citus -c "SELECT * FROM companies ORDER BY id;"
 ```
 
+Expected Output:
+```text
+ id |   name   | country 
+----+----------+---------
+  1 | TechCorp | USA
+  2 | InnoSoft | Germany
+  3 | CloudNet | Japan
+  4 | DataFlow | UK
+(4 rows)
+```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/11_query_companies.png" alt="Query Distributed Table companies" width="700">
+</p>
+
 ---
 
 ## Conclusion
