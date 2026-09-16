@@ -109,14 +109,14 @@ Wait 10 seconds for PostgreSQL instances to initialize, then register both worke
 
 ```bash
 sleep 10
-docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
-docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
 ```
 
 Confirm worker node registration:
 
 ```bash
-docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT nodename, nodeport, isactive FROM citus_nodes;"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT nodename, nodeport, isactive FROM citus_nodes;"
 ```
 
 ---
@@ -174,8 +174,8 @@ def setup_schema():
     """Initializes tables and configures distributed sharding."""
     print("Setting up database schema...")
     with engine.connect() as conn:
-        conn.execute(text("DROP TABLE IF EXISTS orders;"))
-        conn.execute(text("DROP TABLE IF EXISTS products;"))
+        conn.execute(text("DROP TABLE IF EXISTS orders CASCADE;"))
+        conn.execute(text("DROP TABLE IF EXISTS products CASCADE;"))
         conn.commit()
 
         # Create physical tables
@@ -251,7 +251,8 @@ def run_concurrency_benchmark(total_inserts=1000, concurrency=20):
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
         # Distribute inserts across 10 distinct tenant IDs (0 to 9)
         futures = [executor.submit(insert_single_order, i % 10) for i in range(total_inserts)]
-        concurrent.futures.wait(futures)
+        for f in concurrent.futures.as_completed(futures):
+            f.result()
 
     duration = time.time() - start_time
     throughput = total_inserts / duration
