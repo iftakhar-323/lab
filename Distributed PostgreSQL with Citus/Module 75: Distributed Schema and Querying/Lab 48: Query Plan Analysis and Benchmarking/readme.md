@@ -51,6 +51,10 @@ mkdir -p ~/citus-benchmark-lab/citus
 cd ~/citus-benchmark-lab/citus
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/01_mkdir_citus.png" alt="Create Citus Benchmark Directory" width="700">
+</p>
+
 Create `docker-compose.yml`:
 
 ```bash
@@ -92,18 +96,19 @@ EOF
 Start all three containers in detached mode:
 
 ```bash
-docker-compose up -d
+docker compose up -d || docker-compose up -d
 ```
 
 Verify that all three containers are healthy:
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
-Register both worker nodes with the Citus coordinator:
+Wait 10 seconds for PostgreSQL instances to initialize, then register both worker nodes with the Citus coordinator:
 
 ```bash
+sleep 10
 docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
 docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
 ```
