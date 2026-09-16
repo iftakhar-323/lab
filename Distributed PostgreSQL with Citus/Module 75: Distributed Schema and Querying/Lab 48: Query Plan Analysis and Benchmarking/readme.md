@@ -93,17 +93,29 @@ services:
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
+</p>
+
 Start all three containers in detached mode:
 
 ```bash
 docker compose up -d || docker-compose up -d
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/03_docker_compose_up.png" alt="Start Citus Containers" width="700">
+</p>
+
 Verify that all three containers are healthy:
 
 ```bash
 docker compose ps
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/04_docker_compose_ps.png" alt="Verify Citus Containers" width="700">
+</p>
 
 Wait 10 seconds for PostgreSQL instances to initialize, then register both worker nodes with the Citus coordinator:
 
@@ -113,10 +125,14 @@ docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('
 docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/05_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
+</p>
+
 Confirm worker node registration:
 
 ```bash
-docker exec citus_coordinator psql -U citus -d citus -c "SELECT nodename, nodeport, isactive FROM citus_nodes;"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT nodename, nodeport, isactive FROM pg_dist_node;"
 ```
 
 ---
