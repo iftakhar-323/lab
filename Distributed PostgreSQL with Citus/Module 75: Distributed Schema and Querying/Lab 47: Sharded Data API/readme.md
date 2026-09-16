@@ -8,17 +8,6 @@ In this lab, you will build and deploy a multi-tenant REST API using Flask that 
 
 ---
 
-## Concept
-
-| Term                               | Definition                                                                                                                                                                                                        |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Query Routing**            | The process by which the Citus coordinator inspects incoming SQL statements, detects the distribution key (`tenant_id`), and delegates execution directly to the specific worker node holding that shard.       |
-| **Point Query Optimization** | When a query filters specifically on the distribution column (`WHERE tenant_id = 501`), Citus routes the query to exactly one worker node, bypassing all other workers and minimizing cluster network overhead. |
-| **Co-located Joins**         | Because lookup tables like`products` are reference tables duplicated everywhere, worker nodes can execute joins with distributed `orders` locally with sub-millisecond latency.                               |
-| **Poridhi Load Balancer**    | Built-in networking service in Poridhi cloud labs that allows web servers running inside private containers to be safely exposed to external public URLs.                                                         |
-
----
-
 ## Objectives
 
 - Deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) using Docker Compose.
@@ -495,18 +484,6 @@ Expected Output:
 <p align="center">
   <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2047:%20Sharded%20Data%20API/images/18_curl_get_tenant_503.png" alt="Retrieve Orders Tenant 503 Empty Response" width="700">
 </p>
-
----
-
-## Verification Summary
-
-| # | Endpoint        | Method | Payload / Param                              | Expected Status | Result Snippet                                                       |
-| - | --------------- | ------ | -------------------------------------------- | --------------- | -------------------------------------------------------------------- |
-| 1 | `/`           | GET    | None                                         | `200 OK`      | `{"status": "ready"...}`                                           |
-| 2 | `/orders`     | POST   | `{"tenant_id": 501, "product_id": 1, ...}` | `201 Created` | `{"message": "Order created successfully", "total_amount": 240.0}` |
-| 3 | `/orders`     | POST   | `{"tenant_id": 502, "product_id": 2, ...}` | `201 Created` | `{"message": "Order created successfully", "total_amount": 195.0}` |
-| 4 | `/orders/501` | GET    | `tenant_id=501`                            | `200 OK`      | `[{"order_id": 1, "product": "Mechanical Keyboard"...}]`           |
-| 5 | `/orders/503` | GET    | `tenant_id=503`                            | `200 OK`      | `[]`                                                               |
 
 ---
 

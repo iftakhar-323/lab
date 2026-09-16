@@ -8,21 +8,6 @@ In this lab, you will design and implement a distributed relational database sch
 
 ---
 
-## Concept
-
-| Term | Definition | Best Use Case | SQL Command |
-|---|---|---|---|
-| **Distributed Table** | Rows are horizontally partitioned into shards across worker nodes based on a distribution column (hash key). | High-volume transaction tables (`orders`, `events`, `clicks`). | `create_distributed_table('table', 'col')` |
-| **Reference Table** | Fully duplicated in its entirety on every worker node across the cluster. | Smaller, frequently joined lookup tables (`products`, `categories`, `plans`). | `create_reference_table('table')` |
-| **Local Table** | Normal PostgreSQL table that resides only on the coordinator node. | Administrative metadata, user authentication, migration logs. | Standard `CREATE TABLE` |
-| **Co-location** | Storing related rows from different tables with the same distribution key on the same physical worker node to enable local joins. | Joining `orders` and `order_items` on `tenant_id`. | Automatic when sharing distribution key |
-
-When designing a distributed schema:
-- **Reference tables** allow worker nodes to perform instant, in-memory local joins without needing to query across the network.
-- **Distributed tables** ensure write operations and large table queries scale horizontally across all available cluster nodes.
-
----
-
 ## Objectives
 
 - Deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) using Docker Compose.
@@ -362,17 +347,6 @@ Expected Output:
 <p align="center">
   <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/14_verify_citus_shards.png" alt="Verify Citus Shards Placement" width="700">
 </p>
-
----
-
-## Verification Summary
-
-| # | Command / Query | Expected Result | Technical Verification |
-|---|---|---|---|
-| 1 | `SELECT * FROM citus_get_active_worker_nodes();` | `worker1`, `worker2` active | Multi-node cluster is healthy |
-| 2 | `python3 setup.py` | `Products replicated... Orders distributed...` | Citus DDL operations execute successfully |
-| 3 | Query `citus_tables` | `products` = `reference`, `orders` = `distributed` | Tables are correctly cataloged |
-| 4 | Query `citus_shards` | Shards balanced across worker nodes | Data partitions are physically distributed |
 
 ---
 

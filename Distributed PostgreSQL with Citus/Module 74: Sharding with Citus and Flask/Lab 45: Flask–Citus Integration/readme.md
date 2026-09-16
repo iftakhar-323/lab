@@ -8,18 +8,6 @@ In this lab, you will build a Python REST API using Flask and SQLAlchemy that co
 
 ---
 
-## Concept
-
-| Term                            | Definition                                                                                                                                |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Citus Coordinator**     | The entry-point PostgreSQL instance that stores cluster metadata, parses client queries, and routes them to the appropriate worker nodes. |
-| **Citus Worker**          | PostgreSQL instances that store shards of distributed tables and execute query operations concurrently.                                   |
-| **Distribution Column**   | The column used by Citus to partition data into shards across worker nodes (e.g.,`tenant_id`).                                          |
-| **Multi-tenant**          | An architecture where multiple tenants share the same database infrastructure, isolated logically by a tenant ID.                         |
-| **Poridhi Load Balancer** | Built-in edge proxy in Poridhi that routes external public traffic to ports running inside your private lab environment.                  |
-
----
-
 ## Objectives
 
 - Deploy a multi-node Citus cluster (Coordinator + 2 Workers) using Docker Compose.
@@ -445,18 +433,6 @@ Expected Output:
   "error": "tenant_id and event_name are required"
 }
 ```
-
----
-
-## Verification Summary
-
-| # | Endpoint        | Method | Payload / Param             | Expected Status     | Result Snippet                                     |
-| - | --------------- | ------ | --------------------------- | ------------------- | -------------------------------------------------- |
-| 1 | `/`           | GET    | None                        | `200 OK`          | `{"status": "online"...}`                        |
-| 2 | `/events`     | POST   | `{"tenant_id": 101, ...}` | `201 Created`     | `{"message": "Event created", "tenant_id": 101}` |
-| 3 | `/events`     | POST   | `{"tenant_id": 102, ...}` | `201 Created`     | `{"message": "Event created", "tenant_id": 102}` |
-| 4 | `/events/101` | GET    | `tenant_id=101`           | `200 OK`          | `[{"event_name": "User Signup"...}]`             |
-| 5 | `/events`     | POST   | Missing fields              | `400 Bad Request` | `{"error": "tenant_id and event_name..."}`       |
 
 ---
 
