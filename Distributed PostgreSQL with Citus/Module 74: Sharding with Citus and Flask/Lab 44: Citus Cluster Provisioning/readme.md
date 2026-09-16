@@ -171,6 +171,10 @@ Verify that both worker nodes are registered and active in the cluster catalog:
 docker exec citus_coordinator psql -U citus -d citus -c "SELECT nodename, nodeport, isactive FROM pg_dist_node;"
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/06_citus_active_workers.png" alt="Verify Active Worker Nodes" width="700">
+</p>
+
 You can also run Citus's built-in helper function:
 
 ```bash
@@ -181,10 +185,14 @@ Expected Output:
 ```text
  node_name | node_port 
 -----------+-----------
- worker1   |      5432
  worker2   |      5432
+ worker1   |      5432
 (2 rows)
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/07_citus_get_active_worker_nodes.png" alt="Citus Get Active Worker Nodes" width="700">
+</p>
 
 ---
 
@@ -215,8 +223,14 @@ curl -I http://localhost:8080/login
 Expected Output:
 ```text
 HTTP/1.1 200 OK
+Server: gunicorn
+Content-Type: text/html; charset=utf-8
 ...
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/08_curl_pgadmin_login.png" alt="Verify pgAdmin HTTP Response" width="700">
+</p>
 
 ---
 
@@ -242,6 +256,10 @@ INSERT INTO companies (id, name, country) VALUES
 "
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/09_create_distributed_table.png" alt="Create Distributed Table companies" width="700">
+</p>
+
 Now query `citus_shards` to confirm that physical shards for the `companies` table are distributed across both `worker1` and `worker2`:
 
 ```bash
@@ -265,6 +283,10 @@ Expected Output:
   102013 | worker2  |     5432
 (6 rows)
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/10_verify_citus_shards.png" alt="Verify Physical Shard Distribution" width="700">
+</p>
 
 Confirm that rows can be queried from the coordinator:
 
