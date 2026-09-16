@@ -1,12 +1,13 @@
-.puku/
-**/.puku/
-/CloudCore
-/Docker
-/Docker_project
-/Library
-/api-gw-puku-cloud
-/claude sagor bhai
-/lab-assets
-/lab_practise
-/postgress
-/Lab
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Editor & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
