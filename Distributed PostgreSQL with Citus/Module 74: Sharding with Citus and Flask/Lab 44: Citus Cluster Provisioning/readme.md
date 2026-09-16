@@ -1,364 +1,76 @@
 # Lab 44: Citus Cluster Provisioning
 
-Citus is an open-source extension to PostgreSQL that transforms it into a distributed database, enabling horizontal scaling across multiple servers while retaining standard PostgreSQL features and full ACID compliance. It is purpose-built for multi-tenant SaaS architectures, real-time dashboards, and high-throughput time-series workloads.
+In this lab, you will deploy and configure a multi-node distributed PostgreSQL cluster using Citus and Docker Compose in your Poridhi environment. You will deploy a 4-service stack consisting of a Citus Coordinator, two Citus Worker nodes, and a pgAdmin 4 web management interface. You will learn the core mechanics of horizontal scaling, register worker nodes into the cluster metadata catalog, verify cluster health, and validate physical shard distribution across nodes.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhiEng/lab-asset/refs/heads/main/System%20Design%20Labs%20Using%20AWS/Lab%2007/images/arch.drawio.svg" alt="Citus Coordinator and Worker Architecture" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/architecture_diagram.svg" alt="Citus Cluster Provisioning Architecture" width="750">
 </p>
 
 ---
 
-## Core Architecture
+## Theory: Sharding and Citus Architecture
 
-A Citus cluster operates on a **Coordinator–Worker** model:
+### Horizontal Scaling vs Vertical Scaling
+Traditional PostgreSQL instances scale vertically by adding more CPU, RAM, and disk IOPS to a single machine. While effective up to a limit, vertical scaling introduces high hardware costs, downtime during upgrades, and a single point of failure.
 
-1. **Coordinator Node:** Acts as the primary entry point. Clients and web applications (e.g., Flask) connect only to the coordinator. It manages distributed metadata, determines data distribution paths, rewrites incoming SQL queries, and coordinates execution across worker nodes.
-2. **Worker Nodes:** PostgreSQL instances running the Citus extension that hold actual data shards. Workers run query fragments concurrently in parallel processes and return partial results to the coordinator.
+Horizontal scaling partitions large tables across multiple independent database servers (nodes). **Citus** is an open-source extension that transforms PostgreSQL into a distributed database, providing horizontal scalability without sacrificing ACID transactions, SQL querying, or indexing capabilities.
+
+### Coordinator vs Worker Node Architecture
+A Citus cluster operates on a master-worker distributed topology:
+
+1. **Coordinator Node (`citus_coordinator`):**
+   - Serves as the primary entry point for all client applications, web services, and DB administrators.
+   - Stores cluster-wide metadata catalogs (`pg_dist_node`, `pg_dist_partition`, `citus_shards`).
+   - Receives SQL queries, parses them, generates distributed execution plans, and routes query fragments to worker nodes.
+   - Aggregates results from worker nodes and returns the final response to the client.
+
+2. **Worker Nodes (`citus_worker_1`, `citus_worker_2`):**
+   - Independent PostgreSQL instances running the Citus extension.
+   - Hold physical partitions (shards) of distributed tables.
+   - Execute query fragments sent by the coordinator in parallel using local CPU cores and memory.
+
+3. **pgAdmin 4 (`citus_pgadmin`):**
+   - Web-based administration tool for PostgreSQL and Citus.
+   - Allows graphical inspection of nodes, active connections, tables, and execution stats.
+
+---
+
+## Objectives
+
+- Deploy a multi-node Citus cluster (1 Coordinator + 2 Workers + 1 pgAdmin) using Docker Compose.
+- Register worker nodes into the Citus coordinator metadata catalog using `citus_add_node()`.
+- Verify cluster health and active worker connectivity using `pg_dist_node` and `citus_get_active_worker_nodes()`.
+- Access pgAdmin 4 via browser / HTTP port `8080` and connect to the Citus cluster.
+- Create a distributed table (`companies`), populate seed rows, and verify physical shard allocation across worker nodes via `citus_shards`.
+
+---
+
+## Project Structure
 
 ```text
-               +-----------------------------+
-               |      Flask Application      |
-               +-----------------------------+
-                              |
-                     SQL (port 5432)
-                              v
-               +-----------------------------+
-               |      Citus Coordinator      |
-               |      (Private: 10.0.1.10)   |
-               +-----------------------------+
-                 /           |           \
-         Router /     Router |     Router \
-               v             v             v
-       +-------------+ +-------------+ +-------------+
-       |  Worker 0   | |  Worker 1   | |  Worker 2   |
-       |  10.0.1.20  | |  10.0.1.21  | |  10.0.1.22  |
-       +-------------+ +-------------+ +-------------+
+citus-cluster-lab/
+└── docker-compose.yml
 ```
 
 ---
 
-## Data Distribution Models
+## Step 1: Create Project Directory
 
-| Table Type | Description | Best Use Case | SQL Command |
-|---|---|---|---|
-| **Distributed Table** | Rows are hashed and divided into shards across workers based on a distribution column. | High-growth, multi-tenant tables (`orders`, `events`). | `create_distributed_table('table', 'col')` |
-| **Reference Table** | Fully duplicated in full on every worker node for instant local joins. | Small lookup tables (`products`, `categories`). | `create_reference_table('table')` |
-| **Local Table** | Normal PostgreSQL table that stays exclusively on the coordinator. | Administrative data, local schemas. | Standard `CREATE TABLE` |
-
----
-
-## Hands-On Lab Walkthrough
-
-This guide provides a comprehensive step-by-step walkthrough to provision a 4-node Citus cluster on AWS using Pulumi and Docker Compose. Infrastructure provisioning, container startup, and node registration are 100% automated via Pulumi `user_data`.
-
----
-
-### Step 1: Obtain Credentials & Configure AWS CLI
-
-First, view your AWS credentials from the **Credentials** panel on the right side of the Poridhi interface:
-
-<p align="center">
-  <img src="./images/01_aws_credentials.png" alt="Poridhi AWS Credentials Panel" width="600">
-</p>
-
-To prevent accidental key swapping in interactive prompts, first ensure the AWS CLI is installed, then configure your credentials non-interactively:
-
-> [!TIP]
-> If running in a fresh container, installing `awscli` ensures the `aws` command is available system-wide.
+Create a dedicated directory for your Citus cluster configuration:
 
 ```bash
-# 1. Install AWS CLI
-sudo apt update && sudo apt install -y awscli
-
-# 2. Configure AWS CLI non-interactively
-aws configure set aws_access_key_id "YOUR_ACCESS_KEY_HERE"
-aws configure set aws_secret_access_key "YOUR_SECRET_KEY_HERE"
-aws configure set default.region "ap-southeast-1"
-aws configure set default.output "json"
-```
-
-<p align="center">
-  <img src="./images/02_aws_configure.png" alt="AWS Configure Commands in Terminal" width="750">
-</p>
-
-Now verify that AWS successfully authenticates your session:
-
-```bash
-aws sts get-caller-identity
-```
-
-<p align="center">
-  <img src="./images/03_aws_sts_verify.png" alt="AWS STS Get Caller Identity Output" width="650">
-</p>
-
-**Expected Output:**
-```json
-{
-    "UserId": "AIDAWQHCAMGPFM230Z7HW",
-    "Account": "447150580126",
-    "Arn": "arn:aws:iam::447150580126:user/esey-poridhi"
-}
+mkdir -p ~/citus-cluster-lab
+cd ~/citus-cluster-lab
 ```
 
 ---
 
-### Step 2: Set Up Workspace and Python Virtual Environment
+## Step 2: Create Docker Compose Configuration
 
-Create an isolated directory `citus-infra` and initialize a Python virtual environment:
-
-```bash
-mkdir -p ~/citus-infra
-cd ~/citus-infra
-
-sudo apt update && sudo apt install -y python3-venv python3-pip
-python3 -m venv venv
-source venv/bin/activate
-```
-
-<p align="center">
-  <img src="./images/04_setup_directory.png" alt="Creating Directory and Activating Venv" width="750">
-</p>
-
-**Expected Output:**
-The shell prompt indicates the active virtual environment:
-```text
-(venv) poridhian@...:~/citus-infra$
-```
-
----
-
-### Step 3: Set Up Pulumi Account & Generate Access Token
-
-Pulumi manages our cloud infrastructure using Python code.
-
-1. Open **[https://app.pulumi.com](https://app.pulumi.com)** in your browser and select **Continue with Google** or **Continue with GitHub**:
-
-<p align="center">
-  <img src="./images/05_pulumi_signup.png" alt="Pulumi Sign In Options" width="650">
-</p>
-
-2. When prompted for workspace type, select **"I'm working on a personal project"** and click **Continue**:
-
-<p align="center">
-  <img src="./images/06_pulumi_workspace.png" alt="Create Workspace - Personal Project" width="550">
-</p>
-
-3. In the onboarding survey, click **Skip** at the bottom:
-
-<p align="center">
-  <img src="./images/07_pulumi_skip_onboarding.png" alt="Skip Onboarding Survey" width="550">
-</p>
-
-4. Open the Access Tokens page at **[https://app.pulumi.com/user/settings/tokens](https://app.pulumi.com/user/settings/tokens)**. Click **Create token**, type description `citus-lab`, and copy the generated token:
-
-<p align="center">
-  <img src="./images/08_pulumi_token_create.png" alt="Pulumi Access Token Created" width="650">
-</p>
-
-5. In the Poridhi terminal, export your token and log in directly:
+Create `docker-compose.yml` to define the coordinator, two workers, and pgAdmin 4:
 
 ```bash
-export PULUMI_ACCESS_TOKEN="YOUR_PULUMI_TOKEN_HERE"
-pulumi login
-```
-
-<p align="center">
-  <img src="./images/09_pulumi_login_terminal.png" alt="Pulumi Login Terminal Output" width="750">
-</p>
-
-**Expected Output:**
-```text
-Logging in using access token from PULUMI_ACCESS_TOKEN
-Logged in to pulumi.com as iftakharalamshihad-gmail-com (https://app.pulumi.com/iftakharalamshihad-gmail-com)
-
-You don't have any stacks yet. What would you like to do? Skip for now
-
-To get started, run `pulumi new` in an empty directory
-```
-
----
-
-### Step 4: Initialize the Pulumi Project
-
-Initialize the AWS Python project. We pass `--force` because the `venv` directory is already present in `~/citus-infra`:
-
-```bash
-cd ~/citus-infra
-pulumi new aws-python --force
-```
-
-Follow the interactive prompts:
-* **Project name:** Press **Enter** (defaults to `citus-infra`)
-* **Project description:** Press **Enter**
-* **Stack name:** Press **Enter** (defaults to `dev`)
-* **Toolchain:** Select **`pip`** and press **Enter**
-* **The AWS region to deploy into (aws:region):** Type **`ap-southeast-1`** and press **Enter**
-
-<p align="center">
-  <img src="./images/10_pulumi_new_project.png" alt="Pulumi Project Initialization Prompts" width="750">
-</p>
-
-**Expected Output:**
-```text
-Finished installing dependencies
-Your new project is ready to go!
-```
-
----
-
-### Step 5: Create AWS SSH Key Pair
-
-Create an SSH key pair named `citus-key` so that we can connect to the coordinator and workers (ensure the `~/.ssh` directory exists first with `mkdir -p ~/.ssh`):
-
-```bash
-# 1. Remove the old locked file and delete AWS key
-rm -f ~/.ssh/citus-key.pem
-aws ec2 delete-key-pair --key-name citus-key 2>/dev/null || true
-
-# 2. Generate the new key pair and secure it
-aws ec2 create-key-pair --key-name citus-key --output text --query 'KeyMaterial' > ~/.ssh/citus-key.pem
-chmod 400 ~/.ssh/citus-key.pem
-
-# 3. Verify key file exists
-ls -l ~/.ssh/citus-key.pem
-```
-
-<p align="center">
-  <img src="./images/11_ssh_key_create.png" alt="Creating AWS SSH Key Pair" width="750">
-</p>
-
-**Expected Output:**
-```text
-{
-    "Return": true
-}
--r-------- 1 poridhian poridhian 1679 Sep  8 07:59 /home/poridhian/.ssh/citus-key.pem
-```
-
----
-
-### Step 6: Define Infrastructure with Automated Citus Deployment in `__main__.py`
-
-> [!IMPORTANT]
-> Always set `instance_type = "t2.micro"`. In educational AWS environments, larger sizes like `t2.small` will trigger an immediate IAM `403 UnauthorizedOperation` deny.
-
-Write the complete infrastructure definition into `__main__.py`. This script provisions VPC networking, security groups, 4 EC2 instances, automatically starts Citus Docker containers on all nodes via `user_data`, auto-registers worker nodes with `citus_add_node`, and generates `~/.ssh/config`:
-
-```bash
-cd ~/citus-infra
-
-cat << 'EOF' > __main__.py
-import pulumi
-import pulumi_aws as aws
-import os
-
-# Configuration
-instance_type = "t2.micro"
-ami_id = "ami-01811d4912b4ccb26"
-key_name = "citus-key"
-
-# 1. Networking (VPC, Subnet, Internet Gateway, Route Table)
-vpc = aws.ec2.Vpc("citus-vpc",
-    cidr_block="10.0.0.0/16",
-    enable_dns_hostnames=True,
-    enable_dns_support=True,
-    tags={"Name": "citus-vpc"}
-)
-
-igw = aws.ec2.InternetGateway("citus-igw",
-    vpc_id=vpc.id,
-    tags={"Name": "citus-igw"}
-)
-
-subnet = aws.ec2.Subnet("citus-subnet",
-    vpc_id=vpc.id,
-    cidr_block="10.0.1.0/24",
-    map_public_ip_on_launch=True,
-    tags={"Name": "citus-subnet"}
-)
-
-route_table = aws.ec2.RouteTable("citus-rt",
-    vpc_id=vpc.id,
-    routes=[aws.ec2.RouteTableRouteArgs(
-        cidr_block="0.0.0.0/0",
-        gateway_id=igw.id,
-    )],
-    tags={"Name": "citus-rt"}
-)
-
-route_table_assoc = aws.ec2.RouteTableAssociation("citus-rt-assoc",
-    subnet_id=subnet.id,
-    route_table_id=route_table.id
-)
-
-# 2. Security Group (SSH port 22, Citus PostgreSQL port 5432)
-security_group = aws.ec2.SecurityGroup("citus-sg",
-    vpc_id=vpc.id,
-    description="Security group for Citus cluster",
-    ingress=[
-        aws.ec2.SecurityGroupIngressArgs(
-            protocol="tcp",
-            from_port=22,
-            to_port=22,
-            cidr_blocks=["0.0.0.0/0"]
-        ),
-        aws.ec2.SecurityGroupIngressArgs(
-            protocol="tcp",
-            from_port=5432,
-            to_port=5432,
-            cidr_blocks=["0.0.0.0/0"]
-        ),
-    ],
-    egress=[
-        aws.ec2.SecurityGroupEgressArgs(
-            protocol="-1",
-            from_port=0,
-            to_port=0,
-            cidr_blocks=["0.0.0.0/0"]
-        )
-    ],
-    tags={"Name": "citus-sg"}
-)
-
-# 3. User Data Script for Worker Nodes
-worker_user_data = """#!/bin/bash
-apt-get update -y
-apt-get install -y docker.io docker-compose
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ubuntu
-
-cat << 'EOF' > /home/ubuntu/docker-compose.yml
-version: '3.8'
-services:
-  worker:
-    image: citusdata/citus:12.1
-    container_name: citus_worker
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=citus_password
-      - POSTGRES_USER=citus
-      - POSTGRES_DB=citus
-    command: >
-      -c citus.shard_replication_factor=2
-      -c listen_addresses='*'
-      -c wal_level=logical
-EOF
-
-docker-compose -f /home/ubuntu/docker-compose.yml up -d
-"""
-
-# 4. User Data Script for Coordinator Node
-coordinator_user_data = """#!/bin/bash
-apt-get update -y
-apt-get install -y docker.io docker-compose
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ubuntu
-
-cat << 'EOF' > /home/ubuntu/docker-compose.yml
+cat << 'EOF' > docker-compose.yml
 version: '3.8'
 services:
   coordinator:
@@ -371,195 +83,177 @@ services:
       - POSTGRES_PASSWORD=citus_password
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
-    command: >
-      -c citus.shard_replication_factor=2
-      -c listen_addresses='*'
-      -c wal_level=logical
+    command: ["-c", "listen_addresses=*"]
+
+  worker1:
+    image: citusdata/citus:12.1
+    container_name: citus_worker_1
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=citus_password
+      - POSTGRES_USER=citus
+      - POSTGRES_DB=citus
+
+  worker2:
+    image: citusdata/citus:12.1
+    container_name: citus_worker_2
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=citus_password
+      - POSTGRES_USER=citus
+      - POSTGRES_DB=citus
+
+  pgadmin:
+    image: dpage/pgadmin4:8.2
+    container_name: citus_pgadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@poridhi.com
+      - PGADMIN_DEFAULT_PASSWORD=admin_password
+    depends_on:
+      - coordinator
 EOF
-
-docker-compose -f /home/ubuntu/docker-compose.yml up -d
-
-# Wait for worker instances to boot and start Citus containers
-sleep 60
-
-# Automatically register worker nodes in the Citus cluster
-docker exec -i citus_coordinator psql -U citus -d citus << 'SQL'
-SELECT citus_add_node('10.0.1.20', 5432);
-SELECT citus_add_node('10.0.1.21', 5432);
-SELECT citus_add_node('10.0.1.22', 5432);
-SQL
-"""
-
-# 5. Launch Coordinator Instance (Private IP: 10.0.1.10)
-coordinator = aws.ec2.Instance("citus-coordinator",
-    instance_type=instance_type,
-    ami=ami_id,
-    subnet_id=subnet.id,
-    vpc_security_group_ids=[security_group.id],
-    key_name=key_name,
-    user_data=coordinator_user_data,
-    associate_public_ip_address=True,
-    private_ip="10.0.1.10",
-    tags={"Name": "citus-coordinator"},
-    opts=pulumi.ResourceOptions(depends_on=[route_table_assoc, subnet])
-)
-
-# 6. Launch 3 Worker Instances (Private IPs: 10.0.1.20, 10.0.1.21, 10.0.1.22)
-workers = [
-    aws.ec2.Instance(f"citus-worker-{i}",
-        instance_type=instance_type,
-        ami=ami_id,
-        subnet_id=subnet.id,
-        vpc_security_group_ids=[security_group.id],
-        key_name=key_name,
-        user_data=worker_user_data,
-        associate_public_ip_address=True,
-        private_ip=f"10.0.1.2{i}",
-        tags={"Name": f"citus-worker-{i}"},
-        opts=pulumi.ResourceOptions(depends_on=[route_table_assoc, subnet])
-    )
-    for i in range(3)
-]
-
-# 7. Outputs & Automatic SSH Config Generation
-pulumi.export('coordinator_public_ip', coordinator.public_ip)
-pulumi.export('coordinator_private_ip', coordinator.private_ip)
-pulumi.export('worker_public_ips', [w.public_ip for w in workers])
-pulumi.export('worker_private_ips', [w.private_ip for w in workers])
-pulumi.export('vpc_id', vpc.id)
-pulumi.export('subnet_id', subnet.id)
-
-def create_config_file(ip_list):
-    hostnames = ['controller-0', 'worker-0', 'worker-1', 'worker-2']
-    config_content = "".join([
-        f"Host {h}\n    HostName {ip}\n    User ubuntu\n    IdentityFile ~/.ssh/{key_name}.pem\n    StrictHostKeyChecking no\n\n"
-        for h, ip in zip(hostnames, ip_list)
-    ])
-    ssh_dir = os.path.expanduser("~/.ssh")
-    os.makedirs(ssh_dir, exist_ok=True)
-    with open(os.path.join(ssh_dir, "config"), "w") as f:
-        f.write(config_content)
-    os.chmod(os.path.join(ssh_dir, "config"), 0o600)
-
-pulumi.Output.all(*([coordinator.public_ip] + [w.public_ip for w in workers])).apply(create_config_file)
-EOF
-```
-
-<p align="center">
-  <img src="./images/12_write_main_py.png" alt="Writing main.py in terminal" width="750">
-</p>
-
-Verify that the file wrote cleanly to the end:
-
-```bash
-tail -n 5 __main__.py
-```
-
-<p align="center">
-  <img src="./images/13_tail_main_py.png" alt="Verifying main.py with tail" width="750">
-</p>
-
----
-
-### Step 7: Provision the Cluster on AWS
-
-Deploy all resources using `pulumi up`:
-
-```bash
-pulumi up --yes
-```
-
-<p align="center">
-  <img src="./images/14_pulumi_up_deploy.png" alt="Pulumi Deploy Preview" width="750">
-</p>
-
-Pulumi creates the 4 EC2 instances:
-
-<p align="center">
-  <img src="./images/15_pulumi_up_instances.png" alt="EC2 Instances Created in Pulumi" width="750">
-</p>
-
-Once complete, Pulumi prints the public and private IPs:
-
-<p align="center">
-  <img src="./images/16_pulumi_up_outputs.png" alt="Pulumi Outputs with IPs" width="700">
-</p>
-
-Inspect the generated SSH configuration file:
-
-```bash
-cat ~/.ssh/config
-```
-
-<p align="center">
-  <img src="./images/18_ssh_config.png" alt="Inspecting SSH Config" width="650">
-</p>
-
-**Expected Output:**
-```text
-Host controller-0
-    HostName 47.129.250.198
-    User ubuntu
-    IdentityFile ~/.ssh/citus-key.pem
-
-Host worker-0
-    HostName 47.129.232.231
-    User ubuntu
-    IdentityFile ~/.ssh/citus-key.pem
-
-Host worker-1
-    HostName 52.221.201.76
-    User ubuntu
-    IdentityFile ~/.ssh/citus-key.pem
-
-Host worker-2
-    HostName 46.137.229.122
-    User ubuntu
-    IdentityFile ~/.ssh/citus-key.pem
 ```
 
 ---
 
-### Step 8: Verify Active Citus Cluster
+## Step 3: Deploy the Cluster using Docker Compose
 
-Because Docker installation, Citus container startup, and node registration are automatically executed via `user_data`, you can verify the entire 4-node cluster directly from your terminal:
-
-> [!TIP]
-> Wait approximately 60–90 seconds after `pulumi up` completes for the EC2 background `user_data` scripts to finish launching Docker and registering workers.
+Ensure any conflicting containers are stopped, then launch the stack in detached mode:
 
 ```bash
-# 1. Verify Citus Coordinator container is running on controller-0
-ssh controller-0 "sudo docker ps"
-
-# 2. Query Citus active worker nodes from the coordinator
-ssh controller-0 "sudo docker exec -i citus_coordinator psql -U citus -d citus -c 'SELECT * FROM citus_get_active_worker_nodes();'"
+docker compose up -d || docker-compose up -d
 ```
 
-<p align="center">
-  <img src="./images/24_citus_active_workers.png" alt="Active Worker Nodes Table Verified" width="600">
-</p>
+Verify that all 4 containers (`citus_coordinator`, `citus_worker_1`, `citus_worker_2`, `citus_pgadmin`) are running and healthy:
 
-**Expected Output:**
+```bash
+docker compose ps
+```
+
+---
+
+## Step 4: Register Worker Nodes to Citus Coordinator
+
+Wait 10 seconds for PostgreSQL initialization to complete, then connect to the coordinator and register both worker nodes:
+
+```bash
+sleep 10
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
+```
+
+Verify that both worker nodes are registered and active in the cluster catalog:
+
+```bash
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT nodename, nodeport, isactive FROM pg_dist_node;"
+```
+
+You can also run Citus's built-in helper function:
+
+```bash
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT * FROM citus_get_active_worker_nodes();"
+```
+
+Expected Output:
 ```text
  node_name | node_port 
 -----------+-----------
- 10.0.1.20 |      5432 
- 10.0.1.21 |      5432 
- 10.0.1.22 |      5432 
-(3 rows)
+ worker1   |      5432
+ worker2   |      5432
+(2 rows)
 ```
 
-The output confirms that:
-- The Citus Coordinator is active on `controller-0`.
-- All 3 worker nodes (`10.0.1.20`, `10.0.1.21`, `10.0.1.22`) are healthy, active, and registered into the distributed cluster.
+---
+
+## Step 5: Access pgAdmin 4 Web Interface (Optional)
+
+You can access the pgAdmin 4 GUI to manage and monitor the cluster:
+
+1. Open your browser and navigate to `http://<YOUR_VM_IP>:8080` (or access port `8080` using the **Poridhi Load Balancer**).
+2. Log in with the credentials:
+   - **Email:** `admin@poridhi.com`
+   - **Password:** `admin_password`
+3. In the left panel, right-click **Servers** > **Register** > **Server...**:
+   - **General Tab:** Name = `Citus Coordinator`
+   - **Connection Tab:**
+     - **Host name/address:** `coordinator` (or `citus_coordinator`)
+     - **Port:** `5432`
+     - **Maintenance database:** `citus`
+     - **Username:** `citus`
+     - **Password:** `citus_password`
+4. Click **Save** to connect and browse cluster databases and metrics.
+
+You can also verify pgAdmin HTTP responsiveness from the terminal:
+
+```bash
+curl -I http://localhost:8080/login
+```
+
+Expected Output:
+```text
+HTTP/1.1 200 OK
+...
+```
+
+---
+
+## Step 6: Validate Distributed Table and Shard Placement
+
+To verify that the Citus cluster distributes data across worker nodes, create a distributed table and insert sample rows:
+
+```bash
+docker exec citus_coordinator psql -U citus -d citus -c "
+CREATE TABLE companies (
+    id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    country VARCHAR(50)
+);
+
+SELECT create_distributed_table('companies', 'id');
+
+INSERT INTO companies (id, name, country) VALUES
+(1, 'TechCorp', 'USA'),
+(2, 'InnoSoft', 'Germany'),
+(3, 'CloudNet', 'Japan'),
+(4, 'DataFlow', 'UK');
+"
+```
+
+Now query `citus_shards` to confirm that physical shards for the `companies` table are distributed across both `worker1` and `worker2`:
+
+```bash
+docker exec citus_coordinator psql -U citus -d citus -c "
+SELECT shardid, nodename, nodeport 
+FROM citus_shards 
+WHERE table_name::text = 'companies' 
+ORDER BY shardid LIMIT 6;
+"
+```
+
+Expected Output:
+```text
+ shardid | nodename | nodeport 
+---------+----------+----------
+  102008 | worker1  |     5432
+  102009 | worker2  |     5432
+  102010 | worker1  |     5432
+  102011 | worker2  |     5432
+  102012 | worker1  |     5432
+  102013 | worker2  |     5432
+(6 rows)
+```
+
+Confirm that rows can be queried from the coordinator:
+
+```bash
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT * FROM companies ORDER BY id;"
+```
 
 ---
 
 ## Conclusion
 
-Congratulations! You have provisioned and verified a production-grade distributed Citus PostgreSQL cluster on AWS with complete automation using Pulumi:
-- **1 Coordinator Node (`10.0.1.10`)**: Handles distributed query planning, metadata, and shard routing.
-- **3 Worker Nodes (`10.0.1.20`, `10.0.1.21`, `10.0.1.22`)**: Store distributed data shards and execute parallel queries.
-- **Zero manual configuration**: Everything from Docker setup to node registration ran automatically via Pulumi `user_data`.
-
-You are now ready to proceed to **Lab 45: Flask–Citus Integration**!
+You have successfully provisioned a fully functional multi-node Citus distributed database cluster with pgAdmin 4 using Docker Compose. You verified node registration, monitored cluster state via the Citus metadata catalog, and confirmed horizontal sharding by distributing the `companies` table across worker nodes. This cluster architecture serves as the foundation for multi-tenant application integration and distributed query execution.
