@@ -1,80 +1,69 @@
 # Lab 47: Sharded Data API
 
-In this lab, you will build a REST API using Flask to interact with your distributed database. To ensure this lab is fully standalone, you will first provision a Citus database in AWS using Pulumi. Then, you will create endpoints to insert new orders and query sharded data based on the `tenant_id`, leveraging Citus's distributed query engine.
+In this lab, you will build and deploy a multi-tenant REST API using Flask that communicates with a distributed Citus database cluster. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose in your Poridhi environment. You will then create API endpoints to insert and retrieve tenant orders, leverage Citus's distributed query routing engine, and expose your service publicly using the **Poridhi Load Balancer**.
 
-*(Image prompt: A comprehensive request flow diagram illustrating an intelligent query routing system within an AWS infrastructure. A client sends a request containing a specific tenant identifier to the backend. The backend forwards this to the Citus Coordinator EC2 instance, which uses the identifier to bypass unnecessary servers and route the request directly and exclusively to the single specific Worker node holding that tenant's data. No code shown, just the conceptual architecture.)*
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Sharded Data API Architecture" width="750">
+</p>
+
+---
 
 ## Concept
 
 | Term | Definition |
 |---|---|
-| Query Routing | The process where the coordinator node identifies which worker holds the necessary shard and forwards the query there. |
-| Co-location | Storing related data for the same tenant on the same node to ensure fast local joins and transactions. |
+| **Query Routing** | The process by which the Citus coordinator inspects incoming SQL statements, detects the distribution key (`tenant_id`), and delegates execution directly to the specific worker node holding that shard. |
+| **Point Query Optimization** | When a query filters specifically on the distribution column (`WHERE tenant_id = 501`), Citus routes the query to exactly one worker node, bypassing all other workers and minimizing cluster network overhead. |
+| **Co-located Joins** | Because lookup tables like `products` are reference tables duplicated everywhere, worker nodes can execute joins with distributed `orders` locally with sub-millisecond latency. |
+| **Poridhi Load Balancer** | Built-in networking service in Poridhi cloud labs that allows web servers running inside private containers to be safely exposed to external public URLs. |
 
-When interacting with a distributed table, always include the distribution column (`tenant_id`) in your queries. For inserts, this tells Citus which shard should store the data. For reads, filtering by `tenant_id` allows Citus to route the query directly to the single worker node containing that data, completely avoiding cross-node network traffic and maximizing performance.
+---
 
 ## Objectives
 
-- Provision a Citus database cluster in AWS using Pulumi.
-- Implement a `POST /orders` endpoint to insert multi-tenant data.
-- Implement a `GET /orders/<tenant_id>` endpoint to retrieve sharded data.
-- Verify distributed data insertion and retrieval.
+- Deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) using Docker Compose.
+- Configure a Python virtual environment with Flask, SQLAlchemy, and psycopg2.
+- Define relational models with a distributed transaction table (`orders`) and a replicated reference catalog (`products`).
+- Build `POST /orders` to insert distributed multi-tenant order data.
+- Build `GET /orders/<tenant_id>` to query sharded data with single-node query routing.
+- Expose port `5000` publicly via the **Poridhi Load Balancer**.
+- Verify query routing and API responsiveness using cURL and browser requests.
 
-## What You Will Build
+---
+
+## Project Structure
 
 ```text
 flask-api-lab/
-├── infra/
-│   ├── Pulumi.yaml
-│   └── __main__.py
+├── citus/
+│   └── docker-compose.yml
 └── app/
     ├── requirements.txt
     ├── database.py
     └── app.py
 ```
 
-You will build an infrastructure script to launch your AWS EC2 database server. Then, you will build a Flask application that defines API routes for creating and fetching orders, relying on the distributed schema concepts taught in the previous module.
+---
 
-## Step 1: Configure AWS CLI and Set Up Pulumi
+## Step 1: Deploy Citus Cluster using Docker Compose
 
-First, you need to configure your AWS credentials and initialize a Pulumi project to provision the database infrastructure.
-
-Create a directory for the infrastructure and initialize Pulumi:
+Create a dedicated directory for the Citus cluster and define the multi-node cluster services:
 
 ```bash
-mkdir -p flask-api-lab/infra
-cd flask-api-lab/infra
-sudo apt update && sudo apt install -y python3.8-venv awscli
-aws configure
-pulumi new aws-python
-aws ec2 create-key-pair --key-name CitusKeyPair --query 'KeyMaterial' --output text > CitusKeyPair.pem
-chmod 400 CitusKeyPair.pem
+mkdir -p ~/flask-api-lab/citus
+cd ~/flask-api-lab/citus
 ```
 
-**Explanation:**
-- `aws configure`: Prompts you to enter your AWS Access Key, Secret Key, and Region (`ap-southeast-1`).
-- `pulumi new aws-python`: Scaffolds a new Pulumi Python project for deploying AWS resources.
+Create `docker-compose.yml`:
 
-## Step 2: Define and Deploy the AWS Infrastructure
-
-Replace the contents of `flask-api-lab/infra/__main__.py` with the following Pulumi code to provision a Citus cluster via Docker Compose on a single EC2 instance:
-
-```python
-import pulumi
-import pulumi_aws as aws
-
-user_data = """#!/bin/bash
-apt-get update -y
-apt-get install -y docker.io docker-compose
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ubuntu
-
-cat > /home/ubuntu/docker-compose.yml << 'EOF'
+```bash
+cat << 'EOF' > docker-compose.yml
 version: '3.8'
 services:
   coordinator:
     image: citusdata/citus:12.1
+    container_name: citus_coordinator
+    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -82,154 +71,204 @@ services:
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
     command: ["-c", "listen_addresses=*"]
+
   worker1:
     image: citusdata/citus:12.1
+    container_name: citus_worker_1
+    restart: always
     environment:
       - POSTGRES_PASSWORD=citus_password
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
+
   worker2:
     image: citusdata/citus:12.1
+    container_name: citus_worker_2
+    restart: always
     environment:
       - POSTGRES_PASSWORD=citus_password
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
 EOF
-
-cd /home/ubuntu/
-docker-compose up -d
-sleep 20
-docker exec coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
-docker exec coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
-docker exec coordinator psql -U citus -d citus -c "CREATE TABLE products (id int PRIMARY KEY, name text, price float);"
-docker exec coordinator psql -U citus -d citus -c "CREATE TABLE orders (id serial, tenant_id int, product_id int, quantity int, PRIMARY KEY(id, tenant_id));"
-docker exec coordinator psql -U citus -d citus -c "SELECT create_reference_table('products');"
-docker exec coordinator psql -U citus -d citus -c "SELECT create_distributed_table('orders', 'tenant_id');"
-"""
-
-vpc = aws.ec2.Vpc("citus-vpc", cidr_block="10.0.0.0/16", enable_dns_hostnames=True, enable_dns_support=True)
-igw = aws.ec2.InternetGateway("citus-igw", vpc_id=vpc.id)
-subnet = aws.ec2.Subnet("citus-subnet", vpc_id=vpc.id, cidr_block="10.0.1.0/24", map_public_ip_on_launch=True)
-rt = aws.ec2.RouteTable("citus-rt", vpc_id=vpc.id, routes=[aws.ec2.RouteTableRouteArgs(cidr_block="0.0.0.0/0", gateway_id=igw.id)])
-rt_assoc = aws.ec2.RouteTableAssociation("citus-rt-assoc", subnet_id=subnet.id, route_table_id=rt.id)
-
-sg = aws.ec2.SecurityGroup("citus-sg",
-    vpc_id=vpc.id,
-    ingress=[
-        {"protocol": "tcp", "from_port": 22, "to_port": 22, "cidr_blocks": ["0.0.0.0/0"]},
-        {"protocol": "tcp", "from_port": 5432, "to_port": 5432, "cidr_blocks": ["0.0.0.0/0"]}
-    ],
-    egress=[{"protocol": "-1", "from_port": 0, "to_port": 0, "cidr_blocks": ["0.0.0.0/0"]}]
-)
-
-citus_instance = aws.ec2.Instance("citus-instance",
-    instance_type="t2.medium",
-    vpc_security_group_ids=[sg.id],
-    ami="ami-04b70fa74e45c3917",
-    subnet_id=subnet.id,
-    key_name="CitusKeyPair",
-    user_data=user_data,
-    user_data_replace_on_change=True,
-    opts=pulumi.ResourceOptions(depends_on=[rt_assoc])
-)
-
-pulumi.export("coordinator_ip", citus_instance.public_ip)
 ```
 
-Run the deployment and save the outputted IP:
+Start the Citus cluster:
 
 ```bash
-pulumi up --yes
+docker compose up -d || docker-compose up -d
 ```
 
-**Explanation:**
-- `user_data`: Sets up the database cluster. Notice we also included the SQL commands to create and distribute the `products` and `orders` tables, so the schema is completely ready for the API to use.
-- *Wait 2-3 minutes after deployment finishes for the database and schemas to fully initialize.*
-
-## Step 3: Create Application Dependencies
-
-Navigate out of the infrastructure folder, create an `app` directory, and set up your Python environment:
+Wait 10 seconds for PostgreSQL instances to initialize, then register the worker nodes with the coordinator:
 
 ```bash
-cd ../
-mkdir app
-cd app
+sleep 10
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
+```
+
+Verify active worker nodes:
+
+```bash
+docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT * FROM citus_get_active_worker_nodes();"
+```
+
+Expected Output:
+
+```text
+ node_name | node_port 
+-----------+-----------
+ worker1   |      5432
+ worker2   |      5432
+(2 rows)
+```
+
+---
+
+## Step 2: Set Up Application Environment & Dependencies
+
+Navigate to your workspace directory, create the `app` folder, and configure the Python virtual environment:
+
+```bash
+cd ~/flask-api-lab
+mkdir -p app && cd app
+
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Create a file named `flask-api-lab/app/requirements.txt` with the following contents:
+Create `requirements.txt`:
 
-```text
+```bash
+cat << 'EOF' > requirements.txt
 Flask==3.0.0
 psycopg2-binary==2.9.9
 Flask-SQLAlchemy==3.1.1
+EOF
 ```
 
-Install the dependencies:
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Step 4: Define the Database Models
+---
 
-Create a file named `flask-api-lab/app/database.py` with the following contents:
+## Step 3: Implement Database Models and Distributed Tables
 
-```python
+Create `flask-api-lab/app/database.py` to define the database schema, replicate `products` as a reference table, distribute `orders` across worker shards, and seed sample product catalog items:
+
+```bash
+cat << 'EOF' > database.py
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 db = SQLAlchemy()
 
 class Product(db.Model):
     __tablename__ = 'products'
+    # Reference table: Duplicated on all worker nodes
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
 class Order(db.Model):
     __tablename__ = 'orders'
+    # Distributed table: Sharded across workers by tenant_id
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tenant_id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+
+def setup_database(app):
+    with app.app_context():
+        # Create base PostgreSQL tables
+        db.create_all()
+
+        # Replicate products as Reference Table
+        try:
+            db.session.execute(text("SELECT create_reference_table('products');"))
+            db.session.commit()
+            print("Products reference table initialized.")
+        except Exception:
+            db.session.rollback()
+
+        # Distribute orders by tenant_id
+        try:
+            db.session.execute(text("SELECT create_distributed_table('orders', 'tenant_id');"))
+            db.session.commit()
+            print("Orders distributed table initialized.")
+        except Exception:
+            db.session.rollback()
+
+        # Seed initial catalog products if empty
+        if not Product.query.first():
+            db.session.add(Product(id=1, name="Mechanical Keyboard", price=120.00))
+            db.session.add(Product(id=2, name="Ergonomic Mouse", price=65.00))
+            db.session.add(Product(id=3, name="4K Monitor", price=450.00))
+            db.session.commit()
+            print("Sample products seeded into reference table.")
+EOF
 ```
 
-**Explanation:**
-- `class Product(db.Model)`: Maps to the reference table across the cluster.
-- `class Order(db.Model)`: Maps to the distributed table sharded by `tenant_id`.
+---
 
-## Step 5: Implement the API Routes
+## Step 4: Implement the Flask API Application
 
-Create a file named `flask-api-lab/app/app.py` with the following contents:
+Create `flask-api-lab/app/app.py` with endpoints to create and retrieve tenant orders:
 
-```python
+```bash
+cat << 'EOF' > app.py
 import os
 from flask import Flask, request, jsonify
-from database import db, Order, Product
+from database import db, Product, Order, setup_database
 
 app = Flask(__name__)
+
 COORDINATOR_IP = os.environ.get("COORDINATOR_IP", "127.0.0.1")
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://citus:citus_password@{COORDINATOR_IP}:5432/citus'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+setup_database(app)
+
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "service": "Sharded Order Management API",
+        "status": "ready",
+        "database": "Citus Distributed Cluster"
+    }), 200
 
 @app.route('/orders', methods=['POST'])
 def create_order():
     data = request.get_json()
-    new_order = Order(
+    if not data or 'tenant_id' not in data or 'product_id' not in data or 'quantity' not in data:
+        return jsonify({"error": "tenant_id, product_id, and quantity are required"}), 400
+
+    product = Product.query.get(data['product_id'])
+    if not product:
+        return jsonify({"error": f"Product with ID {data['product_id']} not found"}), 404
+
+    order = Order(
         tenant_id=data['tenant_id'],
         product_id=data['product_id'],
         quantity=data['quantity']
     )
-    db.session.add(new_order)
+    db.session.add(order)
     db.session.commit()
-    return jsonify({"message": "Order created", "tenant_id": new_order.tenant_id, "order_id": new_order.id}), 201
+
+    return jsonify({
+        "message": "Order created successfully",
+        "order_id": order.id,
+        "tenant_id": order.tenant_id,
+        "product": product.name,
+        "total_amount": round(product.price * order.quantity, 2)
+    }), 201
 
 @app.route('/orders/<int:tenant_id>', methods=['GET'])
 def get_orders(tenant_id):
-    # Query routed directly to the specific tenant's shard
+    # Citus routes this query directly to the worker holding this tenant_id shard
     orders = Order.query.filter_by(tenant_id=tenant_id).all()
     result = []
     for o in orders:
@@ -238,38 +277,85 @@ def get_orders(tenant_id):
             "order_id": o.id,
             "tenant_id": o.tenant_id,
             "product": product.name if product else "Unknown",
-            "quantity": o.quantity
+            "quantity": o.quantity,
+            "unit_price": product.price if product else 0.0,
+            "total_price": round((product.price if product else 0.0) * o.quantity, 2)
         })
     return jsonify(result), 200
 
 if __name__ == '__main__':
-    # Insert dummy products if empty for testing
-    with app.app_context():
-        if not Product.query.first():
-            db.session.add(Product(id=1, name="Laptop", price=1200.00))
-            db.session.add(Product(id=2, name="Mouse", price=25.00))
-            db.session.commit()
-            
     app.run(host='0.0.0.0', port=5000)
+EOF
 ```
 
-**Explanation:**
-- `@app.route('/orders', methods=['POST'])`: Endpoint to accept new orders. The incoming JSON must contain `tenant_id` to allow Citus to route the insert.
-- `Order.query.filter_by(tenant_id=tenant_id)`: Crucial step that includes the distribution column in the WHERE clause, ensuring single-shard query performance.
-- `Product.query.get(...)`: Since `products` is a reference table, this join is performed seamlessly and locally on whichever worker node executes the query.
+---
 
-## Verification
+## Step 5: Expose API via Poridhi Load Balancer
 
-Start the application by setting the coordinator IP (from your Pulumi output in Step 2):
+In the Poridhi cloud lab environment, the virtual machine runs inside a private isolated network. To access your Flask application from your browser or via public HTTP requests, expose port `5000` using the built-in **Poridhi Load Balancer**:
+
+1. Find the primary IP of the Poridhi lab container:
+   ```bash
+   hostname -I | awk '{print $1}'
+   ```
+
+2. Open the **Load Balancer** modal from the Poridhi interface (the Cloud icon in the header or sidebar).
+
+3. Enter the configuration:
+   - **Enter IP**: Paste the IP obtained above (e.g., `10.x.x.x`).
+   - **Enter Port**: `5000`
+   - Click **Expose**.
+
+4. Poridhi will provision an edge load balancer and provide an active public URL (e.g., `http://<lab-id>-5000.lb.poridhi.io`).
+
+---
+
+## Step 6: Run & Verify Application
+
+### 1. Start the Application
+
+In your terminal, start the Flask server:
 
 ```bash
-export COORDINATOR_IP="YOUR_EC2_PUBLIC_IP"
+cd ~/flask-api-lab/app
+source venv/bin/activate
 python3 app.py
 ```
 
-Open a new terminal to run the test commands.
+Expected Startup Output:
 
-**Scenario 1: Insert an order for Tenant A (Success)**
+```text
+Products reference table initialized.
+Orders distributed table initialized.
+Sample products seeded into reference table.
+ * Serving Flask app 'app'
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+```
+
+### 2. Verify via cURL or Poridhi Load Balancer URL
+
+Open a second terminal window (or test using your browser / cURL):
+
+You can replace `http://localhost:5000` with your **Poridhi Load Balancer URL** (e.g., `http://<id>-5000.lb.poridhi.io`) in any of the commands below to test the public endpoint.
+
+**Scenario 1: Health check**
+
+```bash
+curl -X GET http://localhost:5000/
+```
+
+Expected Output:
+
+```json
+{
+  "database": "Citus Distributed Cluster",
+  "service": "Sharded Order Management API",
+  "status": "ready"
+}
+```
+
+**Scenario 2: Create an order for Tenant 501**
 
 ```bash
 curl -X POST http://localhost:5000/orders \
@@ -278,67 +364,84 @@ curl -X POST http://localhost:5000/orders \
 ```
 
 Expected Output:
+
 ```json
 {
-  "message": "Order created",
+  "message": "Order created successfully",
   "order_id": 1,
-  "tenant_id": 501
+  "product": "Mechanical Keyboard",
+  "tenant_id": 501,
+  "total_amount": 240.0
 }
 ```
 
-**Scenario 2: Insert an order for Tenant B (Success)**
+**Scenario 3: Create an order for Tenant 502**
 
 ```bash
 curl -X POST http://localhost:5000/orders \
      -H "Content-Type: application/json" \
-     -d '{"tenant_id": 502, "product_id": 2, "quantity": 5}'
+     -d '{"tenant_id": 502, "product_id": 2, "quantity": 3}'
 ```
 
 Expected Output:
+
 ```json
 {
-  "message": "Order created",
+  "message": "Order created successfully",
   "order_id": 2,
-  "tenant_id": 502
+  "product": "Ergonomic Mouse",
+  "tenant_id": 502,
+  "total_amount": 195.0
 }
 ```
 
-**Scenario 3: Retrieve orders for Tenant A (Success)**
+**Scenario 4: Retrieve orders for Tenant 501**
 
 ```bash
 curl -X GET http://localhost:5000/orders/501
 ```
 
 Expected Output:
+
 ```json
 [
   {
     "order_id": 1,
-    "product": "Laptop",
+    "product": "Mechanical Keyboard",
     "quantity": 2,
-    "tenant_id": 501
+    "tenant_id": 501,
+    "total_price": 240.0,
+    "unit_price": 120.0
   }
 ]
 ```
 
-**Scenario 4: Retrieve orders with a non-existent tenant (Success but Empty)**
+**Scenario 5: Retrieve orders for a non-existent tenant (503)**
 
 ```bash
-curl -X GET http://localhost:5000/orders/999
+curl -X GET http://localhost:5000/orders/503
 ```
 
 Expected Output:
+
 ```json
 []
 ```
 
-| # | Call | Status | Body snippet |
-|---|---|---|---|
-| 1 | `POST /orders` for tenant 501 | 201 | `{"message": "Order created"...}` |
-| 2 | `POST /orders` for tenant 502 | 201 | `{"message": "Order created"...}` |
-| 3 | `GET /orders/501` | 200 | `[{"product": "Laptop"...}]` |
-| 4 | `GET /orders/999` | 200 | `[]` |
+---
+
+## Verification Summary
+
+| # | Endpoint | Method | Payload / Param | Expected Status | Result Snippet |
+|---|---|---|---|---|---|
+| 1 | `/` | GET | None | `200 OK` | `{"status": "ready"...}` |
+| 2 | `/orders` | POST | `{"tenant_id": 501, "product_id": 1, ...}` | `201 Created` | `{"message": "Order created successfully", "total_amount": 240.0}` |
+| 3 | `/orders` | POST | `{"tenant_id": 502, "product_id": 2, ...}` | `201 Created` | `{"message": "Order created successfully", "total_amount": 195.0}` |
+| 4 | `/orders/501` | GET | `tenant_id=501` | `200 OK` | `[{"order_id": 1, "product": "Mechanical Keyboard"...}]` |
+| 5 | `/orders/503` | GET | `tenant_id=503` | `200 OK` | `[]` |
+
+---
 
 ## Conclusion
 
-You have successfully built an API that securely interacts with an AWS-hosted sharded database. By designing queries that filter by the distribution column, the API ensures optimal performance by pushing down executions directly to the correct worker nodes.
+You have successfully built an API service that operates on a sharded Citus database cluster. By leveraging the `tenant_id` distribution column in queries, the API allows Citus to bypass cross-node cluster network overhead and route queries directly to the correct shard. Furthermore, by using the **Poridhi Load Balancer**, your containerized Flask backend is safely accessible externally from any web browser.

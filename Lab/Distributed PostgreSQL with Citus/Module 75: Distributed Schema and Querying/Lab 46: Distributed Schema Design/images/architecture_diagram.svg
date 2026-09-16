@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 600" width="100%" height="auto">
+  <defs>
+    <style>
+      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; fill: #334155; }
+      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 12px; fill: #0f172a; }
+      .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
+    </style>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <!-- Outer Canvas Border -->
+  <rect x="10" y="10" width="1220" height="580" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+
+  <!-- ==================== 1. CLIENT / DBA ==================== -->
+  <g transform="translate(45, 175)">
+    <rect width="160" height="225" rx="12" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+    
+    <!-- User Icon -->
+    <circle cx="80" cy="50" r="22" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+    <path d="M 45 105 C 45 78, 115 78, 115 105" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+
+    <text x="80" y="136" class="txt-title" text-anchor="middle">DBA / App</text>
+    <text x="80" y="158" class="txt-node-sub" font-style="italic" font-weight="600" text-anchor="middle">(Schema Client)</text>
+    
+    <rect x="18" y="176" width="124" height="26" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="80" y="193" class="txt-node-code" text-anchor="middle">setup.py / psql</text>
+  </g>
+
+  <!-- Flow: Client <-> Coordinator -->
+  <!-- DDL Command Arrow (Top) -->
+  <path d="M 205 250 L 300 250" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="252" y="240" class="txt-arrow-label" text-anchor="middle">Schema DDL</text>
+
+  <!-- DDL Result Arrow (Bottom) -->
+  <path d="M 300 320 L 205 320" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="252" y="342" class="txt-arrow-label" text-anchor="middle">Catalog State</text>
+
+
+  <!-- ==================== 2. CITUS CLUSTER CONTAINER ==================== -->
+  <g transform="translate(305, 30)">
+    <rect width="895" height="535" rx="14" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="447" y="32" class="txt-title" text-anchor="middle">Citus Distributed Database Cluster</text>
+
+    <!-- 2.1 COORDINATOR NODE (Top) -->
+    <g transform="translate(180, 48)">
+      <rect width="535" height="155" rx="12" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
+
+      <!-- Cylinder Icon (Cyan) -->
+      <g transform="translate(245, 12)">
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+        <path d="M 2 9 L 2 29 A 20 6 0 0 0 42 29 L 42 9" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+        <path d="M 2 15 A 20 6 0 0 0 42 15" fill="none" stroke="#0284c7" stroke-width="1.8"/>
+        <path d="M 2 22 A 20 6 0 0 0 42 22" fill="none" stroke="#0284c7" stroke-width="1.8"/>
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+      </g>
+
+      <text x="267" y="68" class="txt-node-title" text-anchor="middle">Citus Coordinator Node</text>
+      <text x="267" y="86" class="txt-node-sub" text-anchor="middle">citus_coordinator:5432</text>
+
+      <!-- Inner Tables: Local Table + Catalog -->
+      <g transform="translate(20, 96)">
+        <rect width="235" height="46" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="117" y="20" class="txt-node-title" font-size="13" text-anchor="middle">tenants (Local Table)</text>
+        <text x="117" y="36" class="txt-node-sub" font-size="11" text-anchor="middle">Stored exclusively on Coordinator</text>
+      </g>
+
+      <g transform="translate(280, 96)">
+        <rect width="235" height="46" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="117" y="20" class="txt-node-title" font-size="13" text-anchor="middle">citus_tables &amp; citus_shards</text>
+        <text x="117" y="36" class="txt-node-sub" font-size="11" text-anchor="middle">Distribution Metadata Catalog</text>
+      </g>
+    </g>
+
+    <!-- Connectors from Coordinator to Workers -->
+    <!-- Line to Worker 1 -->
+    <path d="M 330 203 L 230 270" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+    <rect x="135" y="222" width="190" height="24" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="230" y="238" class="txt-arrow-label" font-size="11" text-anchor="middle">Replicate &amp; Shard to Worker 1</text>
+
+    <!-- Line to Worker 2 -->
+    <path d="M 565 203 L 665 270" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+    <rect x="570" y="222" width="190" height="24" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="665" y="238" class="txt-arrow-label" font-size="11" text-anchor="middle">Replicate &amp; Shard to Worker 2</text>
+
+
+    <!-- 2.2 WORKER NODE 1 -->
+    <g transform="translate(30, 275)">
+      <rect width="405" height="190" rx="12" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+
+      <!-- Cylinder Icon (Yellow) -->
+      <g transform="translate(180, 12)">
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 9 L 2 29 A 20 6 0 0 0 42 29 L 42 9" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 15 A 20 6 0 0 0 42 15" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <path d="M 2 22 A 20 6 0 0 0 42 22" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+      </g>
+
+      <text x="202" y="66" class="txt-node-title" text-anchor="middle">Worker Node 1</text>
+      <text x="202" y="84" class="txt-node-sub" text-anchor="middle">citus_worker_1:5432</text>
+
+      <!-- Shard Details inside Worker 1 -->
+      <g transform="translate(18, 96)">
+        <rect width="175" height="78" rx="6" fill="#fef3c7" stroke="#000000" stroke-width="1.2"/>
+        <text x="87" y="22" class="txt-node-title" font-size="13" text-anchor="middle">products</text>
+        <text x="87" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">Reference Table</text>
+        <text x="87" y="60" class="txt-node-code" font-size="11" text-anchor="middle">Full Local Replica</text>
+      </g>
+
+      <g transform="translate(210, 96)">
+        <rect width="175" height="78" rx="6" fill="#dcfce7" stroke="#000000" stroke-width="1.2"/>
+        <text x="87" y="22" class="txt-node-title" font-size="13" text-anchor="middle">orders_102008</text>
+        <text x="87" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">Distributed Table</text>
+        <text x="87" y="60" class="txt-node-code" font-size="11" text-anchor="middle">tenant_id Shard Part</text>
+      </g>
+    </g>
+
+    <!-- 2.3 WORKER NODE 2 -->
+    <g transform="translate(460, 275)">
+      <rect width="405" height="190" rx="12" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+
+      <!-- Cylinder Icon (Yellow) -->
+      <g transform="translate(180, 12)">
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 9 L 2 29 A 20 6 0 0 0 42 29 L 42 9" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 15 A 20 6 0 0 0 42 15" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <path d="M 2 22 A 20 6 0 0 0 42 22" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+      </g>
+
+      <text x="202" y="66" class="txt-node-title" text-anchor="middle">Worker Node 2</text>
+      <text x="202" y="84" class="txt-node-sub" text-anchor="middle">citus_worker_2:5432</text>
+
+      <!-- Shard Details inside Worker 2 -->
+      <g transform="translate(18, 96)">
+        <rect width="175" height="78" rx="6" fill="#fef3c7" stroke="#000000" stroke-width="1.2"/>
+        <text x="87" y="22" class="txt-node-title" font-size="13" text-anchor="middle">products</text>
+        <text x="87" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">Reference Table</text>
+        <text x="87" y="60" class="txt-node-code" font-size="11" text-anchor="middle">Full Local Replica</text>
+      </g>
+
+      <g transform="translate(210, 96)">
+        <rect width="175" height="78" rx="6" fill="#dcfce7" stroke="#000000" stroke-width="1.2"/>
+        <text x="87" y="22" class="txt-node-title" font-size="13" text-anchor="middle">orders_102009</text>
+        <text x="87" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">Distributed Table</text>
+        <text x="87" y="60" class="txt-node-code" font-size="11" text-anchor="middle">tenant_id Shard Part</text>
+      </g>
+    </g>
+
+    <!-- Bottom Pill: Schema Model -->
+    <g transform="translate(210, 480)">
+      <rect width="475" height="40" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+      <text x="237" y="26" class="txt-node-title" font-size="15" text-anchor="middle">Reference Table Replication &amp; Distributed Sharding</text>
+    </g>
+  </g>
+</svg>

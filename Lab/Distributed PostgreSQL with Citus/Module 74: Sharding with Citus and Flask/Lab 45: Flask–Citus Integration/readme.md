@@ -1,83 +1,73 @@
 # Lab 45: Flask–Citus Integration
 
-In this lab, you will build a Python REST API using Flask and SQLAlchemy that connects to a distributed Citus cluster. You will first provision the Citus database infrastructure in AWS using Pulumi, ensuring this lab is entirely standalone. You will then create endpoints to handle multi-tenant data, inserting and querying records across sharded tables. This demonstrates how a standard Flask application interacts seamlessly with Citus just like regular PostgreSQL.
+In this lab, you will build a Python REST API using Flask and SQLAlchemy that connects to a distributed Citus database cluster. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose within your Poridhi environment. Then, you will create endpoints to handle multi-tenant data, inserting and querying records across sharded tables, and expose the application publicly using the **Poridhi Load Balancer**.
 
-*(Image prompt: A comprehensive architectural overview diagram of the lab showing a user making API requests to a web application backend. The backend is connected to a Citus database cluster hosted on an AWS EC2 instance, highlighting a central Coordinator node managing communication and distributing the workload across multiple Worker nodes for horizontal scalability. No code shown, just the conceptual architecture.)*
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Flask and Citus Architecture" width="750">
+</p>
+
+---
 
 ## Concept
 
-| Term | Definition |
-|---|---|
-| Infrastructure as Code (IaC) | The process of managing and provisioning computing infrastructure through machine-readable definition files, such as Pulumi scripts. |
-| Distribution Column | The column used by Citus to shard data across worker nodes (e.g., `tenant_id`). |
-| Multi-tenant | An architecture where a single instance of a software application serves multiple customers (tenants), isolated by a tenant ID. |
+| Term                            | Definition                                                                                                                                |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Citus Coordinator**     | The entry-point PostgreSQL instance that stores cluster metadata, parses client queries, and routes them to the appropriate worker nodes. |
+| **Citus Worker**          | PostgreSQL instances that store shards of distributed tables and execute query operations concurrently.                                   |
+| **Distribution Column**   | The column used by Citus to partition data into shards across worker nodes (e.g.,`tenant_id`).                                          |
+| **Multi-tenant**          | An architecture where multiple tenants share the same database infrastructure, isolated logically by a tenant ID.                         |
+| **Poridhi Load Balancer** | Built-in edge proxy in Poridhi that routes external public traffic to ports running inside your private lab environment.                  |
 
-Citus is fully compatible with standard PostgreSQL drivers like `psycopg2`. This means your Flask application does not need any specialized Citus libraries to work. You simply define your models, mark the table as distributed by executing a specific Citus function (`create_distributed_table`), and ensure all queries include the distribution column to efficiently route them to the correct shards.
+---
 
 ## Objectives
 
-- Provision a Citus database cluster in AWS using Pulumi.
-- Configure a Python virtual environment with Flask and SQLAlchemy.
-- Implement a multi-tenant database model.
-- Build REST endpoints to insert and retrieve sharded data.
-- Verify distributed query execution and data insertion.
+- Deploy a multi-node Citus cluster (Coordinator + 2 Workers) using Docker Compose.
+- Register worker nodes with the Citus coordinator and verify active cluster nodes.
+- Configure a Python virtual environment with Flask, SQLAlchemy, and psycopg2.
+- Define a multi-tenant database model and distribute the table using Citus's `create_distributed_table()` function.
+- Build REST API endpoints to insert and fetch sharded tenant data.
+- Expose port `5000` via the **Poridhi Load Balancer** and verify the API through public and local requests.
 
-## What You Will Build
+---
+
+## Project Structure
 
 ```text
 flask-citus-lab/
-├── infra/
-│   ├── Pulumi.yaml
-│   └── __main__.py
+├── citus/
+│   └── docker-compose.yml
 └── app/
     ├── requirements.txt
     ├── database.py
     └── app.py
 ```
 
-You will write a Pulumi script to automatically deploy a Citus cluster on an AWS EC2 instance. Then, you will build a Flask application that connects to this coordinator, initializing a multi-tenant `events` table distributed by `tenant_id`, and exposes REST API routes.
+---
 
-## Step 1: Configure AWS CLI and Set Up Pulumi
+## Step 1: Deploy Citus Cluster using Docker Compose
 
-First, you need to configure your AWS credentials and initialize a Pulumi project to provision the database infrastructure.
-
-Create a directory for the infrastructure and initialize Pulumi:
+First, create a dedicated directory for the Citus cluster and define the multi-node cluster using Docker Compose:
 
 ```bash
-mkdir -p flask-citus-lab/infra
-cd flask-citus-lab/infra
-sudo apt update && sudo apt install -y python3.8-venv awscli
-aws configure
-pulumi new aws-python
-aws ec2 create-key-pair --key-name CitusKeyPair --query 'KeyMaterial' --output text > CitusKeyPair.pem
-chmod 400 CitusKeyPair.pem
+mkdir -p ~/flask-citus-lab/citus
+cd ~/flask-citus-lab/citus
 ```
 
-**Explanation:**
-- `aws configure`: Prompts you to enter your AWS Access Key, Secret Key, and Region (`ap-southeast-1`).
-- `pulumi new aws-python`: Scaffolds a new Pulumi Python project for deploying AWS resources.
-- `aws ec2 create-key-pair`: Creates an SSH key pair securely to access the deployed EC2 instance if needed.
+<p align="center">
+  <img src="./images/01_mkdir_citus.png" alt="Create Citus Directory" width="700">
+</p>
 
-## Step 2: Define and Deploy the AWS Infrastructure
+Create `docker-compose.yml`:
 
-Replace the contents of `flask-citus-lab/infra/__main__.py` with the following Pulumi code to provision a Citus cluster via Docker Compose on a single EC2 instance:
-
-```python
-import pulumi
-import pulumi_aws as aws
-
-user_data = """#!/bin/bash
-apt-get update -y
-apt-get install -y docker.io docker-compose
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ubuntu
-
-cat > /home/ubuntu/docker-compose.yml << 'EOF'
+```bash
+cat << 'EOF' > docker-compose.yml
 version: '3.8'
 services:
   coordinator:
     image: citusdata/citus:12.1
+    container_name: citus_coordinator
+    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -85,97 +75,114 @@ services:
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
     command: ["-c", "listen_addresses=*"]
+
   worker1:
     image: citusdata/citus:12.1
+    container_name: citus_worker_1
+    restart: always
     environment:
       - POSTGRES_PASSWORD=citus_password
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
+
   worker2:
     image: citusdata/citus:12.1
+    container_name: citus_worker_2
+    restart: always
     environment:
       - POSTGRES_PASSWORD=citus_password
       - POSTGRES_USER=citus
       - POSTGRES_DB=citus
 EOF
-
-cd /home/ubuntu/
-docker-compose up -d
-sleep 20
-docker exec coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
-docker exec coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
-"""
-
-vpc = aws.ec2.Vpc("citus-vpc", cidr_block="10.0.0.0/16", enable_dns_hostnames=True, enable_dns_support=True)
-igw = aws.ec2.InternetGateway("citus-igw", vpc_id=vpc.id)
-subnet = aws.ec2.Subnet("citus-subnet", vpc_id=vpc.id, cidr_block="10.0.1.0/24", map_public_ip_on_launch=True)
-rt = aws.ec2.RouteTable("citus-rt", vpc_id=vpc.id, routes=[aws.ec2.RouteTableRouteArgs(cidr_block="0.0.0.0/0", gateway_id=igw.id)])
-rt_assoc = aws.ec2.RouteTableAssociation("citus-rt-assoc", subnet_id=subnet.id, route_table_id=rt.id)
-
-sg = aws.ec2.SecurityGroup("citus-sg",
-    vpc_id=vpc.id,
-    ingress=[
-        {"protocol": "tcp", "from_port": 22, "to_port": 22, "cidr_blocks": ["0.0.0.0/0"]},
-        {"protocol": "tcp", "from_port": 5432, "to_port": 5432, "cidr_blocks": ["0.0.0.0/0"]}
-    ],
-    egress=[{"protocol": "-1", "from_port": 0, "to_port": 0, "cidr_blocks": ["0.0.0.0/0"]}]
-)
-
-citus_instance = aws.ec2.Instance("citus-instance",
-    instance_type="t2.medium",
-    vpc_security_group_ids=[sg.id],
-    ami="ami-04b70fa74e45c3917",
-    subnet_id=subnet.id,
-    key_name="CitusKeyPair",
-    user_data=user_data,
-    user_data_replace_on_change=True,
-    opts=pulumi.ResourceOptions(depends_on=[rt_assoc])
-)
-
-pulumi.export("coordinator_ip", citus_instance.public_ip)
 ```
 
-Run the deployment and save the outputted IP:
+<p align="center">
+  <img src="./images/02_create_docker_compose.png" alt="Create docker-compose.yml" width="700">
+</p>
+
+Start the containers:
 
 ```bash
-pulumi up --yes
+docker compose up -d || docker-compose up -d
 ```
 
-**Explanation:**
-- `user_data`: A bash script executed on the EC2 instance at boot. It installs Docker, runs a Citus coordinator and two workers using `docker-compose`, and registers the workers automatically.
-- `aws.ec2.Vpc` & `aws.ec2.SecurityGroup`: Configures the networking to allow traffic on port `5432` (PostgreSQL).
-- `pulumi.export`: Exposes the public IP of the EC2 instance so you can connect to the database from your Flask application.
-- *Wait 2-3 minutes after deployment finishes for the database to fully start.*
+<p align="center">
+  <img src="./images/03_docker_compose_up.png" alt="Docker Compose Up Output" width="700">
+</p>
 
-## Step 3: Create the Application Dependencies
+Wait 10 seconds for the database engines to finish initial boot, then register the worker nodes with the coordinator:
 
-Navigate out of the infrastructure folder, create an `app` directory, and set up your Python environment. Create a file named `flask-citus-lab/app/requirements.txt` with the following contents:
+```bash
+sleep 10
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker1', 5432);"
+docker exec citus_coordinator psql -U citus -d citus -c "SELECT citus_add_node('worker2', 5432);"
+```
 
-```text
+<p align="center">
+  <img src="./images/04_citus_add_nodes.png" alt="Register Citus Worker Nodes" width="700">
+</p>
+
+---
+
+## Step 2: Verify Active Citus Worker Nodes
+
+Check that both worker nodes are connected and registered with the coordinator:
+
+```bash
+docker exec -it citus_coordinator psql -U citus -d citus -c "SELECT * FROM citus_get_active_worker_nodes();"
+```
+
+<p align="center">
+  <img src="./images/05_citus_active_workers.png" alt="Verify Active Citus Workers" width="700">
+</p>
+
+---
+
+## Step 3: Set Up Application Environment & Dependencies
+
+Navigate to your workspace directory, create the `app` folder, and configure the Python environment:
+
+```bash
+cd ~/flask-citus-lab
+mkdir -p app && cd app
+
+python3 -m venv venv
+source venv/bin/activate
+```
+
+<p align="center">
+  <img src="./images/06_setup_app_venv.png" alt="Setup App Directory and Virtual Environment" width="700">
+</p>
+
+Create `requirements.txt`:
+
+```bash
+cat << 'EOF' > requirements.txt
 Flask==3.0.0
 psycopg2-binary==2.9.9
 Flask-SQLAlchemy==3.1.1
+EOF
 ```
+
+<p align="center">
+  <img src="./images/07_create_requirements.png" alt="Create requirements.txt" width="700">
+</p>
 
 Install the dependencies:
 
 ```bash
-cd ../
-mkdir app
-cd app
-python3 -m venv venv
-source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Explanation:**
-- `Flask==3.0.0`: The lightweight web framework used to create the API endpoints.
-- `psycopg2-binary==2.9.9`: The PostgreSQL database adapter required to communicate with the Citus coordinator.
-- `Flask-SQLAlchemy==3.1.1`: An extension that simplifies using SQLAlchemy with Flask.
+<p align="center">
+  <img src="./images/08_pip_install.png" alt="Pip Install Dependencies" width="700">
+</p>
 
-## Step 4: Implement Database Connection and Schema
+---
 
-Create a file named `flask-citus-lab/app/database.py` with the following contents:
+## Step 4: Implement Database Models and Distributed Tables
+
+Create `flask-citus-lab/app/database.py`:
 
 ```python
 from flask_sqlalchemy import SQLAlchemy
@@ -185,32 +192,37 @@ db = SQLAlchemy()
 
 class Event(db.Model):
     __tablename__ = 'events'
-    
+
+    # In Citus distributed tables, the distribution column must be part of the primary key
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tenant_id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(100), nullable=False)
-    
+
 def setup_database(app):
     with app.app_context():
+        # Create base PostgreSQL table
         db.create_all()
+
+        # Distribute the table across worker nodes based on tenant_id
         distribute_query = text("SELECT create_distributed_table('events', 'tenant_id');")
         try:
             db.session.execute(distribute_query)
             db.session.commit()
-        except Exception:
+            print("Events table distributed successfully across Citus workers.")
+        except Exception as e:
             db.session.rollback()
-            pass
+            print(f"Distribution status: {e}")
 ```
 
-**Explanation:**
-- `db = SQLAlchemy()`: Initializes the SQLAlchemy instance.
-- `class Event(db.Model)`: Defines the `events` table model.
-- `tenant_id = db.Column(..., primary_key=True)`: Citus requires the distribution column to be part of the primary key for distributed tables.
-- `db.session.execute(distribute_query)`: Executes the specific Citus function to shard the table across worker nodes based on the `tenant_id`.
+<p align="center">
+  <img src="./images/10_create_database_py.png" alt="Create database.py" width="700">
+</p>
 
-## Step 5: Implement the Flask Application
+---
 
-Create a file named `flask-citus-lab/app/app.py` with the following contents:
+## Step 5: Implement the Flask REST API
+
+Create `flask-citus-lab/app/app.py`:
 
 ```python
 import os
@@ -219,6 +231,7 @@ from database import db, Event, setup_database
 
 app = Flask(__name__)
 
+# Connect to the local Citus coordinator container on port 5432
 COORDINATOR_IP = os.environ.get("COORDINATOR_IP", "127.0.0.1")
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://citus:citus_password@{COORDINATOR_IP}:5432/citus'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -226,19 +239,37 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 setup_database(app)
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "status": "online",
+        "service": "Flask-Citus Multi-Tenant API",
+        "database": "Citus Distributed Cluster"
+    }), 200
+
 @app.route('/events', methods=['POST'])
 def create_event():
     data = request.get_json()
+    if not data or 'tenant_id' not in data or 'event_name' not in data:
+        return jsonify({"error": "tenant_id and event_name are required"}), 400
+
     new_event = Event(
         tenant_id=data['tenant_id'],
         event_name=data['event_name']
     )
     db.session.add(new_event)
     db.session.commit()
-    return jsonify({"message": "Event created", "tenant_id": new_event.tenant_id}), 201
+
+    return jsonify({
+        "message": "Event created",
+        "id": new_event.id,
+        "tenant_id": new_event.tenant_id,
+        "event_name": new_event.event_name
+    }), 201
 
 @app.route('/events/<int:tenant_id>', methods=['GET'])
 def get_events(tenant_id):
+    # Query routed directly to the single worker holding this tenant_id shard
     events = Event.query.filter_by(tenant_id=tenant_id).all()
     result = [{"id": e.id, "tenant_id": e.tenant_id, "event_name": e.event_name} for e in events]
     return jsonify(result), 200
@@ -247,23 +278,91 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 ```
 
-**Explanation:**
-- `app.config['SQLALCHEMY_DATABASE_URI']`: Sets the connection string to point to the remote Citus EC2 instance you provisioned.
-- `setup_database(app)`: Calls the function to create and distribute the table on startup.
-- `Event.query.filter_by(tenant_id=tenant_id).all()`: Queries events for a specific tenant, allowing Citus to route the query directly to the correct worker node.
+<p align="center">
+  <img src="./images/11_create_app_py.png" alt="Create app.py" width="700">
+</p>
 
-## Verification
+---
 
-Get your Coordinator IP from the Pulumi outputs in Step 2, set it as an environment variable, and start the Flask app:
+## Step 6: Expose Application via Poridhi Load Balancer
+
+In the Poridhi cloud lab environment, the virtual machine runs inside a private isolated network. To access your Flask application from your local browser or through an external URL, expose port `5000` using the built-in **Poridhi Load Balancer**:
+
+1. Find the primary IP of your Poridhi container:
+
+   ```bash
+   hostname -I | awk '{print $1}'
+   ```
+
+   <p align="center">
+     <img src="./images/09_hostname_ip.png" alt="Get Hostname Private IP" width="700">
+   </p>
+2. Open the **Load Balancer** modal from the Poridhi lab interface (the Cloud icon in the header or sidebar).
+3. Enter the configuration:
+
+   - **Enter IP**: Paste the IP address obtained from `hostname -I | awk '{print $1}'`.
+   - **Enter Port**: `5000`
+   - Click **Expose**.
+4. Poridhi will provision an edge load balancer and provide an active URL (e.g., `http://<lab-id>-5000.lb.poridhi.io`).
+
+<p align="center">
+  <img src="./images/12_load_balancer_exposed.png" alt="Poridhi Load Balancer Exposed" width="700">
+</p>
+
+---
+
+## Step 7: Run & Verify the Application
+
+### 1. Start the Flask Application
+
+In your terminal, start the server:
 
 ```bash
-export COORDINATOR_IP="YOUR_EC2_PUBLIC_IP"
+cd ~/flask-citus-lab/app
+source venv/bin/activate
 python3 app.py
 ```
 
-Open a new terminal window to run the following verification commands.
+Expected Startup Output:
 
-**Scenario 1: Create an event (Success)**
+```text
+Events table distributed successfully across Citus workers.
+ * Serving Flask app 'app'
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+```
+
+<p align="center">
+  <img src="./images/13_flask_run.png" alt="Flask Server Running Terminal Output" width="700">
+</p>
+
+### 2. Verify via cURL or Poridhi Load Balancer URL
+
+Open a second terminal window (or use your web browser with the **Poridhi Load Balancer URL**):
+
+You can replace `http://localhost:5000` with your **Poridhi Load Balancer URL** (e.g., `http://<id>-5000.lb.poridhi.io`) in any of the commands below to test the public endpoint.
+
+**Scenario 1: Health check endpoint**
+
+```bash
+curl -X GET http://localhost:5000/
+```
+
+Expected Output:
+
+```json
+{
+  "database": "Citus Distributed Cluster",
+  "service": "Flask-Citus Multi-Tenant API",
+  "status": "online"
+}
+```
+
+<p align="center">
+  <img src="./images/14_load_balancer_browser.png" alt="Browser Health Check via Poridhi Load Balancer" width="700">
+</p>
+
+**Scenario 2: Create an event for Tenant 101**
 
 ```bash
 curl -X POST http://localhost:5000/events \
@@ -272,14 +371,21 @@ curl -X POST http://localhost:5000/events \
 ```
 
 Expected Output:
+
 ```json
 {
+  "event_name": "User Signup",
+  "id": 1,
   "message": "Event created",
   "tenant_id": 101
 }
 ```
 
-**Scenario 2: Create another event for a different tenant (Success)**
+<p align="center">
+  <img src="./images/15_curl_post_tenant_101.png" alt="Create Event Tenant 101 cURL Output" width="700">
+</p>
+
+**Scenario 3: Create an event for Tenant 102**
 
 ```bash
 curl -X POST http://localhost:5000/events \
@@ -288,20 +394,28 @@ curl -X POST http://localhost:5000/events \
 ```
 
 Expected Output:
+
 ```json
 {
+  "event_name": "Item Purchased",
+  "id": 2,
   "message": "Event created",
   "tenant_id": 102
 }
 ```
 
-**Scenario 3: Retrieve events for a specific tenant (Success)**
+<p align="center">
+  <img src="./images/16_curl_post_tenant_102.png" alt="Create Event Tenant 102 cURL Output" width="700">
+</p>
+
+**Scenario 4: Retrieve events for Tenant 101**
 
 ```bash
 curl -X GET http://localhost:5000/events/101
 ```
 
 Expected Output:
+
 ```json
 [
   {
@@ -312,29 +426,40 @@ Expected Output:
 ]
 ```
 
-**Scenario 4: Retrieve events with missing data (Failure)**
+<p align="center">
+  <img src="./images/17_curl_get_tenant_101.png" alt="Retrieve Tenant 101 Events cURL Output" width="700">
+</p>
+
+**Scenario 5: Request with missing required fields**
 
 ```bash
-curl -X GET http://localhost:5000/events
+curl -X POST http://localhost:5000/events \
+     -H "Content-Type: application/json" \
+     -d '{"event_name": "Incomplete Event"}'
 ```
 
 Expected Output:
-```html
-<!doctype html>
-<html lang=en>
-<title>405 Method Not Allowed</title>
-<h1>Method Not Allowed</h1>
-<p>The method is not allowed for the requested URL.</p>
-</html>
+
+```json
+{
+  "error": "tenant_id and event_name are required"
+}
 ```
 
-| # | Call | Status | Body snippet |
-|---|---|---|---|
-| 1 | `POST /events` with valid JSON | 201 | `{"message": "Event created"...}` |
-| 2 | `POST /events` for tenant 102 | 201 | `{"message": "Event created"...}` |
-| 3 | `GET /events/101` | 200 | `[{"event_name": "User Signup"...}]` |
-| 4 | `GET /events` | 405 | `<title>405 Method Not Allowed</title>` |
+---
+
+## Verification Summary
+
+| # | Endpoint        | Method | Payload / Param             | Expected Status     | Result Snippet                                     |
+| - | --------------- | ------ | --------------------------- | ------------------- | -------------------------------------------------- |
+| 1 | `/`           | GET    | None                        | `200 OK`          | `{"status": "online"...}`                        |
+| 2 | `/events`     | POST   | `{"tenant_id": 101, ...}` | `201 Created`     | `{"message": "Event created", "tenant_id": 101}` |
+| 3 | `/events`     | POST   | `{"tenant_id": 102, ...}` | `201 Created`     | `{"message": "Event created", "tenant_id": 102}` |
+| 4 | `/events/101` | GET    | `tenant_id=101`           | `200 OK`          | `[{"event_name": "User Signup"...}]`             |
+| 5 | `/events`     | POST   | Missing fields              | `400 Bad Request` | `{"error": "tenant_id and event_name..."}`       |
+
+---
 
 ## Conclusion
 
-You have successfully built a Flask API integrated with a Citus cluster completely from scratch. By utilizing Pulumi for infrastructure automation and SQLAlchemy for application routing, you demonstrated how modern microservices connect to distributed shards seamlessly.
+You have successfully deployed a multi-node Citus cluster using Docker Compose and integrated it with a Flask REST API. By distributing the `events` table across worker nodes using the `tenant_id` distribution column, the API achieves single-worker point-query routing and linear write scalability. Finally, by exposing port `5000` through the **Poridhi Load Balancer**, your containerized service is accessible externally from any web browser.

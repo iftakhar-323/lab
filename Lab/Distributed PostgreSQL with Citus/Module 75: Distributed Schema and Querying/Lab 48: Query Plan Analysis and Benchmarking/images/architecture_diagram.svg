@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 600" width="100%" height="auto">
+  <defs>
+    <style>
+      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; fill: #334155; }
+      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 12px; fill: #0f172a; }
+      .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
+      .txt-badge { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; font-weight: 700; fill: #000000; }
+    </style>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <!-- Outer Canvas Border -->
+  <rect x="10" y="10" width="1220" height="580" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+
+  <!-- ==================== 1. BENCHMARK CLIENT ==================== -->
+  <g transform="translate(45, 155)">
+    <rect width="165" height="260" rx="12" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+    
+    <!-- User Icon -->
+    <circle cx="82" cy="45" r="20" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+    <path d="M 50 95 C 50 70, 114 70, 114 95" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+
+    <text x="82" y="122" class="txt-title" text-anchor="middle">Benchmark</text>
+    <text x="82" y="142" class="txt-node-sub" font-style="italic" font-weight="600" text-anchor="middle">(Query &amp; Load Client)</text>
+    
+    <!-- Test Commands Box -->
+    <g transform="translate(10, 158)">
+      <rect width="145" height="85" rx="6" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="72" y="20" class="txt-node-code" font-weight="700" text-anchor="middle">benchmark.py</text>
+      <text x="72" y="40" class="txt-node-code" font-size="11" text-anchor="middle">EXPLAIN (ANALYZE)</text>
+      <text x="72" y="58" class="txt-node-code" font-size="11" text-anchor="middle">1000 Inserts</text>
+      <text x="72" y="74" class="txt-node-sub" font-size="10" text-anchor="middle">~450-600 writes/sec</text>
+    </g>
+  </g>
+
+  <!-- Flow: Client <-> Citus Cluster -->
+  <!-- Queries Arrow (Top) -->
+  <path d="M 210 250 L 330 250" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="270" y="240" class="txt-arrow-label" text-anchor="middle">EXPLAIN / Writes</text>
+
+  <!-- Results Arrow (Bottom) -->
+  <path d="M 330 320 L 210 320" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="270" y="342" class="txt-arrow-label" text-anchor="middle">Execution Plan</text>
+
+
+  <!-- ==================== 2. CITUS CLUSTER CONTAINER ==================== -->
+  <g transform="translate(335, 30)">
+    <rect width="875" height="535" rx="14" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="437" y="32" class="txt-title" text-anchor="middle">Citus Distributed Query Engine &amp; Cluster</text>
+
+    <!-- 2.1 COORDINATOR NODE (Top) -->
+    <g transform="translate(170, 48)">
+      <rect width="535" height="160" rx="12" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
+
+      <!-- Cylinder Icon (Cyan) -->
+      <g transform="translate(245, 10)">
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+        <path d="M 2 9 L 2 29 A 20 6 0 0 0 42 29 L 42 9" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+        <path d="M 2 15 A 20 6 0 0 0 42 15" fill="none" stroke="#0284c7" stroke-width="1.8"/>
+        <path d="M 2 22 A 20 6 0 0 0 42 22" fill="none" stroke="#0284c7" stroke-width="1.8"/>
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+      </g>
+
+      <text x="267" y="66" class="txt-node-title" text-anchor="middle">Citus Coordinator Node</text>
+      <text x="267" y="84" class="txt-node-sub" text-anchor="middle">citus_coordinator:5432 • Dual Planner Engine</text>
+
+      <!-- Inner Planners: Router vs Adaptive -->
+      <g transform="translate(18, 96)">
+        <rect width="240" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="120" y="20" class="txt-node-title" font-size="13" text-anchor="middle">Router Executor</text>
+        <text x="120" y="38" class="txt-node-code" font-size="11" fill="#15803d" text-anchor="middle">WHERE tenant_id (Task Count: 1)</text>
+      </g>
+
+      <g transform="translate(275, 96)">
+        <rect width="240" height="50" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="120" y="20" class="txt-node-title" font-size="13" text-anchor="middle">Adaptive Executor</text>
+        <text x="120" y="38" class="txt-node-code" font-size="11" fill="#7c3aed" text-anchor="middle">Scatter-Gather (Task Count: 32)</text>
+      </g>
+    </g>
+
+    <!-- Connectors from Coordinator to Workers -->
+    <!-- Line to Worker 1 -->
+    <path d="M 330 208 L 230 275" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+    <rect x="135" y="226" width="190" height="24" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="230" y="242" class="txt-arrow-label" font-size="11" text-anchor="middle">Parallel Shard Tasks (1..N)</text>
+
+    <!-- Line to Worker 2 -->
+    <path d="M 545 208 L 645 275" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+    <rect x="550" y="226" width="190" height="24" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="645" y="242" class="txt-arrow-label" font-size="11" text-anchor="middle">Parallel Shard Tasks (1..N)</text>
+
+
+    <!-- 2.2 WORKER NODE 1 -->
+    <g transform="translate(30, 280)">
+      <rect width="395" height="185" rx="12" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+
+      <!-- Cylinder Icon (Yellow) -->
+      <g transform="translate(175, 12)">
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 9 L 2 29 A 20 6 0 0 0 42 29 L 42 9" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 15 A 20 6 0 0 0 42 15" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <path d="M 2 22 A 20 6 0 0 0 42 22" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+      </g>
+
+      <text x="197" y="66" class="txt-node-title" text-anchor="middle">Worker Node 1</text>
+      <text x="197" y="84" class="txt-node-sub" text-anchor="middle">citus_worker_1:5432</text>
+
+      <!-- Task Execution Inside Worker 1 -->
+      <g transform="translate(18, 96)">
+        <rect width="170" height="74" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="85" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Point Scan</text>
+        <text x="85" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">orders_102008</text>
+        <text x="85" y="60" class="txt-node-code" font-size="11" fill="#15803d" text-anchor="middle">Latency: ~1.2 ms</text>
+      </g>
+
+      <g transform="translate(205, 96)">
+        <rect width="170" height="74" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="85" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Parallel Insert</text>
+        <text x="85" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">Tenants 0, 2, 4, 6, 8</text>
+        <text x="85" y="60" class="txt-node-code" font-size="11" fill="#0284c7" text-anchor="middle">Thread Pool IO</text>
+      </g>
+    </g>
+
+    <!-- 2.3 WORKER NODE 2 -->
+    <g transform="translate(450, 280)">
+      <rect width="395" height="185" rx="12" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+
+      <!-- Cylinder Icon (Yellow) -->
+      <g transform="translate(175, 12)">
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 9 L 2 29 A 20 6 0 0 0 42 29 L 42 9" fill="#facc15" stroke="#000000" stroke-width="2"/>
+        <path d="M 2 15 A 20 6 0 0 0 42 15" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <path d="M 2 22 A 20 6 0 0 0 42 22" fill="none" stroke="#000000" stroke-width="1.8"/>
+        <ellipse cx="22" cy="9" rx="20" ry="6" fill="#facc15" stroke="#000000" stroke-width="2"/>
+      </g>
+
+      <text x="197" y="66" class="txt-node-title" text-anchor="middle">Worker Node 2</text>
+      <text x="197" y="84" class="txt-node-sub" text-anchor="middle">citus_worker_2:5432</text>
+
+      <!-- Task Execution Inside Worker 2 -->
+      <g transform="translate(18, 96)">
+        <rect width="170" height="74" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="85" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Partial Count</text>
+        <text x="85" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">orders_102009</text>
+        <text x="85" y="60" class="txt-node-code" font-size="11" fill="#7c3aed" text-anchor="middle">Worker Aggregate</text>
+      </g>
+
+      <g transform="translate(205, 96)">
+        <rect width="170" height="74" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="85" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Parallel Insert</text>
+        <text x="85" y="42" class="txt-node-sub" font-size="11" text-anchor="middle">Tenants 1, 3, 5, 7, 9</text>
+        <text x="85" y="60" class="txt-node-code" font-size="11" fill="#0284c7" text-anchor="middle">Thread Pool IO</text>
+      </g>
+    </g>
+
+    <!-- Bottom Pill: Benchmark Performance -->
+    <g transform="translate(200, 480)">
+      <rect width="475" height="40" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+      <text x="237" y="26" class="txt-node-title" font-size="15" text-anchor="middle">Distributed Query Planning &amp; Write Benchmarking</text>
+    </g>
+  </g>
+</svg>
