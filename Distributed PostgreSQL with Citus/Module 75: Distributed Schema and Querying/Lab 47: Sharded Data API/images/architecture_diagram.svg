@@ -5,12 +5,18 @@
       .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
       .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; fill: #334155; }
       .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 12px; fill: #0f172a; }
-      .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #000000; }
+      .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
       .txt-badge { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; font-weight: 700; fill: #000000; }
     </style>
 
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000"/>
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#16a34a"/>
     </marker>
   </defs>
 
@@ -34,12 +40,12 @@
 
   <!-- Flow: User <-> Web App -->
   <!-- Request Arrow (Top) -->
-  <path d="M 205 250 L 305 250" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-  <text x="255" y="240" class="txt-arrow-label" text-anchor="middle">POST /orders</text>
+  <path d="M 205 245 L 302 245" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="255" y="235" class="txt-arrow-label" text-anchor="middle">POST /orders</text>
 
   <!-- Response Arrow (Bottom) -->
-  <path d="M 305 320 L 205 320" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-  <text x="255" y="342" class="txt-arrow-label" text-anchor="middle">Order JSON</text>
+  <path d="M 302 315 L 211 315" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="255" y="338" class="txt-arrow-label" text-anchor="middle">Order JSON</text>
 
 
   <!-- ==================== 2. WEB APPLICATION BACKEND ==================== -->
@@ -72,12 +78,12 @@
 
   <!-- Flow: Web App <-> Citus Cluster -->
   <!-- SQL Queries Arrow (Top) -->
-  <path d="M 575 250 L 685 250" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-  <text x="630" y="240" class="txt-arrow-label" text-anchor="middle">SQL Query</text>
+  <path d="M 575 240 L 682 240" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="630" y="230" class="txt-arrow-label" text-anchor="middle">SQL Query</text>
 
   <!-- Query Results Arrow (Bottom) -->
-  <path d="M 685 320 L 575 320" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-  <text x="630" y="342" class="txt-arrow-label" text-anchor="middle">Rows Result</text>
+  <path d="M 682 315 L 581 315" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="630" y="338" class="txt-arrow-label" text-anchor="middle">Rows Result</text>
 
 
   <!-- ==================== 3. CITUS DATABASE CLUSTER ==================== -->
@@ -107,14 +113,18 @@
 
     <!-- Connectors: Coordinator -> Workers -->
     <!-- Direct Routed Line to Worker 1 (Active) -->
-    <path d="M 215 205 L 145 280" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
-    <rect x="16" y="230" width="140" height="24" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
-    <text x="86" y="246" class="txt-badge" fill="#15803d" text-anchor="middle">Direct Point Route</text>
+    <path d="M 205 205 L 150 280" fill="none" stroke="#16a34a" stroke-width="2.8" marker-end="url(#arrow-green)"/>
+    <g transform="translate(32, 224)">
+      <rect width="138" height="26" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4"/>
+      <text x="69" y="17" class="txt-badge" fill="#15803d" text-anchor="middle">Direct Point Route</text>
+    </g>
 
-    <!-- Idle / Bypassed to Worker 2 -->
-    <path d="M 295 205 L 365 280" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 4"/>
-    <rect x="354" y="230" width="140" height="24" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
-    <text x="424" y="246" class="txt-badge" fill="#64748b" text-anchor="middle">Bypassed (Zero I/O)</text>
+    <!-- Idle / Bypassed to Worker 2 (With Muted Arrowhead) -->
+    <path d="M 305 205 L 360 280" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow-muted)"/>
+    <g transform="translate(340, 224)">
+      <rect width="138" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="69" y="17" class="txt-badge" fill="#64748b" text-anchor="middle">Bypassed (Zero I/O)</text>
+    </g>
 
 
     <!-- 3.2 WORKER NODE 1 (Target of Query) -->
