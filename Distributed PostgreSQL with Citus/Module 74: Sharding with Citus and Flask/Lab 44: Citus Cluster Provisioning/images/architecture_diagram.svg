@@ -10,6 +10,20 @@
       .txt-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.5px; font-weight: 700; fill: #000000; }
       .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 800; fill: #000000; }
       .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
+
+      /* Live Flow Animations */
+      @keyframes flow-dash {
+        from { stroke-dashoffset: 0; }
+        to { stroke-dashoffset: -32; }
+      }
+      .anim-flow {
+        stroke-dasharray: 10 6;
+        animation: flow-dash 1.2s linear infinite;
+      }
+      .anim-flow-fast {
+        stroke-dasharray: 10 6;
+        animation: flow-dash 0.9s linear infinite;
+      }
     </style>
 
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
@@ -101,10 +115,17 @@
     </g>
 
     <!-- Connector Lines from Coordinator to Workers -->
-    <!-- Line to Worker 1 -->
-    <path d="M 200 242 L 175 350" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
-    <!-- Line to Worker 2 -->
-    <path d="M 470 242 L 495 350" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <!-- Line to Worker 1 (Track + Animated Stream) -->
+    <path d="M 200 242 L 175 350" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+    <path d="M 200 242 L 175 350" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- Line to Worker 2 (Track + Animated Stream) -->
+    <path d="M 470 242 L 495 350" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+    <path d="M 470 242 L 495 350" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+    </path>
 
     <!-- Connector Badges (Beside the lines, no obstruction) -->
     <g transform="translate(30, 276)">
@@ -175,16 +196,25 @@
 
   <!-- ==================== 4. INTER-CONTAINER FLOWS ==================== -->
   <!-- Flow: Operator -> pgAdmin (Top) -->
-  <path d="M 230 200 L 305 200" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <path d="M 230 200 L 305 200" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 230 200 L 305 200" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+  </path>
   <text x="267" y="190" class="txt-arrow-label" text-anchor="middle">Port 8080</text>
 
   <!-- Flow: Operator -> Coordinator CLI (Bottom) -->
-  <path d="M 230 420 L 560 420" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <path d="M 230 420 L 560 420" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 230 420 L 560 420" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+  </path>
   <rect x="330" y="406" width="130" height="26" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
   <text x="395" y="423" class="txt-arrow-label" font-size="12.5" text-anchor="middle">Port 5432 / psql</text>
 
   <!-- Flow: pgAdmin -> Citus Coordinator (Crosses into Coordinator) -->
-  <path d="M 500 200 L 605 200" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 500 200 L 605 200" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 500 200 L 605 200" fill="none" stroke="#000000" stroke-width="2" class="anim-flow-fast" marker-end="url(#arrow)">
+    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="0.9s" repeatCount="indefinite"/>
+  </path>
   <rect x="522" y="186" width="76" height="26" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
   <text x="560" y="203" class="txt-arrow-label" font-size="12" text-anchor="middle">SQL :5432</text>
 </svg>

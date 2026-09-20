@@ -3,7 +3,7 @@
 In this lab, you will build and deploy a multi-tenant REST API using Flask that communicates with a distributed Citus database cluster. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose in your Poridhi environment. You will then create API endpoints to insert and retrieve tenant orders, leverage Citus's distributed query routing engine, and expose your service publicly using the **Poridhi Load Balancer**.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2047:%20Sharded%20Data%20API/images/architecture_diagram.svg?v=3" alt="Sharded Data API Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2047:%20Sharded%20Data%20API/images/architecture_diagram.svg?v=4" alt="Sharded Data API Architecture" width="750">
 </p>
 
 ---

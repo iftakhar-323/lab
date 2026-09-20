@@ -3,7 +3,7 @@
 In this lab, you will design and implement a distributed relational database schema using Citus. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose in your Poridhi environment. Then, you will configure multi-tenant data models, deploying an `orders` transaction table as a sharded distributed table and a `products` catalog as a globally replicated reference table.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/architecture_diagram.svg?v=3" alt="Distributed Schema Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2046:%20Distributed%20Schema%20Design/images/architecture_diagram.svg?v=4" alt="Distributed Schema Architecture" width="750">
 </p>
 
 ---
