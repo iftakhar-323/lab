@@ -8,6 +8,38 @@ In this lab, you will design and implement a distributed relational database sch
 
 ---
 
+## Theory: Distributed Tables vs Reference Tables
+
+When designing schemas for a distributed PostgreSQL cluster with Citus, tables are categorized based on their scale, access patterns, and relationship to tenants:
+
+### 1. Distributed Tables (Sharded by Distribution Key)
+- **Use Case**: High-volume, fast-growing transaction tables (e.g., `orders`, `events`, `page_views`).
+- **Storage Strategy**: Citus partitions the table into multiple physical shards using a hash of the distribution column (typically `tenant_id` or `company_id`). Shards are distributed evenly across worker nodes.
+- **Key Benefits**:
+  - **Horizontal Scalability**: Storage and write throughput scale linearly as you add more worker nodes.
+  - **Co-located Joins**: Queries filtering by the distribution key execute locally on a single worker without cross-node network shuffle.
+- **Function**: `SELECT create_distributed_table('orders', 'tenant_id');`
+
+### 2. Reference Tables (Full Cluster Replication)
+- **Use Case**: Slow-moving, read-heavy lookup or dimension tables (e.g., `products`, `categories`, `postal_codes`).
+- **Storage Strategy**: Instead of sharding, Citus maintains a full physical copy of the entire table on the coordinator and every worker node. Writes are two-phase committed across all nodes.
+- **Key Benefits**:
+  - **Local Joins**: Any distributed table can join directly with a reference table locally on any worker node without cross-node network overhead.
+  - **Global Lookups**: Any worker can satisfy queries on reference tables directly.
+- **Function**: `SELECT create_reference_table('products');`
+
+### Comparison Summary
+
+| Characteristic | Distributed Table (`orders`) | Reference Table (`products`) |
+| :--- | :--- | :--- |
+| **Partitioning Strategy** | Hash-sharded across worker nodes | Replicated identically to all workers |
+| **Primary Use Case** | Tenant-specific transaction data | Shared catalogs and lookup data |
+| **Join Efficiency** | Co-located with same distribution key | Joins locally with any table on any node |
+| **Write Performance** | Scalable, parallel across shards | Synchronous write to all nodes |
+| **Citus Function** | `create_distributed_table(table, column)` | `create_reference_table(table)` |
+
+---
+
 ## Objectives
 
 - Deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) using Docker Compose.

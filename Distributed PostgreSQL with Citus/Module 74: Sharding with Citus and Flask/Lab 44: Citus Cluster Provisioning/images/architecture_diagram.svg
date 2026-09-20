@@ -9,13 +9,13 @@
       .txt-badge { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; font-weight: 700; fill: #000000; }
     </style>
 
-    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000"/>
     </marker>
-    <marker id="arrow-muted" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8"/>
     </marker>
-    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#16a34a"/>
     </marker>
   </defs>
@@ -44,14 +44,6 @@
     </g>
   </g>
 
-  <!-- Flow: Client -> pgAdmin (Top) -->
-  <path d="M 220 200 L 302 200" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-  <text x="262" y="190" class="txt-arrow-label" text-anchor="middle">Port 8080</text>
-
-  <!-- Flow: Client -> Coordinator CLI (Bottom) -->
-  <path d="M 220 370 L 522 370" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-  <text x="372" y="360" class="txt-arrow-label" text-anchor="middle">Port 5432 / psql</text>
-
   <!-- ==================== 2. PGADMIN CONTAINER ==================== -->
   <g transform="translate(310, 80)">
     <rect width="180" height="240" rx="12" fill="#fffbeb" stroke="#000000" stroke-width="2"/>
@@ -70,11 +62,6 @@
       <text x="15" y="134" class="txt-node-sub">• User: admin@poridhi</text>
     </g>
   </g>
-
-  <!-- Flow: pgAdmin -> Citus Coordinator -->
-  <path d="M 490 200 L 622 200" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-  <rect x="522" y="186" width="76" height="22" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-  <text x="560" y="201" class="txt-arrow-label" font-size="11" text-anchor="middle">SQL :5432</text>
 
   <!-- ==================== 3. CITUS CLUSTER (DOCKER COMPOSE) ==================== -->
   <g transform="translate(530, 30)">
@@ -113,9 +100,9 @@
 
     <!-- Connector Lines from Coordinator to Workers -->
     <!-- Line to Worker 1 -->
-    <path d="M 230 225 L 180 322" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M 230 225 L 180 330" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
     <!-- Line to Worker 2 -->
-    <path d="M 465 225 L 515 322" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M 465 225 L 515 330" fill="none" stroke="#000000" stroke-width="2.5" marker-end="url(#arrow)"/>
 
     <!-- Connector Badges (Placed BESIDE the lines with clear margin, zero collision) -->
     <g transform="translate(42, 258)">
@@ -181,4 +168,18 @@
     </g>
 
   </g>
+
+  <!-- ==================== 4. INTER-CONTAINER FLOWS ==================== -->
+  <!-- Flow: Client -> pgAdmin (Top) -->
+  <path d="M 220 200 L 310 200" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="265" y="190" class="txt-arrow-label" text-anchor="middle">Port 8080</text>
+
+  <!-- Flow: Client -> Coordinator CLI (Bottom) -->
+  <path d="M 220 370 L 530 370" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="375" y="360" class="txt-arrow-label" text-anchor="middle">Port 5432 / psql</text>
+
+  <!-- Flow: pgAdmin -> Citus Coordinator -->
+  <path d="M 490 200 L 630 200" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="522" y="186" width="76" height="24" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <text x="560" y="202" class="txt-arrow-label" font-size="11" text-anchor="middle">SQL :5432</text>
 </svg>
