@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 640" width="100%" height="auto">
   <defs>
     <style>
-      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 19px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600; fill: #000000; }
-      .txt-box-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 800; fill: #000000; }
-      .txt-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
-      .txt-body-bold { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
-      .txt-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.5px; font-weight: 700; fill: #000000; }
-      .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 800; fill: #000000; }
-      .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
+      .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 19px; font-weight: 800; fill: #000000; }
+      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 14px; font-weight: 600; fill: #000000; }
+      .txt-box-title { font-family: "Times New Roman", Times, serif; font-size: 15px; font-weight: 800; fill: #000000; }
+      .txt-body { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
+      .txt-body-bold { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
+      .txt-code { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 700; fill: #000000; }
+      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 14px; font-weight: 800; fill: #000000; }
+      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
 
       /* Live Flow Animations */
       @keyframes flow-dash {

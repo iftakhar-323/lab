@@ -3,7 +3,7 @@
 In this lab, you will deploy and configure a multi-node distributed PostgreSQL cluster using Citus and Docker Compose in your Poridhi environment. You will deploy a 4-service stack consisting of a Citus Coordinator, two Citus Worker nodes, and a pgAdmin 4 web management interface. You will learn the core mechanics of horizontal scaling, register worker nodes into the cluster metadata catalog, verify cluster health, and validate physical shard distribution across nodes.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/architecture_diagram.svg?v=5" alt="Citus Cluster Provisioning Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2044:%20Citus%20Cluster%20Provisioning/images/architecture_diagram.svg?v=7" alt="Citus Cluster Provisioning Architecture" width="750">
 </p>
 
 ---
