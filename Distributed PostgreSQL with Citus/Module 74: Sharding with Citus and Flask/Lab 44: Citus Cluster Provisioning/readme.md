@@ -11,25 +11,28 @@ In this lab, you will deploy and configure a multi-node distributed PostgreSQL c
 ## Theory: Sharding and Citus Architecture
 
 ### Horizontal Scaling vs Vertical Scaling
+
 Traditional PostgreSQL instances scale vertically by adding more CPU, RAM, and disk IOPS to a single machine. While effective up to a limit, vertical scaling introduces high hardware costs, downtime during upgrades, and a single point of failure.
 
 Horizontal scaling partitions large tables across multiple independent database servers (nodes). **Citus** is an open-source extension that transforms PostgreSQL into a distributed database, providing horizontal scalability without sacrificing ACID transactions, SQL querying, or indexing capabilities.
 
 ### Coordinator vs Worker Node Architecture
+
 A Citus cluster operates on a master-worker distributed topology:
 
 1. **Coordinator Node (`citus_coordinator`):**
+
    - Serves as the primary entry point for all client applications, web services, and DB administrators.
    - Stores cluster-wide metadata catalogs (`pg_dist_node`, `pg_dist_partition`, `citus_shards`).
    - Receives SQL queries, parses them, generates distributed execution plans, and routes query fragments to worker nodes.
    - Aggregates results from worker nodes and returns the final response to the client.
-
 2. **Worker Nodes (`citus_worker_1`, `citus_worker_2`):**
+
    - Independent PostgreSQL instances running the Citus extension.
    - Hold physical partitions (shards) of distributed tables.
    - Execute query fragments sent by the coordinator in parallel using local CPU cores and memory.
-
 3. **pgAdmin 4 (`citus_pgadmin`):**
+
    - Web-based administration tool for PostgreSQL and Citus.
    - Allows graphical inspection of nodes, active connections, tables, and execution stats.
 
@@ -182,6 +185,7 @@ docker exec citus_coordinator psql -U citus -d citus -c "SELECT * FROM citus_get
 ```
 
 Expected Output:
+
 ```text
  node_name | node_port 
 -----------+-----------
@@ -196,23 +200,7 @@ Expected Output:
 
 ---
 
-## Step 5: Access pgAdmin 4 Web Interface (Optional)
-
-You can access the pgAdmin 4 GUI to manage and monitor the cluster:
-
-1. Open your browser and navigate to `http://<YOUR_VM_IP>:8080` (or access port `8080` using the **Poridhi Load Balancer**).
-2. Log in with the credentials:
-   - **Email:** `admin@poridhi.com`
-   - **Password:** `admin_password`
-3. In the left panel, right-click **Servers** > **Register** > **Server...**:
-   - **General Tab:** Name = `Citus Coordinator`
-   - **Connection Tab:**
-     - **Host name/address:** `coordinator` (or `citus_coordinator`)
-     - **Port:** `5432`
-     - **Maintenance database:** `citus`
-     - **Username:** `citus`
-     - **Password:** `citus_password`
-4. Click **Save** to connect and browse cluster databases and metrics.
+## Step 5: Access pgAdmin 4 Web Interface
 
 You can also verify pgAdmin HTTP responsiveness from the terminal:
 
@@ -221,6 +209,7 @@ curl -I http://localhost:8080/login
 ```
 
 Expected Output:
+
 ```text
 HTTP/1.1 200 OK
 Server: gunicorn
@@ -272,6 +261,7 @@ ORDER BY shardid LIMIT 6;
 ```
 
 Expected Output:
+
 ```text
  shardid | nodename | nodeport 
 ---------+----------+----------
@@ -295,6 +285,7 @@ docker exec citus_coordinator psql -U citus -d citus -c "SELECT * FROM companies
 ```
 
 Expected Output:
+
 ```text
  id |   name   | country 
 ----+----------+---------
