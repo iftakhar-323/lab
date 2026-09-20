@@ -376,10 +376,6 @@ Expected Output:
 }
 ```
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/14_load_balancer_browser.png" alt="Browser Health Check via Poridhi Load Balancer" width="700">
-</p>
-
 **Scenario 2: Create an event for Tenant 101**
 
 ```bash
