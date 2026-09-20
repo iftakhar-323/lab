@@ -465,7 +465,7 @@ Expected Output:
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/18_curl_missing_fields.png" alt="Missing Required Fields cURL Output" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/18_curl_missing_fields.png?v=1" alt="Missing Required Fields cURL Output" width="700">
 </p>
 
 ---
