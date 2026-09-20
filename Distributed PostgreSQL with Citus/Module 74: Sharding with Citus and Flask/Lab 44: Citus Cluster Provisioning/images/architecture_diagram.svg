@@ -215,6 +215,6 @@
   <path d="M 500 200 L 605 200" fill="none" stroke="#000000" stroke-width="2" class="anim-flow-fast" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="0.9s" repeatCount="indefinite"/>
   </path>
-  <rect x="522" y="186" width="76" height="26" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-  <text x="560" y="203" class="txt-arrow-label" font-size="12" text-anchor="middle">SQL :5432</text>
+  <rect x="512" y="186" width="70" height="26" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <text x="547" y="203" class="txt-arrow-label" font-size="12" text-anchor="middle">SQL :5432</text>
 </svg>
