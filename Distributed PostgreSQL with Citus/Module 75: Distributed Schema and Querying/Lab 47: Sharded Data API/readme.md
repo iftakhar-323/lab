@@ -400,6 +400,10 @@ In the Poridhi cloud lab environment, the virtual machine runs inside a private 
    }
    ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2047:%20Sharded%20Data%20API/images/14_load_balancer_browser.png" alt="Browser Health Check via Poridhi Load Balancer" width="700">
+</p>
+
 ---
 
 ## Step 7: Verify API Endpoints via cURL
