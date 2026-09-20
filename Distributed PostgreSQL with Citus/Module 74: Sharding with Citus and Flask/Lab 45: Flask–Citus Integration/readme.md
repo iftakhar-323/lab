@@ -3,7 +3,7 @@
 In this lab, you will build a Python REST API using Flask and SQLAlchemy that connects to a distributed Citus database cluster. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) directly using Docker Compose within your Poridhi environment. Then, you will create endpoints to handle multi-tenant data, inserting and querying records across sharded tables, and expose the application publicly using the **Poridhi Load Balancer**.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/architecture_diagram.svg" alt="Flask and Citus Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/architecture_diagram.svg?v=2" alt="Flask and Citus Architecture" width="750">
 </p>
 
 ---

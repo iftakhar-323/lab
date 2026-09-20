@@ -3,7 +3,7 @@
 In this lab, you will analyze distributed query execution plans in Citus using `EXPLAIN` and run a multi-threaded load test to benchmark write throughput. You will deploy a 3-node Citus cluster (1 Coordinator + 2 Workers) using Docker Compose in your Poridhi environment. You will then observe how the Citus coordinator optimizes routed queries versus scatter-gather queries, and measure concurrent insert performance across multiple shards.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/architecture_diagram.svg" alt="Citus Query Planning and Benchmarking Architecture" width="750">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2075:%20Distributed%20Schema%20and%20Querying/Lab%2048:%20Query%20Plan%20Analysis%20and%20Benchmarking/images/architecture_diagram.svg?v=2" alt="Citus Query Planning and Benchmarking Architecture" width="750">
 </p>
 
 ---
