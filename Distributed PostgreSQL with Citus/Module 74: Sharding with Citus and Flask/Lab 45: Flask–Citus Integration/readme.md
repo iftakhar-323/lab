@@ -276,38 +276,9 @@ EOF
 
 ---
 
-## Step 6: Expose Application via Poridhi Load Balancer
+## Step 6: Start the Flask Application
 
-In the Poridhi cloud lab environment, the virtual machine runs inside a private isolated network. To access your Flask application from your local browser or through an external URL, expose port `5000` using the built-in **Poridhi Load Balancer**:
-
-1. Find the primary IP of your Poridhi container:
-
-   ```bash
-   hostname -I | awk '{print $1}'
-   ```
-
-   <p align="center">
-     <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/09_hostname_ip.png" alt="Get Hostname Private IP" width="700">
-   </p>
-2. Open the **Load Balancer** modal from the Poridhi lab interface (the Cloud icon in the header or sidebar).
-3. Enter the configuration:
-
-   - **Enter IP**: Paste the IP address obtained from `hostname -I | awk '{print $1}'`.
-   - **Enter Port**: `5000`
-   - Click **Expose**.
-4. Poridhi will provision an edge load balancer and provide an active URL (e.g., `http://<lab-id>-5000.lb.poridhi.io`).
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/12_load_balancer_exposed.png" alt="Poridhi Load Balancer Exposed" width="700">
-</p>
-
----
-
-## Step 7: Run & Verify the Application
-
-### 1. Start the Flask Application
-
-In your terminal, start the server:
+Start the Flask application in your terminal to initialize the distributed database tables and start listening on port `5000`:
 
 ```bash
 cd ~/flask-citus-lab/app
@@ -320,19 +291,70 @@ Expected Startup Output:
 ```text
 Events table distributed successfully across Citus workers.
  * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
+ * Running on http://<YOUR_VM_IP>:5000
+Press CTRL+C to quit
 ```
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/13_flask_run.png" alt="Flask Server Running Terminal Output" width="700">
 </p>
 
-### 2. Verify via cURL or Poridhi Load Balancer URL
+> [!TIP]
+> **Working with Terminal Tabs:**
+> The Flask server is actively running in this terminal window. Keep this terminal running, and click the **`+`** icon next to `Terminal` in the top bar of your Poridhi workspace to open a **second terminal tab** for running subsequent commands (or you can run Flask in the background using `python3 app.py &`).
 
-Open a second terminal window (or use your web browser with the **Poridhi Load Balancer URL**):
+---
 
-You can replace `http://localhost:5000` with your **Poridhi Load Balancer URL** (e.g., `http://<id>-5000.lb.poridhi.io`) in any of the commands below to test the public endpoint.
+## Step 7: Expose Application via Poridhi Load Balancer
+
+In the Poridhi cloud lab environment, the virtual machine runs inside a private isolated network. Now that your Flask application is actively running on port `5000`, expose it using the built-in **Poridhi Load Balancer**:
+
+1. In your **second terminal tab**, find the primary private IP of your Poridhi VM (or check the IP printed by Flask in Step 6):
+
+   ```bash
+   hostname -I | awk '{print $1}'
+   ```
+
+   <p align="center">
+     <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/09_hostname_ip.png" alt="Get Hostname Private IP" width="700">
+   </p>
+
+2. Open the **Load Balancer** modal from the Poridhi lab interface (the Cloud icon in the header or sidebar).
+3. Enter the configuration:
+
+   - **Enter IP**: Paste the IP address obtained above (e.g., `10.x.x.x`).
+   - **Enter Port**: `5000`
+   - Click **Expose**.
+
+4. Poridhi will provision an edge load balancer and provide an active URL (e.g., `http://<lab-id>-5000.lb.poridhi.io`).
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/12_load_balancer_exposed.png" alt="Poridhi Load Balancer Exposed" width="700">
+</p>
+
+5. Open the generated Load Balancer URL in your web browser. Because the Flask server is already actively running on port `5000`, you will immediately receive the live JSON status:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Distributed%20PostgreSQL%20with%20Citus/Module%2074:%20Sharding%20with%20Citus%20and%20Flask/Lab%2045:%20Flask%E2%80%93Citus%20Integration/images/14_load_balancer_browser.png" alt="Browser Health Check via Poridhi Load Balancer" width="700">
+</p>
+
+---
+
+## Step 8: Verify API Endpoints via cURL
+
+In your **second terminal tab**, activate the virtual environment and test the multi-tenant API endpoints:
+
+```bash
+cd ~/flask-citus-lab/app
+source venv/bin/activate
+```
+
+> [!NOTE]
+> You can test directly using `http://localhost:5000` or replace it with your **Poridhi Load Balancer URL** (e.g., `http://<id>-5000.lb.poridhi.io`) to test requests over the public web.
 
 **Scenario 1: Health check endpoint**
 
