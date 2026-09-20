@@ -153,11 +153,14 @@
       <text x="77" y="19" class="txt-badge" text-anchor="middle">Direct Point Route</text>
     </g>
 
-    <!-- Idle / Bypassed to Worker 2 (With Muted Arrowhead) -->
-    <path d="M 320 212 L 395 295" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow-muted)"/>
+    <!-- Line to Worker 2 (Black with Live Flow) -->
+    <path d="M 320 212 L 395 295" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+    <path d="M 320 212 L 395 295" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+    </path>
     <g transform="translate(350, 235)">
-      <rect width="155" height="28" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
-      <text x="77" y="19" class="txt-badge" fill="#64748b" text-anchor="middle">Bypassed (Zero I/O)</text>
+      <rect width="155" height="28" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
+      <text x="77" y="19" class="txt-badge" fill="#000000" text-anchor="middle">Bypassed (Zero I/O)</text>
     </g>
 
 
