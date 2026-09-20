@@ -172,7 +172,8 @@ pip install -r requirements.txt
 
 Create `flask-citus-lab/app/database.py`:
 
-```python
+```bash
+cat << 'EOF' > database.py
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
@@ -200,6 +201,7 @@ def setup_database(app):
         except Exception as e:
             db.session.rollback()
             print(f"Distribution status: {e}")
+EOF
 ```
 
 <p align="center">
@@ -212,7 +214,8 @@ def setup_database(app):
 
 Create `flask-citus-lab/app/app.py`:
 
-```python
+```bash
+cat << 'EOF' > app.py
 import os
 from flask import Flask, request, jsonify
 from database import db, Event, setup_database
@@ -264,6 +267,7 @@ def get_events(tenant_id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+EOF
 ```
 
 <p align="center">
