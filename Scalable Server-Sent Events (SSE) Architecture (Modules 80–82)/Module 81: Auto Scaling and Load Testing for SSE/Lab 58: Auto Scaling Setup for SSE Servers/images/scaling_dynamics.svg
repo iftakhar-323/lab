@@ -1,15 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630" width="100%" height="auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
   <defs>
     <style>
       .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 18px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
-      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 700; fill: #000000; }
-      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 17px; font-weight: 800; fill: #000000; }
+      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 600; fill: #000000; }
+      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; fill: #000000; }
+      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 800; fill: #000000; }
 
       @keyframes pulse-dot {
         0% { r: 6px; }
-        50% { r: 10px; }
+        50% { r: 9px; }
         100% { r: 6px; }
       }
       .anim-crash {
@@ -25,102 +25,106 @@
   <!-- Outer Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- Title Banner -->
-  <g transform="translate(45, 30)">
-    <rect width="1170" height="50" rx="10" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="32" class="txt-title" text-anchor="middle">SSE Scaling Metrics Comparison: CPU Utilization vs Target Connection Count</text>
+  <!-- Main Title Banner -->
+  <g transform="translate(45, 25)">
+    <rect width="1170" height="46" rx="10" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="30" class="txt-title" text-anchor="middle">SSE Scaling Metrics Comparison: CPU Utilization vs Target Connection Count</text>
   </g>
 
   <!-- ==================== LEFT: CPU UTILIZATION (FLAWED) ==================== -->
-  <g transform="translate(45, 100)">
-    <rect width="570" height="440" rx="14" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
+  <g transform="translate(45, 85)">
+    <rect width="570" height="465" rx="14" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
     
-    <text x="285" y="34" class="txt-node-title" text-anchor="middle">Metric 1: CPU Utilization (FLAWED FOR SSE)</text>
-    <rect x="195" y="46" width="180" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-    <text x="285" y="63" class="txt-badge" fill="#dc2626" text-anchor="middle">Causes Fleet Starvation &amp; OOM</text>
+    <text x="285" y="32" class="txt-node-title" text-anchor="middle">Metric 1: CPU Utilization (FLAWED FOR SSE)</text>
+    <rect x="175" y="44" width="220" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="285" y="62" class="txt-badge" fill="#dc2626" text-anchor="middle">Causes Socket Depletion and OOM Crash</text>
 
     <!-- Graph Container -->
-    <g transform="translate(25, 85)">
-      <rect width="520" height="260" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <g transform="translate(25, 80)">
+      <rect width="520" height="275" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
 
       <!-- Graph Axes -->
-      <line x1="60" y1="210" x2="480" y2="210" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <line x1="60" y1="210" x2="60" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="490" y="215" class="txt-node-code">Time</text>
+      <line x1="55" y1="225" x2="480" y2="225" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="55" y1="225" x2="55" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="490" y="230" class="txt-node-code">Time</text>
       <text x="50" y="18" class="txt-node-code">CPU %</text>
 
       <!-- 70% Scaling Threshold Line -->
-      <line x1="60" y1="80" x2="460" y2="80" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
-      <text x="260" y="72" class="txt-badge" fill="#dc2626">Scale-Out Alarm Threshold (70% CPU)</text>
+      <line x1="55" y1="75" x2="460" y2="75" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="250" y="66" class="txt-badge" fill="#dc2626">Scale-Out Alarm Threshold (70% CPU)</text>
 
-      <!-- Connection Spike Indicator -->
-      <text x="80" y="110" class="txt-node-sub" font-style="italic">Connection Surge: 0 &rarr; 5,000 Sockets</text>
+      <!-- Surge Note -->
+      <text x="75" y="110" class="txt-node-sub" font-style="italic">Connection Surge: 0 &#8594; 5,000 Sockets</text>
 
-      <!-- Flat CPU Line -->
-      <path d="M 60 180 Q 200 178, 350 175 T 440 172" fill="none" stroke="#000000" stroke-width="3"/>
-      <text x="220" y="165" class="txt-node-title" font-size="14">Actual CPU Stays Low (~14%)</text>
+      <!-- Actual CPU Curve (Flat at ~14%) -->
+      <path d="M 55 178 Q 200 176, 330 174 T 410 172" fill="none" stroke="#000000" stroke-width="3"/>
+      <text x="170" y="165" class="txt-node-code">Actual CPU Stays Low (~14%)</text>
 
       <!-- Socket Exhaustion / Crash Point -->
-      <circle cx="430" cy="172" r="8" fill="#ef4444" stroke="#000000" stroke-width="2" class="anim-crash"/>
-      <text x="430" y="150" class="txt-badge" fill="#b91c1c" text-anchor="middle">CRASH!</text>
-      <text x="430" y="195" class="txt-node-code" fill="#b91c1c" text-anchor="middle">Max File Descriptors Hit</text>
+      <circle cx="410" cy="172" r="7" fill="#ef4444" stroke="#000000" stroke-width="2" class="anim-crash"/>
+      <text x="410" y="145" class="txt-badge" fill="#b91c1c" text-anchor="middle">CRASH!</text>
+      <text x="410" y="200" class="txt-node-code" font-size="11" fill="#b91c1c" text-anchor="middle">Max Descriptors Hit</text>
+      <text x="410" y="215" class="txt-node-sub" font-size="10" fill="#7f1d1d" text-anchor="middle">(Alarm Never Triggered)</text>
     </g>
 
-    <!-- Explanation Box -->
-    <g transform="translate(25, 360)">
-      <rect width="520" height="60" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <!-- Bottom Explanation Card -->
+    <g transform="translate(25, 370)">
+      <rect width="520" height="75" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
       <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Why It Fails: Long-lived idle SSE sockets consume minimal CPU cycles.</text>
-      <text x="260" y="44" class="txt-node-sub" font-weight="700" fill="#991b1b" text-anchor="middle">Fleet exhausts RAM &amp; OS socket tables while CPU alarm never fires!</text>
+      <text x="260" y="44" class="txt-node-sub" font-weight="700" fill="#991b1b" text-anchor="middle">Instances exhaust file descriptors and OS socket tables,</text>
+      <text x="260" y="62" class="txt-node-sub" font-weight="700" fill="#991b1b" text-anchor="middle">while CPU stays around 14% and the scaling alarm never fires!</text>
     </g>
   </g>
 
 
   <!-- ==================== RIGHT: TARGET CONNECTION COUNT (OPTIMAL) ==================== -->
-  <g transform="translate(645, 100)">
-    <rect width="570" height="440" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
+  <g transform="translate(645, 85)">
+    <rect width="570" height="465" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
     
-    <text x="285" y="34" class="txt-node-title" text-anchor="middle">Metric 2: TargetConnectionCount (OPTIMAL FOR SSE)</text>
-    <rect x="195" y="46" width="180" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-    <text x="285" y="63" class="txt-badge" fill="#166534" text-anchor="middle">Dynamic &amp; Proactive Elasticity</text>
+    <text x="285" y="32" class="txt-node-title" text-anchor="middle">Metric 2: TargetConnectionCount (OPTIMAL FOR SSE)</text>
+    <rect x="175" y="44" width="220" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="285" y="62" class="txt-badge" fill="#166534" text-anchor="middle">Dynamic and Proactive Elastic Fleet</text>
 
     <!-- Graph Container -->
-    <g transform="translate(25, 85)">
-      <rect width="520" height="260" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <g transform="translate(25, 80)">
+      <rect width="520" height="275" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
 
       <!-- Graph Axes -->
-      <line x1="60" y1="210" x2="480" y2="210" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <line x1="60" y1="210" x2="60" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="490" y="215" class="txt-node-code">Time</text>
-      <text x="30" y="18" class="txt-node-code">Connections</text>
+      <line x1="55" y1="225" x2="480" y2="225" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="55" y1="225" x2="55" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="490" y="230" class="txt-node-code">Time</text>
+      <text x="25" y="18" class="txt-node-code">Conn</text>
 
       <!-- 1000 Conn Target Threshold Line -->
-      <line x1="60" y1="110" x2="460" y2="110" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 4"/>
-      <text x="240" y="102" class="txt-badge" fill="#166534">Target Tracking Value: 1,000 Conn/Target</text>
+      <line x1="55" y1="95" x2="460" y2="95" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="250" y="85" class="txt-badge" fill="#166534">Target Tracking Value: 1,000 Conn/Target</text>
 
       <!-- Rising Connection Curve -->
-      <path d="M 60 190 Q 180 170, 240 110" fill="none" stroke="#000000" stroke-width="3"/>
+      <path d="M 55 200 Q 150 180, 210 95" fill="none" stroke="#000000" stroke-width="3"/>
       
-      <!-- Scale-Out Trigger Point -->
-      <circle cx="240" cy="110" r="7" fill="#16a34a" stroke="#000000" stroke-width="2"/>
-      <text x="240" y="85" class="txt-badge" fill="#15803d" text-anchor="middle">SCALE OUT TRIGGER</text>
+      <!-- Scale-Out Trigger Point (Clearly Separated) -->
+      <circle cx="210" cy="95" r="7" fill="#16a34a" stroke="#000000" stroke-width="2"/>
+      <rect x="135" y="40" width="150" height="24" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+      <text x="210" y="56" class="txt-badge" fill="#15803d" text-anchor="middle">SCALE OUT TRIGGER</text>
 
       <!-- Normalized Fleet Concurrency Curve -->
-      <path d="M 240 110 Q 310 135, 460 118" fill="none" stroke="#16a34a" stroke-width="3" stroke-dasharray="6 4"/>
-      <text x="360" y="145" class="txt-node-code" fill="#166534">Concurrency normalized across new nodes</text>
-      <text x="360" y="165" class="txt-node-sub">New EC2 instances absorb traffic</text>
+      <path d="M 210 95 Q 270 120, 390 105" fill="none" stroke="#16a34a" stroke-width="3" stroke-dasharray="6 4"/>
+      <text x="360" y="145" class="txt-node-code" fill="#166534" text-anchor="middle">Fleet Expands &#8594; Concurrency Normalized</text>
+      <text x="360" y="165" class="txt-node-sub" text-anchor="middle">New EC2 instances absorb socket load</text>
     </g>
 
-    <!-- Explanation Box -->
-    <g transform="translate(25, 360)">
-      <rect width="520" height="60" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-      <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Why It Succeeds: Accurately mirrors real-time socket allocation.</text>
-      <text x="260" y="44" class="txt-node-sub" font-weight="700" fill="#15803d" text-anchor="middle">ASG expands before instances experience socket depletion or latency spikes.</text>
+    <!-- Bottom Explanation Card -->
+    <g transform="translate(25, 370)">
+      <rect width="520" height="75" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+      <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Why It Succeeds: Accurately tracks actual socket concurrency.</text>
+      <text x="260" y="44" class="txt-node-sub" font-weight="700" fill="#15803d" text-anchor="middle">ASG automatically expands before individual servers experience</text>
+      <text x="260" y="62" class="txt-node-sub" font-weight="700" fill="#15803d" text-anchor="middle">socket starvation, file descriptor exhaustion, or latency degradation.</text>
     </g>
   </g>
 
   <!-- Bottom Summary Banner Pill -->
-  <g transform="translate(45, 560)">
-    <rect width="1170" height="44" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="28" class="txt-node-title" font-size="16" text-anchor="middle">Architectural Standard: Use TargetConnectionCount for Auto Scaling SSE, never CPUUtilization</text>
+  <g transform="translate(45, 565)">
+    <rect width="1170" height="42" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="27" class="txt-node-title" font-size="16" text-anchor="middle">Architectural Standard: Use TargetConnectionCount for Auto Scaling SSE, never CPUUtilization</text>
   </g>
 </svg>

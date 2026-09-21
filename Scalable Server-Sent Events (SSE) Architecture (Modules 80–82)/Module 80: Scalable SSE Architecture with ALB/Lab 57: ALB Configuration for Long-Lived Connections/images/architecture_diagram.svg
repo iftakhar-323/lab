@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630" width="100%" height="auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
   <defs>
     <style>
       .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 18px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
-      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 700; fill: #000000; }
-      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 14px; font-weight: 800; fill: #000000; }
-      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 17px; font-weight: 800; fill: #000000; }
+      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 600; fill: #000000; }
+      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; fill: #000000; }
+      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
+      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 800; fill: #000000; }
 
       /* Live Flow Animations */
       @keyframes flow-dash {
@@ -27,158 +27,198 @@
   <!-- Outer Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- ==================== 1. CLIENT TIER ==================== -->
-  <g transform="translate(40, 110)">
-    <rect width="210" height="435" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+  <!-- ==================== 1. CLIENT TIER (LEFT) ==================== -->
+  <g transform="translate(45, 120)">
+    <rect width="190" height="420" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
     
     <!-- User Icon -->
-    <circle cx="105" cy="46" r="22" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-    <path d="M 73 94 C 73 68, 137 68, 137 94" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+    <circle cx="95" cy="45" r="22" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+    <path d="M 63 92 C 63 68, 127 68, 127 92" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-    <text x="105" y="122" class="txt-title" text-anchor="middle">Client Tier</text>
-    <text x="105" y="142" class="txt-node-sub" font-style="italic" text-anchor="middle">(Long-Lived Subscribers)</text>
+    <text x="95" y="120" class="txt-title" text-anchor="middle">Client Tier</text>
+    <text x="95" y="140" class="txt-node-sub" font-style="italic" text-anchor="middle">(Subscribers)</text>
     
-    <!-- Browser Client 1 -->
+    <!-- Browser Client Card -->
     <g transform="translate(15, 160)">
-      <rect width="180" height="115" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="90" y="24" class="txt-node-title" font-size="15" text-anchor="middle">Browser Client A</text>
-      <line x1="10" y1="34" x2="170" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="90" y="55" class="txt-node-code" text-anchor="middle">HTTP/2 Stream</text>
-      <text x="90" y="75" class="txt-node-sub" text-anchor="middle">EventSource('/events')</text>
-      <text x="90" y="96" class="txt-node-sub" text-anchor="middle">TCP Port: 443 TLS</text>
+      <rect width="160" height="110" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <text x="80" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Browser Client</text>
+      <line x1="10" y1="34" x2="150" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="80" y="55" class="txt-node-code" text-anchor="middle">HTTP/2 Stream</text>
+      <text x="80" y="75" class="txt-node-sub" text-anchor="middle">EventSource('/events')</text>
+      <text x="80" y="95" class="txt-node-sub" text-anchor="middle">TLS Port 443</text>
     </g>
 
-    <!-- Browser Client 2 -->
-    <g transform="translate(15, 295)">
-      <rect width="180" height="115" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="90" y="24" class="txt-node-title" font-size="15" text-anchor="middle">Mobile / CLI Client B</text>
-      <line x1="10" y1="34" x2="170" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="90" y="55" class="txt-node-code" text-anchor="middle">HTTP/1.1 Keep-Alive</text>
-      <text x="90" y="75" class="txt-node-sub" text-anchor="middle">Persistent TCP Stream</text>
-      <text x="90" y="96" class="txt-node-sub" text-anchor="middle">curl -N /events</text>
+    <!-- Mobile Client Card -->
+    <g transform="translate(15, 290)">
+      <rect width="160" height="110" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <text x="80" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Mobile / CLI</text>
+      <line x1="10" y1="34" x2="150" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="80" y="55" class="txt-node-code" text-anchor="middle">HTTP/1.1 Keep-Alive</text>
+      <text x="80" y="75" class="txt-node-sub" text-anchor="middle">curl -N /events</text>
+      <text x="80" y="95" class="txt-node-sub" text-anchor="middle">Persistent TCP</text>
     </g>
   </g>
 
-  <!-- Connectors: Clients -> ALB -->
-  <!-- Top Flow Arrow -->
-  <path d="M 250 250 L 370 250" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 250 250 L 370 250" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+  <!-- Flow: Client -> ALB (Top Arrow: Request) -->
+  <path d="M 235 250 L 335 250" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 235 250 L 335 250" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <text x="310" y="240" class="txt-arrow-label" text-anchor="middle">GET /events</text>
+  <text x="285" y="240" class="txt-arrow-label" text-anchor="middle">GET /events</text>
 
-  <!-- Bottom Flow Arrow -->
-  <path d="M 370 410 L 250 410" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 370 410 L 250 410" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+  <!-- Flow: ALB -> Client (Bottom Arrow: Response) -->
+  <path d="M 335 410 L 235 410" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 335 410 L 235 410" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <text x="310" y="432" class="txt-arrow-label" text-anchor="middle">SSE Chunks</text>
+  <text x="285" y="432" class="txt-arrow-label" text-anchor="middle">SSE Chunks</text>
 
 
-  <!-- ==================== 2. AWS APPLICATION LOAD BALANCER ==================== -->
-  <g transform="translate(370, 75)">
-    <rect width="320" height="470" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
+  <!-- ==================== 2. AWS APPLICATION LOAD BALANCER (MIDDLE) ==================== -->
+  <g transform="translate(335, 95)">
+    <rect width="280" height="445" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
     
-    <text x="160" y="34" class="txt-title" text-anchor="middle">AWS ALB</text>
-    <text x="160" y="56" class="txt-node-sub" font-weight="700" text-anchor="middle">Application Load Balancer</text>
+    <text x="140" y="32" class="txt-title" text-anchor="middle">AWS ALB</text>
+    <text x="140" y="52" class="txt-node-sub" font-weight="700" text-anchor="middle">Application Load Balancer</text>
 
-    <!-- ALB Ingress Listener -->
-    <g transform="translate(18, 72)">
-      <rect width="284" height="80" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="142" y="24" class="txt-node-title" font-size="15" text-anchor="middle">HTTP Listener (Port 80/443)</text>
-      <line x1="12" y1="34" x2="272" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="142" y="52" class="txt-node-sub" text-anchor="middle">Forwards traffic to Target Group</text>
-      <text x="142" y="70" class="txt-node-code" text-anchor="middle">Rule: /events -> sse-tg</text>
+    <!-- Ingress Listener -->
+    <g transform="translate(15, 68)">
+      <rect width="250" height="75" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <text x="125" y="24" class="txt-node-title" font-size="14" text-anchor="middle">HTTP Listener (Port 80/443)</text>
+      <line x1="12" y1="34" x2="238" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="125" y="52" class="txt-node-sub" text-anchor="middle">Forward Rule: /events &#8594; sse-tg</text>
+      <text x="125" y="68" class="txt-node-code" font-size="11" text-anchor="middle">SSL/TLS Termination Layer</text>
     </g>
 
-    <!-- Critical Idle Timeout Configuration -->
-    <g transform="translate(18, 168)">
-      <rect width="284" height="150" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <rect x="10" y="8" width="264" height="28" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
-      <text x="142" y="27" class="txt-badge" fill="#000000" text-anchor="middle">CRITICAL ALB ATTRIBUTE</text>
+    <!-- Critical Idle Timeout Box -->
+    <g transform="translate(15, 155)">
+      <rect width="250" height="145" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <rect x="12" y="8" width="226" height="26" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
+      <text x="125" y="26" class="txt-badge" text-anchor="middle">CRITICAL ALB ATTRIBUTE</text>
       
-      <text x="142" y="60" class="txt-node-title" font-size="15" text-anchor="middle">idle_timeout.timeout_seconds</text>
-      <line x1="12" y1="70" x2="272" y2="70" stroke="#000000" stroke-width="1"/>
-      <text x="142" y="92" class="txt-node-code" font-size="15" text-anchor="middle">Value = 3600 seconds</text>
-      <text x="142" y="114" class="txt-node-sub" text-anchor="middle">• Prevents 60s drop on quiet streams</text>
-      <text x="142" y="134" class="txt-node-sub" text-anchor="middle">• Sustains long TCP connection window</text>
+      <text x="125" y="58" class="txt-node-code" font-size="13" text-anchor="middle">idle_timeout = 3600s</text>
+      <line x1="12" y1="68" x2="238" y2="68" stroke="#000000" stroke-width="1"/>
+      <text x="125" y="90" class="txt-node-sub" text-anchor="middle">• 1-Hour Long-Lived Socket Window</text>
+      <text x="125" y="110" class="txt-node-sub" text-anchor="middle">• Prevents Default 60s Drop</text>
+      <text x="125" y="130" class="txt-node-sub" text-anchor="middle">• Preserves Quiet Streaming State</text>
     </g>
 
-    <!-- Target Group Connection Manager -->
-    <g transform="translate(18, 334)">
-      <rect width="284" height="115" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="142" y="24" class="txt-node-title" font-size="15" text-anchor="middle">Target Group: sse-target-group</text>
-      <line x1="12" y1="34" x2="272" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="142" y="54" class="txt-node-code" text-anchor="middle">deregistration_delay = 300s</text>
-      <text x="142" y="74" class="txt-node-sub" text-anchor="middle">Health Check: GET /health (Port 8000)</text>
-      <text x="142" y="96" class="txt-node-sub" font-size="12" text-anchor="middle">Isolated from persistent /events stream</text>
+    <!-- Target Group Settings -->
+    <g transform="translate(15, 312)">
+      <rect width="250" height="115" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <text x="125" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Target Group Management</text>
+      <line x1="12" y1="34" x2="238" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="125" y="54" class="txt-node-code" text-anchor="middle">deregistration_delay = 300s</text>
+      <text x="125" y="74" class="txt-node-sub" text-anchor="middle">Health Check: GET /health</text>
+      <text x="125" y="96" class="txt-node-sub" font-size="11" text-anchor="middle">Isolated from streaming endpoint</text>
     </g>
   </g>
 
-  <!-- Connectors: ALB -> ASG Target Fleet -->
-  <!-- Forward Arrow 1 -->
-  <path d="M 690 230 L 790 200" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 690 230 L 790 200" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+  <!-- Flow: ALB <-> Target Fleet (Clean Horizontal Connectors like Lab 45!) -->
+  <!-- Top Arrow: Forward Traffic -->
+  <path d="M 615 250 L 715 250" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 615 250 L 715 250" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <text x="740" y="195" class="txt-arrow-label" text-anchor="middle">Target 1</text>
+  <text x="665" y="240" class="txt-arrow-label" text-anchor="middle">Forward Traffic</text>
 
-  <!-- Forward Arrow 2 -->
-  <path d="M 690 380 L 790 410" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 690 380 L 790 410" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+  <!-- Bottom Arrow: Health & Telemetry -->
+  <path d="M 715 410 L 615 410" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 715 410 L 615 410" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <text x="740" y="425" class="txt-arrow-label" text-anchor="middle">Target 2</text>
+  <text x="665" y="432" class="txt-arrow-label" text-anchor="middle">Health / Status</text>
 
 
-  <!-- ==================== 3. ASG TARGET FLEET ==================== -->
-  <g transform="translate(790, 45)">
-    <rect width="430" height="500" rx="16" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="215" y="32" class="txt-title" text-anchor="middle">Auto Scaling Target Fleet</text>
-    <text x="215" y="52" class="txt-node-sub" font-style="italic" text-anchor="middle">Target Group: sse-target-group (Port 8000)</text>
+  <!-- ==================== 3. AUTO SCALING TARGET FLEET (RIGHT) ==================== -->
+  <!-- Structured exactly like Citus Cluster in Lab 45: Manager at Top, 2 Instances at Bottom! -->
+  <g transform="translate(715, 30)">
+    <rect width="505" height="520" rx="16" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="252" y="32" class="txt-title" text-anchor="middle">Auto Scaling Target Fleet</text>
 
-    <!-- Backend Instance 1 -->
-    <g transform="translate(25, 70)">
-      <rect width="380" height="180" rx="12" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+    <!-- 3.1 TARGET GROUP CONTROLLER (TOP CENTER) -->
+    <g transform="translate(102, 50)">
+      <rect width="300" height="145" rx="14" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
       
-      <text x="190" y="26" class="txt-node-title" text-anchor="middle">EC2 SSE Instance 1 (10.0.1.45)</text>
-      <line x1="20" y1="36" x2="360" y2="36" stroke="#000000" stroke-width="1"/>
+      <text x="150" y="28" class="txt-node-title" text-anchor="middle">Target Group: sse-tg</text>
+      <text x="150" y="48" class="txt-node-sub" font-weight="700" text-anchor="middle">Algorithm: Round Robin (Port 8000)</text>
 
-      <g transform="translate(20, 50)">
-        <rect width="340" height="110" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-        <text x="170" y="22" class="txt-node-title" font-size="14" text-anchor="middle">FastAPI + Uvicorn Worker</text>
-        <text x="170" y="44" class="txt-node-code" text-anchor="middle">Endpoint: /events (StreamingResponse)</text>
-        <text x="170" y="66" class="txt-node-sub" text-anchor="middle">• Active Connections: 500 TCP Sockets</text>
-        <text x="170" y="88" class="txt-node-sub" text-anchor="middle">• Response Header: X-Accel-Buffering: no</text>
+      <g transform="translate(15, 60)">
+        <rect width="270" height="70" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="135" y="24" class="txt-node-code" text-anchor="middle">Probe: GET /health &#8594; HTTP 200</text>
+        <line x1="10" y1="34" x2="260" y2="34" stroke="#000000" stroke-width="1"/>
+        <text x="135" y="52" class="txt-node-sub" font-size="12" text-anchor="middle">Healthy Threshold: 2 | Interval: 15s</text>
       </g>
     </g>
 
-    <!-- Backend Instance 2 -->
-    <g transform="translate(25, 275)">
-      <rect width="380" height="180" rx="12" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
-      
-      <text x="190" y="26" class="txt-node-title" text-anchor="middle">EC2 SSE Instance 2 (10.0.2.88)</text>
-      <line x1="20" y1="36" x2="360" y2="36" stroke="#000000" stroke-width="1"/>
+    <!-- Diagonal Connectors from Target Group Controller to Worker Instances -->
+    <!-- Line to Instance 1 -->
+    <path d="M 180 195 L 125 275" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+    <path d="M 180 195 L 125 275" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+    <g transform="translate(30, 220)">
+      <rect width="135" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
+      <text x="67" y="18" class="txt-badge" text-anchor="middle">Target 1: 500 Sockets</text>
+    </g>
 
-      <g transform="translate(20, 50)">
-        <rect width="340" height="110" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-        <text x="170" y="22" class="txt-node-title" font-size="14" text-anchor="middle">FastAPI + Uvicorn Worker</text>
-        <text x="170" y="44" class="txt-node-code" text-anchor="middle">Endpoint: /events (StreamingResponse)</text>
-        <text x="170" y="66" class="txt-node-sub" text-anchor="middle">• Active Connections: 500 TCP Sockets</text>
-        <text x="170" y="88" class="txt-node-sub" text-anchor="middle">• Health Check Endpoint: /health (HTTP 200)</text>
+    <!-- Line to Instance 2 -->
+    <path d="M 320 195 L 375 275" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+    <path d="M 320 195 L 375 275" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+    <g transform="translate(340, 220)">
+      <rect width="135" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
+      <text x="67" y="18" class="txt-badge" text-anchor="middle">Target 2: 500 Sockets</text>
+    </g>
+
+
+    <!-- 3.2 EC2 SSE INSTANCE 1 -->
+    <g transform="translate(20, 275)">
+      <rect width="225" height="175" rx="14" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+      
+      <text x="112" y="26" class="txt-node-title" font-size="15" text-anchor="middle">EC2 Instance 1</text>
+      <text x="112" y="44" class="txt-node-code" font-size="11" text-anchor="middle">10.0.1.45:8000</text>
+      <line x1="12" y1="52" x2="213" y2="52" stroke="#000000" stroke-width="1"/>
+
+      <g transform="translate(12, 60)">
+        <rect width="201" height="100" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="100" y="22" class="txt-node-title" font-size="13" text-anchor="middle">FastAPI + Uvicorn</text>
+        <line x1="8" y1="30" x2="193" y2="30" stroke="#000000" stroke-width="1"/>
+        <text x="100" y="48" class="txt-node-code" font-size="11" text-anchor="middle">GET /events (Streaming)</text>
+        <text x="100" y="68" class="txt-node-sub" font-size="11" text-anchor="middle">Active Conns: 500 Sockets</text>
+        <text x="100" y="86" class="txt-node-sub" font-size="11" text-anchor="middle">Buffering: Disabled</text>
       </g>
     </g>
 
-    <!-- Health Check Note Pill -->
-    <g transform="translate(25, 465)">
-      <rect width="380" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-      <text x="190" y="16" class="txt-node-sub" font-size="12" text-anchor="middle">Target Draining Window: 300s allows graceful client wrap-up</text>
+    <!-- 3.3 EC2 SSE INSTANCE 2 -->
+    <g transform="translate(260, 275)">
+      <rect width="225" height="175" rx="14" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+      
+      <text x="112" y="26" class="txt-node-title" font-size="15" text-anchor="middle">EC2 Instance 2</text>
+      <text x="112" y="44" class="txt-node-code" font-size="11" text-anchor="middle">10.0.2.88:8000</text>
+      <line x1="12" y1="52" x2="213" y2="52" stroke="#000000" stroke-width="1"/>
+
+      <g transform="translate(12, 60)">
+        <rect width="201" height="100" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="100" y="22" class="txt-node-title" font-size="13" text-anchor="middle">FastAPI + Uvicorn</text>
+        <line x1="8" y1="30" x2="193" y2="30" stroke="#000000" stroke-width="1"/>
+        <text x="100" y="48" class="txt-node-code" font-size="11" text-anchor="middle">GET /events (Streaming)</text>
+        <text x="100" y="68" class="txt-node-sub" font-size="11" text-anchor="middle">Active Conns: 500 Sockets</text>
+        <text x="100" y="86" class="txt-node-sub" font-size="11" text-anchor="middle">Health Check: HTTP 200</text>
+      </g>
+    </g>
+
+    <!-- Bottom Pill Inside Fleet -->
+    <g transform="translate(45, 465)">
+      <rect width="415" height="38" rx="8" fill="#d4f6d9" stroke="#000000" stroke-width="1.5"/>
+      <text x="207" y="24" class="txt-badge" font-size="13" text-anchor="middle">Deregistration Delay: 300s Graceful Connection Draining</text>
     </g>
   </g>
 
   <!-- Bottom Summary Banner Pill -->
-  <g transform="translate(40, 562)">
-    <rect width="1180" height="44" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
-    <text x="590" y="28" class="txt-node-title" font-size="16" text-anchor="middle">AWS ALB Architecture: 3600s Idle Timeout + 300s Deregistration Delay + Dedicated /health Probe Isolation</text>
+  <g transform="translate(45, 565)">
+    <rect width="1170" height="42" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="27" class="txt-node-title" font-size="16" text-anchor="middle">AWS ALB Architecture: 3600s Idle Timeout + 300s Deregistration Delay + Dedicated /health Probe Isolation</text>
   </g>
 </svg>

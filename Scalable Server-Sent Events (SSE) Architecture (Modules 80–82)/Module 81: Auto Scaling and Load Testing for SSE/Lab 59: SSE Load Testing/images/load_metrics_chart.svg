@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630" width="100%" height="auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
   <defs>
     <style>
       .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 18px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
-      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 700; fill: #000000; }
-      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 17px; font-weight: 800; fill: #000000; }
+      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 600; fill: #000000; }
+      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; fill: #000000; }
+      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 800; fill: #000000; }
     </style>
 
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
@@ -17,94 +17,100 @@
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
   <!-- Title Banner -->
-  <g transform="translate(45, 30)">
-    <rect width="1170" height="50" rx="10" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="32" class="txt-title" text-anchor="middle">SSE Load Testing Telemetry: 1,000 Concurrent Streams &amp; Resource Footprint</text>
+  <g transform="translate(45, 25)">
+    <rect width="1170" height="46" rx="10" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="30" class="txt-title" text-anchor="middle">SSE Load Testing Telemetry: 1,000 Concurrent Streams and Hardware Resource Footprint</text>
   </g>
 
   <!-- ==================== LEFT: ACTIVE CONNECTIONS & CONCURRENCY ==================== -->
-  <g transform="translate(45, 100)">
-    <rect width="570" height="440" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+  <g transform="translate(45, 85)">
+    <rect width="570" height="465" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
     
-    <text x="285" y="34" class="txt-node-title" text-anchor="middle">1. Active Connections &amp; Event Delivery</text>
-    <rect x="205" y="46" width="160" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-    <text x="285" y="63" class="txt-badge" text-anchor="middle">Concurrency Profile</text>
+    <text x="285" y="32" class="txt-node-title" text-anchor="middle">1. Active Connections and Event Delivery</text>
+    <rect x="205" y="44" width="160" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="285" y="62" class="txt-badge" text-anchor="middle">Concurrency Profile</text>
 
     <!-- Chart Container -->
-    <g transform="translate(25, 85)">
-      <rect width="520" height="260" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <g transform="translate(25, 80)">
+      <rect width="520" height="275" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
 
       <!-- Axes -->
-      <line x1="60" y1="210" x2="480" y2="210" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <line x1="60" y1="210" x2="60" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="490" y="215" class="txt-node-code">Time (s)</text>
-      <text x="20" y="20" class="txt-node-code">Streams</text>
+      <line x1="60" y1="225" x2="480" y2="225" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="60" y1="225" x2="60" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="490" y="230" class="txt-node-code">Time (s)</text>
+      <text x="60" y="18" class="txt-node-code" text-anchor="middle">Streams</text>
 
       <!-- Grid lines -->
-      <line x1="60" y1="70" x2="470" y2="70" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4"/>
-      <text x="50" y="74" class="txt-node-code" text-anchor="end">1,000</text>
+      <line x1="60" y1="80" x2="465" y2="80" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="50" y="84" class="txt-node-code" text-anchor="end">1,000</text>
 
-      <line x1="60" y1="140" x2="470" y2="140" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4"/>
-      <text x="50" y="144" class="txt-node-code" text-anchor="end">500</text>
+      <line x1="60" y1="150" x2="465" y2="150" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="50" y="154" class="txt-node-code" text-anchor="end">500</text>
 
-      <!-- Connection Ramp Curve -->
-      <path d="M 60 210 L 180 70 L 370 70 L 440 210" fill="none" stroke="#000000" stroke-width="3"/>
+      <!-- Connection Ramp Curve (x: 60 -> 180 ramp, 180 -> 360 hold, 360 -> 440 drain) -->
+      <path d="M 60 225 L 180 80 L 360 80 L 440 225" fill="none" stroke="#000000" stroke-width="3"/>
       
-      <!-- Annotations -->
-      <text x="120" y="130" class="txt-node-code" text-anchor="middle">Ramp (+50/s)</text>
-      <rect x="215" y="42" width="160" height="22" rx="4" fill="#d4f6d9" stroke="#000000" stroke-width="1"/>
-      <text x="295" y="58" class="txt-node-code" text-anchor="middle">1,000 Sustained Streams</text>
-      <text x="415" y="130" class="txt-node-code" text-anchor="middle">Clean Drain</text>
+      <!-- Annotations (Cleanly Placed Outside the Curve Line) -->
+      <text x="135" y="185" class="txt-node-code" fill="#0369a1" text-anchor="middle">Ramp (+50/s)</text>
+      
+      <rect x="195" y="45" width="160" height="24" rx="4" fill="#d4f6d9" stroke="#000000" stroke-width="1"/>
+      <text x="275" y="62" class="txt-badge" text-anchor="middle">1,000 Sustained Streams</text>
+      
+      <text x="420" y="145" class="txt-node-code" fill="#64748b">Clean Drain</text>
     </g>
 
-    <!-- Explanation Box -->
-    <g transform="translate(25, 360)">
-      <rect width="520" height="60" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-      <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Observation: 0 connection drops or TCP resets encountered during 1k test run.</text>
-      <text x="260" y="44" class="txt-node-sub" font-weight="700" text-anchor="middle">FastAPI event loop seamlessly handled concurrent generator yields without blocking.</text>
+    <!-- Explanation Card -->
+    <g transform="translate(25, 370)">
+      <rect width="520" height="75" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+      <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Observation: 0 connection drops or TCP resets encountered during 1,000 stream test.</text>
+      <text x="260" y="44" class="txt-node-sub" font-weight="700" text-anchor="middle">FastAPI async event loop smoothly handled concurrent coroutine yields</text>
+      <text x="260" y="62" class="txt-node-sub" font-weight="700" text-anchor="middle">without thread blocking, context switch thrashing, or packet queuing.</text>
     </g>
   </g>
 
 
   <!-- ==================== RIGHT: SERVER RESOURCE PROFILE ==================== -->
-  <g transform="translate(645, 100)">
-    <rect width="570" height="440" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
+  <g transform="translate(645, 85)">
+    <rect width="570" height="465" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
     
-    <text x="285" y="34" class="txt-node-title" text-anchor="middle">2. Server Resource Profile (RAM &amp; CPU)</text>
-    <rect x="205" y="46" width="160" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-    <text x="285" y="63" class="txt-badge" text-anchor="middle">Hardware Efficiency</text>
+    <text x="285" y="32" class="txt-node-title" text-anchor="middle">2. Server Resource Profile (RAM and CPU)</text>
+    <rect x="205" y="44" width="160" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+    <text x="285" y="62" class="txt-badge" text-anchor="middle">Hardware Efficiency</text>
 
     <!-- Chart Container -->
-    <g transform="translate(25, 85)">
-      <rect width="520" height="260" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <g transform="translate(25, 80)">
+      <rect width="520" height="275" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
 
       <!-- Axes -->
-      <line x1="60" y1="210" x2="480" y2="210" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <line x1="60" y1="210" x2="60" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="490" y="215" class="txt-node-code">Time (s)</text>
-      <text x="15" y="20" class="txt-node-code">RAM/CPU</text>
+      <line x1="60" y1="225" x2="480" y2="225" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="60" y1="225" x2="60" y2="25" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="490" y="230" class="txt-node-code">Time (s)</text>
+      <text x="60" y="18" class="txt-node-code" text-anchor="middle">RAM/CPU</text>
 
-      <!-- RAM Curve (Green) -->
-      <path d="M 60 170 Q 180 140, 270 135 T 370 135 L 440 170" fill="none" stroke="#16a34a" stroke-width="3"/>
-      <rect x="220" y="112" width="180" height="20" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
-      <text x="310" y="126" class="txt-node-code" fill="#15803d" text-anchor="middle">Peak RAM: 46.12 MB (~18 KB/conn)</text>
+      <!-- Badge placed well ABOVE curve to avoid collision -->
+      <rect x="180" y="70" width="220" height="26" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+      <text x="290" y="88" class="txt-badge" fill="#15803d" text-anchor="middle">Peak RAM: 46.12 MB (~18 KB/conn)</text>
 
-      <!-- CPU Line (Dashed Black) -->
-      <path d="M 60 195 Q 120 188, 180 184 T 270 182 T 370 185 L 440 196" fill="none" stroke="#000000" stroke-width="2.5" stroke-dasharray="5 3"/>
-      <text x="310" y="174" class="txt-node-code" text-anchor="middle">CPU Utilization: 4% &mdash; 8.2%</text>
+      <!-- RAM Curve (Smooth quadratic curve peaking at y=130) -->
+      <path d="M 60 180 Q 200 130, 290 128 T 440 180" fill="none" stroke="#16a34a" stroke-width="3"/>
+
+      <!-- CPU Line (Dashed Black, at y=190) -->
+      <path d="M 60 205 Q 120 198, 180 194 T 290 192 T 380 195 L 440 206" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="5 3"/>
+      <text x="290" y="218" class="txt-node-code" text-anchor="middle">CPU Utilization: 4% &#8212; 8.2%</text>
     </g>
 
-    <!-- Explanation Box -->
-    <g transform="translate(25, 360)">
-      <rect width="520" height="60" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-      <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Observation: RAM is the primary scaling dimension (~18 KB per connected client).</text>
-      <text x="260" y="44" class="txt-node-sub" font-weight="700" text-anchor="middle">A standard 1GB RAM instance can comfortably host 20,000+ idle SSE streams.</text>
+    <!-- Explanation Card -->
+    <g transform="translate(25, 370)">
+      <rect width="520" height="75" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+      <text x="260" y="24" class="txt-node-sub" text-anchor="middle">Observation: RAM is the primary scaling dimension (~18 KB per connected socket).</text>
+      <text x="260" y="44" class="txt-node-sub" font-weight="700" text-anchor="middle">A modest 1GB RAM instance can host 20,000+ idle SSE streams,</text>
+      <text x="260" y="62" class="txt-node-sub" font-weight="700" text-anchor="middle">proving SSE is heavily I/O-bound and memory-efficient rather than compute-bound.</text>
     </g>
   </g>
 
   <!-- Bottom Summary Banner Pill -->
-  <g transform="translate(45, 560)">
-    <rect width="1170" height="44" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="28" class="txt-node-title" font-size="16" text-anchor="middle">Benchmark Finding: SSE connections are extremely lightweight (~18 KB RAM) — IO Bound, not CPU Bound</text>
+  <g transform="translate(45, 565)">
+    <rect width="1170" height="42" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="27" class="txt-node-title" font-size="16" text-anchor="middle">Benchmark Finding: SSE connections are extremely lightweight (~18 KB RAM) &#8212; IO Bound, not CPU Bound</text>
   </g>
 </svg>

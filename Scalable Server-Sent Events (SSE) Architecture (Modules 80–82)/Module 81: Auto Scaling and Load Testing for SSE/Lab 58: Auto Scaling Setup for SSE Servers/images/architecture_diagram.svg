@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630" width="100%" height="auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
   <defs>
     <style>
       .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 18px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
-      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 700; fill: #000000; }
-      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 14px; font-weight: 800; fill: #000000; }
-      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 17px; font-weight: 800; fill: #000000; }
+      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 600; fill: #000000; }
+      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; fill: #000000; }
+      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 800; fill: #000000; }
+      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 800; fill: #000000; }
 
       @keyframes flow-dash {
         from { stroke-dashoffset: 0; }
@@ -26,131 +26,133 @@
   <!-- Outer Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- ==================== 1. TRAFFIC INGRESS ==================== -->
-  <g transform="translate(45, 60)">
-    <rect width="210" height="295" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+  <!-- ==================== 1. TRAFFIC INGRESS (LEFT) ==================== -->
+  <g transform="translate(45, 50)">
+    <rect width="200" height="310" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
     
-    <circle cx="105" cy="42" r="20" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-    <path d="M 75 84 C 75 60, 135 60, 135 84" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+    <circle cx="100" cy="42" r="20" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+    <path d="M 70 84 C 70 60, 130 60, 130 84" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-    <text x="105" y="112" class="txt-node-title" text-anchor="middle">Traffic Ingress</text>
-    <text x="105" y="132" class="txt-node-sub" font-style="italic" text-anchor="middle">Concurrent Clients</text>
+    <text x="100" y="112" class="txt-node-title" text-anchor="middle">Traffic Ingress</text>
+    <text x="100" y="132" class="txt-node-sub" font-style="italic" text-anchor="middle">(Concurrent Clients)</text>
     
     <g transform="translate(15, 148)">
-      <rect width="180" height="130" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="90" y="24" class="txt-node-title" font-size="14" text-anchor="middle">1,000+ SSE Streams</text>
-      <line x1="10" y1="34" x2="170" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="90" y="55" class="txt-node-code" text-anchor="middle">GET /events</text>
-      <text x="90" y="75" class="txt-node-sub" text-anchor="middle">• Long TCP Holding</text>
-      <text x="90" y="95" class="txt-node-sub" text-anchor="middle">• Low CPU Footprint</text>
-      <text x="90" y="115" class="txt-node-sub" text-anchor="middle">• File Descriptor Sensitive</text>
+      <rect width="170" height="142" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <text x="85" y="24" class="txt-node-title" font-size="14" text-anchor="middle">1,000+ SSE Streams</text>
+      <line x1="10" y1="34" x2="160" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="85" y="55" class="txt-node-code" text-anchor="middle">GET /events</text>
+      <text x="85" y="76" class="txt-node-sub" text-anchor="middle">• Long TCP Holding</text>
+      <text x="85" y="98" class="txt-node-sub" text-anchor="middle">• Low CPU Footprint</text>
+      <text x="85" y="120" class="txt-node-sub" text-anchor="middle">• Socket/RAM Sensitive</text>
     </g>
   </g>
 
-  <!-- Flow 1: Ingress -> ALB -->
-  <path d="M 255 205 L 340 205" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
-  <path d="M 255 205 L 340 205" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+  <!-- Flow 1: Ingress -> ALB (Straight Horizontal Arrow) -->
+  <path d="M 245 205 L 340 205" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+  <path d="M 245 205 L 340 205" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <text x="297" y="195" class="txt-arrow-label" text-anchor="middle">Traffic</text>
+  <text x="292" y="195" class="txt-arrow-label" text-anchor="middle">Traffic</text>
 
 
-  <!-- ==================== 2. APPLICATION LOAD BALANCER ==================== -->
-  <g transform="translate(340, 60)">
-    <rect width="260" height="295" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
+  <!-- ==================== 2. APPLICATION LOAD BALANCER (MIDDLE) ==================== -->
+  <g transform="translate(340, 50)">
+    <rect width="260" height="310" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
     
     <text x="130" y="32" class="txt-node-title" text-anchor="middle">AWS ALB</text>
     <text x="130" y="52" class="txt-node-sub" font-weight="700" text-anchor="middle">Port 80/443 Ingress</text>
 
     <g transform="translate(15, 68)">
-      <rect width="230" height="210" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <rect width="230" height="222" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
       <text x="115" y="24" class="txt-node-title" font-size="14" text-anchor="middle">ALB Telemetry &amp; Routing</text>
       <line x1="12" y1="34" x2="218" y2="34" stroke="#000000" stroke-width="1"/>
       <text x="115" y="55" class="txt-node-code" text-anchor="middle">idle_timeout = 3600s</text>
       <text x="115" y="75" class="txt-node-code" text-anchor="middle">dereg_delay = 300s</text>
-      <text x="115" y="100" class="txt-node-sub" text-anchor="middle">• Metric: TargetConnectionCount</text>
-      <text x="115" y="122" class="txt-node-sub" text-anchor="middle">• Round-Robin Dispatching</text>
-      <text x="115" y="144" class="txt-node-sub" text-anchor="middle">• Health Check: GET /health</text>
-      <rect x="15" y="160" width="200" height="34" rx="6" fill="#effff1" stroke="#000000" stroke-width="1.2"/>
-      <text x="115" y="182" class="txt-node-code" text-anchor="middle">TargetGroup: sse-tg</text>
+      <text x="115" y="102" class="txt-node-sub" text-anchor="middle">• Metric: TargetConnectionCount</text>
+      <text x="115" y="124" class="txt-node-sub" text-anchor="middle">• Round-Robin Target Dispatch</text>
+      <text x="115" y="146" class="txt-node-sub" text-anchor="middle">• Health Check: GET /health</text>
+      <rect x="15" y="165" width="200" height="42" rx="6" fill="#effff1" stroke="#000000" stroke-width="1.2"/>
+      <text x="115" y="191" class="txt-node-code" text-anchor="middle">TargetGroup: sse-tg</text>
     </g>
   </g>
 
-  <!-- Flow 2: ALB -> ASG -->
-  <path d="M 600 205 L 685 205" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
-  <path d="M 600 205 L 685 205" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
+  <!-- Flow 2: ALB -> ASG Fleet (Straight Horizontal Arrow) -->
+  <path d="M 600 205 L 690 205" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+  <path d="M 600 205 L 690 205" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
-  <text x="642" y="195" class="txt-arrow-label" text-anchor="middle">Distribute</text>
+  <text x="645" y="195" class="txt-arrow-label" text-anchor="middle">Distribute</text>
 
 
-  <!-- ==================== 3. AUTO SCALING GROUP FLEET ==================== -->
-  <g transform="translate(685, 45)">
-    <rect width="530" height="310" rx="14" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="265" y="30" class="txt-title" text-anchor="middle">Auto Scaling Group: sse-asg</text>
-    <text x="265" y="50" class="txt-node-sub" font-style="italic" text-anchor="middle">Min: 2 | Desired: 2 | Max: 8 Nodes</text>
+  <!-- ==================== 3. AUTO SCALING GROUP FLEET (RIGHT) ==================== -->
+  <g transform="translate(690, 40)">
+    <rect width="525" height="320" rx="14" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="262" y="30" class="txt-title" text-anchor="middle">Auto Scaling Group: sse-asg</text>
+    <text x="262" y="50" class="txt-node-sub" font-style="italic" text-anchor="middle">Min: 2 | Desired: 2 | Max: 8 Nodes</text>
 
     <!-- Instance A -->
-    <g transform="translate(20, 62)">
-      <rect width="235" height="232" rx="10" fill="#ffefe0" stroke="#000000" stroke-width="1.8"/>
-      <text x="117" y="24" class="txt-node-title" font-size="14" text-anchor="middle">EC2 Instance A</text>
-      <rect x="155" y="8" width="65" height="18" rx="6" fill="#d4f6d9" stroke="#000000" stroke-width="1"/>
-      <text x="187" y="21" class="txt-badge" font-size="11" text-anchor="middle">Healthy</text>
-      <line x1="12" y1="34" x2="223" y2="34" stroke="#000000" stroke-width="1"/>
+    <g transform="translate(18, 62)">
+      <rect width="238" height="242" rx="10" fill="#ffefe0" stroke="#000000" stroke-width="1.8"/>
       
-      <g transform="translate(12, 45)">
-        <rect width="211" height="115" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-        <text x="105" y="22" class="txt-node-code" text-anchor="middle">ulimit -n 65535</text>
-        <text x="105" y="44" class="txt-node-code" text-anchor="middle">FastAPI + 4 Workers</text>
-        <text x="105" y="68" class="txt-node-sub" text-anchor="middle">Active Streams: 1,250</text>
-        <text x="105" y="90" class="txt-node-sub" text-anchor="middle">CPU Usage: 14.2%</text>
+      <!-- Clean Header with Status Pill Centered Below -->
+      <text x="119" y="24" class="txt-node-title" font-size="14" text-anchor="middle">EC2 Instance A</text>
+      <text x="119" y="42" class="txt-node-code" font-size="11" text-anchor="middle">10.0.1.45:8000 (Healthy)</text>
+      <line x1="12" y1="50" x2="226" y2="50" stroke="#000000" stroke-width="1"/>
+      
+      <g transform="translate(12, 58)">
+        <rect width="214" height="115" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="107" y="22" class="txt-node-code" text-anchor="middle">ulimit -n 65535</text>
+        <text x="107" y="44" class="txt-node-code" text-anchor="middle">FastAPI + 4 Workers</text>
+        <text x="107" y="68" class="txt-node-sub" text-anchor="middle">Active Streams: 1,250</text>
+        <text x="107" y="90" class="txt-node-sub" text-anchor="middle">CPU Usage: 14.2%</text>
       </g>
       
-      <rect x="12" y="172" width="211" height="46" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
-      <text x="105" y="191" class="txt-badge" text-anchor="middle">PutMetricData &rarr; CloudWatch</text>
-      <text x="105" y="208" class="txt-node-code" font-size="11" text-anchor="middle">ActiveSSEConnections: 1250</text>
+      <rect x="12" y="182" width="214" height="48" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
+      <text x="107" y="201" class="txt-badge" text-anchor="middle">PutMetricData &#8594; CloudWatch</text>
+      <text x="107" y="218" class="txt-node-code" font-size="11" text-anchor="middle">ActiveSSEConnections: 1250</text>
     </g>
 
     <!-- Instance B -->
-    <g transform="translate(275, 62)">
-      <rect width="235" height="232" rx="10" fill="#ffefe0" stroke="#000000" stroke-width="1.8"/>
-      <text x="117" y="24" class="txt-node-title" font-size="14" text-anchor="middle">EC2 Instance B</text>
-      <rect x="155" y="8" width="65" height="18" rx="6" fill="#d4f6d9" stroke="#000000" stroke-width="1"/>
-      <text x="187" y="21" class="txt-badge" font-size="11" text-anchor="middle">Healthy</text>
-      <line x1="12" y1="34" x2="223" y2="34" stroke="#000000" stroke-width="1"/>
+    <g transform="translate(268, 62)">
+      <rect width="238" height="242" rx="10" fill="#ffefe0" stroke="#000000" stroke-width="1.8"/>
       
-      <g transform="translate(12, 45)">
-        <rect width="211" height="115" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-        <text x="105" y="22" class="txt-node-code" text-anchor="middle">ulimit -n 65535</text>
-        <text x="105" y="44" class="txt-node-code" text-anchor="middle">FastAPI + 4 Workers</text>
-        <text x="105" y="68" class="txt-node-sub" text-anchor="middle">Active Streams: 1,180</text>
-        <text x="105" y="90" class="txt-node-sub" text-anchor="middle">CPU Usage: 13.8%</text>
+      <!-- Clean Header with Status Pill Centered Below -->
+      <text x="119" y="24" class="txt-node-title" font-size="14" text-anchor="middle">EC2 Instance B</text>
+      <text x="119" y="42" class="txt-node-code" font-size="11" text-anchor="middle">10.0.2.88:8000 (Healthy)</text>
+      <line x1="12" y1="50" x2="226" y2="50" stroke="#000000" stroke-width="1"/>
+      
+      <g transform="translate(12, 58)">
+        <rect width="214" height="115" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <text x="107" y="22" class="txt-node-code" text-anchor="middle">ulimit -n 65535</text>
+        <text x="107" y="44" class="txt-node-code" text-anchor="middle">FastAPI + 4 Workers</text>
+        <text x="107" y="68" class="txt-node-sub" text-anchor="middle">Active Streams: 1,180</text>
+        <text x="107" y="90" class="txt-node-sub" text-anchor="middle">CPU Usage: 13.8%</text>
       </g>
       
-      <rect x="12" y="172" width="211" height="46" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
-      <text x="105" y="191" class="txt-badge" text-anchor="middle">PutMetricData &rarr; CloudWatch</text>
-      <text x="105" y="208" class="txt-node-code" font-size="11" text-anchor="middle">ActiveSSEConnections: 1180</text>
+      <rect x="12" y="182" width="214" height="48" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
+      <text x="107" y="201" class="txt-badge" text-anchor="middle">PutMetricData &#8594; CloudWatch</text>
+      <text x="107" y="218" class="txt-node-code" font-size="11" text-anchor="middle">ActiveSSEConnections: 1180</text>
     </g>
   </g>
 
 
   <!-- ==================== 4. CLOUDWATCH TELEMETRY & DECISION ENGINE ==================== -->
-  <g transform="translate(45, 375)">
-    <rect width="1170" height="175" rx="14" fill="#fffbe8" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="28" class="txt-node-title" text-anchor="middle">Amazon CloudWatch Telemetry &amp; Dynamic Auto Scaling Engine</text>
+  <g transform="translate(45, 380)">
+    <rect width="1170" height="170" rx="14" fill="#fffbe8" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="26" class="txt-node-title" text-anchor="middle">Amazon CloudWatch Telemetry and Dynamic Auto Scaling Engine</text>
 
     <!-- Sub-block A: CloudWatch Aggregation -->
-    <g transform="translate(25, 42)">
-      <rect width="345" height="118" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="172" y="24" class="txt-node-title" font-size="14" text-anchor="middle">CloudWatch Metric Aggregator</text>
-      <line x1="12" y1="34" x2="333" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="172" y="55" class="txt-node-code" text-anchor="middle">Namespace: SSE/ApplicationFleet</text>
-      <text x="172" y="78" class="txt-node-sub" text-anchor="middle">Total Active Connections = 2,430</text>
-      <text x="172" y="100" class="txt-node-sub" text-anchor="middle">Avg Per Target: 1,215 (&gt; 1,000 threshold)</text>
+    <g transform="translate(20, 38)">
+      <rect width="350" height="118" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <text x="175" y="24" class="txt-node-title" font-size="14" text-anchor="middle">CloudWatch Metric Aggregator</text>
+      <line x1="12" y1="34" x2="338" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="175" y="55" class="txt-node-code" text-anchor="middle">Namespace: SSE/ApplicationFleet</text>
+      <text x="175" y="78" class="txt-node-sub" text-anchor="middle">Total Active Connections = 2,430</text>
+      <text x="175" y="100" class="txt-node-sub" text-anchor="middle">Avg Per Target: 1,215 (&gt; 1,000 threshold)</text>
     </g>
 
     <!-- Sub-block B: Target Tracking Policy -->
-    <g transform="translate(395, 42)">
+    <g transform="translate(390, 38)">
       <rect width="380" height="118" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
       <text x="190" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Target Tracking Scaling Policy</text>
       <line x1="12" y1="34" x2="368" y2="34" stroke="#000000" stroke-width="1"/>
@@ -160,23 +162,23 @@
     </g>
 
     <!-- Sub-block C: Scaling Trigger Action -->
-    <g transform="translate(800, 42)">
-      <rect width="345" height="118" rx="8" fill="#effff1" stroke="#000000" stroke-width="1.5"/>
-      <text x="172" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Auto Scaling Action Triggered</text>
-      <line x1="12" y1="34" x2="333" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="172" y="55" class="txt-node-code" text-anchor="middle">SCALE-OUT: +1 EC2 Instance</text>
-      <text x="172" y="78" class="txt-node-sub" text-anchor="middle">Spawns Instance C via Launch Template</text>
-      <text x="172" y="100" class="txt-node-sub" text-anchor="middle">Registers to Target Group in &lt; 60s</text>
+    <g transform="translate(790, 38)">
+      <rect width="360" height="118" rx="8" fill="#effff1" stroke="#000000" stroke-width="1.5"/>
+      <text x="180" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Auto Scaling Action Triggered</text>
+      <line x1="12" y1="34" x2="348" y2="34" stroke="#000000" stroke-width="1"/>
+      <text x="180" y="55" class="txt-node-code" text-anchor="middle">SCALE-OUT: +1 EC2 Instance</text>
+      <text x="180" y="78" class="txt-node-sub" text-anchor="middle">Spawns Instance C via Launch Template</text>
+      <text x="180" y="100" class="txt-node-sub" text-anchor="middle">Registers to Target Group in &lt; 60s</text>
     </g>
   </g>
 
   <!-- Metric Flow Down Arrow -->
-  <path d="M 800 355 L 800 375" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+  <path d="M 800 360 L 800 380" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
 
   <!-- Scale-Out Flow Up Arrow -->
-  <path d="M 972 375 L 972 355" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
+  <path d="M 970 380 L 970 360" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
     <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
   </path>
 

@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 650" width="100%" height="auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
   <defs>
     <style>
       .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
       .txt-actor { font-family: "Times New Roman", Times, serif; font-size: 15px; font-weight: 800; fill: #000000; }
       .txt-actor-sub { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 600; fill: #000000; }
-      .txt-step-badge { font-family: "Times New Roman", Times, serif; font-size: 11px; font-weight: 800; fill: #000000; }
       .txt-msg { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; fill: #000000; }
       .txt-code { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 700; fill: #000000; }
+      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 12px; font-weight: 800; fill: #000000; }
       .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 16px; font-weight: 800; fill: #000000; }
     </style>
 
@@ -16,159 +16,150 @@
   </defs>
 
   <!-- Outer Canvas Border -->
-  <rect x="10" y="10" width="1240" height="630" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+  <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- Title Banner -->
+  <!-- Main Title Banner -->
   <g transform="translate(45, 25)">
     <rect width="1170" height="46" rx="10" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="30" class="txt-title" text-anchor="middle">Distributed Broadcast Sequence: Publisher &rarr; Redis &rarr; Multi-Node Fleet &rarr; Clients</text>
+    <text x="585" y="30" class="txt-title" text-anchor="middle">Distributed Broadcast Sequence: Publisher &#8594; Redis &#8594; Multi-Node Fleet &#8594; Subscribers</text>
   </g>
 
   <!-- ==================== ACTOR HEADERS & LIFELINES ==================== -->
 
-  <!-- Actor 1: Client 1 (x = 110) -->
-  <g transform="translate(50, 85)">
-    <rect width="120" height="50" rx="8" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
-    <text x="60" y="24" class="txt-actor" text-anchor="middle">Client 1</text>
-    <text x="60" y="42" class="txt-actor-sub" text-anchor="middle">(Web Browser)</text>
-    <line x1="60" y1="50" x2="60" y2="480" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <!-- Actor 1: Client 1 (x = 100) -->
+  <g transform="translate(40, 85)">
+    <rect width="120" height="48" rx="8" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+    <text x="60" y="22" class="txt-actor" text-anchor="middle">Client 1</text>
+    <text x="60" y="38" class="txt-actor-sub" text-anchor="middle">(Web Browser)</text>
+    <line x1="60" y1="48" x2="60" y2="475" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
   </g>
 
-  <!-- Actor 2: Node-Alpha (x = 290) -->
-  <g transform="translate(230, 85)">
-    <rect width="120" height="50" rx="8" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
-    <text x="60" y="24" class="txt-actor" text-anchor="middle">Node-Alpha</text>
-    <text x="60" y="42" class="txt-actor-sub" text-anchor="middle">(Port 8001)</text>
-    <line x1="60" y1="50" x2="60" y2="480" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <!-- Actor 2: Publisher (x = 270) -->
+  <g transform="translate(210, 85)">
+    <rect width="120" height="48" rx="8" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
+    <text x="60" y="22" class="txt-actor" text-anchor="middle">Publisher</text>
+    <text x="60" y="38" class="txt-actor-sub" text-anchor="middle">(Admin / API)</text>
+    <line x1="60" y1="48" x2="60" y2="475" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
   </g>
 
-  <!-- Actor 3: Publisher (x = 480) -->
-  <g transform="translate(420, 85)">
-    <rect width="120" height="50" rx="8" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
-    <text x="60" y="24" class="txt-actor" text-anchor="middle">Publisher</text>
-    <text x="60" y="42" class="txt-actor-sub" text-anchor="middle">(Admin / API)</text>
-    <line x1="60" y1="50" x2="60" y2="480" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <!-- Actor 3: Node-Alpha (x = 460) -->
+  <g transform="translate(400, 85)">
+    <rect width="120" height="48" rx="8" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+    <text x="60" y="22" class="txt-actor" text-anchor="middle">Node-Alpha</text>
+    <text x="60" y="38" class="txt-actor-sub" text-anchor="middle">(Port 8001)</text>
+    <line x1="60" y1="48" x2="60" y2="475" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
   </g>
 
-  <!-- Actor 4: Redis Pub/Sub (x = 680) -->
+  <!-- Actor 4: Redis Bus (x = 680) -->
   <g transform="translate(620, 85)">
-    <rect width="120" height="50" rx="8" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
-    <text x="60" y="24" class="txt-actor" text-anchor="middle">Redis Bus</text>
-    <text x="60" y="42" class="txt-actor-sub" text-anchor="middle">(Port 6379)</text>
-    <line x1="60" y1="50" x2="60" y2="480" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
+    <rect width="120" height="48" rx="8" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
+    <text x="60" y="22" class="txt-actor" text-anchor="middle">Redis Bus</text>
+    <text x="60" y="38" class="txt-actor-sub" text-anchor="middle">(Port 6379)</text>
+    <line x1="60" y1="48" x2="60" y2="475" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
   </g>
 
-  <!-- Actor 5: Node-Beta (x = 880) -->
-  <g transform="translate(820, 85)">
-    <rect width="120" height="50" rx="8" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
-    <text x="60" y="24" class="txt-actor" text-anchor="middle">Node-Beta</text>
-    <text x="60" y="42" class="txt-actor-sub" text-anchor="middle">(Port 8002)</text>
-    <line x1="60" y1="50" x2="60" y2="480" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <!-- Actor 5: Node-Beta (x = 900) -->
+  <g transform="translate(840, 85)">
+    <rect width="120" height="48" rx="8" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
+    <text x="60" y="22" class="txt-actor" text-anchor="middle">Node-Beta</text>
+    <text x="60" y="38" class="txt-actor-sub" text-anchor="middle">(Port 8002)</text>
+    <line x1="60" y1="48" x2="60" y2="475" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
   </g>
 
-  <!-- Actor 6: Client 2 (x = 1080) -->
-  <g transform="translate(1020, 85)">
-    <rect width="120" height="50" rx="8" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
-    <text x="60" y="24" class="txt-actor" text-anchor="middle">Client 2</text>
-    <text x="60" y="42" class="txt-actor-sub" text-anchor="middle">(Mobile App)</text>
-    <line x1="60" y1="50" x2="60" y2="480" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <!-- Actor 6: Client 2 (x = 1100) -->
+  <g transform="translate(1040, 85)">
+    <rect width="120" height="48" rx="8" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+    <text x="60" y="22" class="txt-actor" text-anchor="middle">Client 2</text>
+    <text x="60" y="38" class="txt-actor-sub" text-anchor="middle">(Mobile App)</text>
+    <line x1="60" y1="48" x2="60" y2="475" stroke="#000000" stroke-width="1.5" stroke-dasharray="5 5"/>
   </g>
-
-  <!-- Lifeline coordinate anchors:
-       Client 1: x = 110
-       Node-Alpha: x = 290
-       Publisher: x = 480
-       Redis: x = 680
-       Node-Beta: x = 880
-       Client 2: x = 1080
-  -->
 
   <!-- ==================== SEQUENCE STEPS ==================== -->
 
-  <!-- STEP 1: Connection Initialization (y = 160) -->
-  <g transform="translate(0, 155)">
+  <!-- STEP 1: Subscribers Connect (y = 155) -->
+  <g transform="translate(0, 150)">
     <!-- Client 1 -> Node-Alpha -->
-    <line x1="110" y1="15" x2="290" y2="15" stroke="#000000" stroke-width="1.8" marker-end="url(#arrow)"/>
-    <rect x="140" y="0" width="120" height="18" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-    <text x="200" y="13" class="txt-code" text-anchor="middle">1. GET /events</text>
+    <line x1="100" y1="15" x2="460" y2="15" stroke="#000000" stroke-width="1.8" marker-end="url(#arrow)"/>
+    <rect x="180" y="0" width="160" height="20" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="260" y="14" class="txt-code" text-anchor="middle">1. GET /events (Client 1)</text>
 
     <!-- Client 2 -> Node-Beta -->
-    <line x1="1080" y1="15" x2="880" y2="15" stroke="#000000" stroke-width="1.8" marker-end="url(#arrow)"/>
-    <rect x="930" y="0" width="120" height="18" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-    <text x="990" y="13" class="txt-code" text-anchor="middle">1. GET /events</text>
+    <line x1="1100" y1="15" x2="900" y2="15" stroke="#000000" stroke-width="1.8" marker-end="url(#arrow)"/>
+    <rect x="940" y="0" width="160" height="20" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="1020" y="14" class="txt-code" text-anchor="middle">1. GET /events (Client 2)</text>
   </g>
 
-  <!-- STEP 2: Background Redis Subscription (y = 205) -->
-  <g transform="translate(0, 205)">
+  <!-- STEP 2: Background Redis Subscriptions (y = 200) -->
+  <g transform="translate(0, 200)">
     <!-- Node-Alpha -> Redis -->
-    <line x1="290" y1="15" x2="680" y2="15" stroke="#000000" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
-    <rect x="360" y="0" width="250" height="18" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-    <text x="485" y="13" class="txt-code" text-anchor="middle">2. SUBSCRIBE 'sse_events_channel'</text>
+    <line x1="460" y1="15" x2="680" y2="15" stroke="#000000" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
+    <rect x="490" y="0" width="160" height="20" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="570" y="14" class="txt-code" text-anchor="middle">2. SUBSCRIBE 'events'</text>
 
     <!-- Node-Beta -> Redis -->
-    <line x1="880" y1="28" x2="680" y2="28" stroke="#000000" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
-    <rect x="710" y="32" width="150" height="18" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-    <text x="785" y="45" class="txt-code" text-anchor="middle">2. SUBSCRIBE (channel)</text>
+    <line x1="900" y1="15" x2="680" y2="15" stroke="#000000" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
+    <rect x="710" y="0" width="160" height="20" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="790" y="14" class="txt-code" text-anchor="middle">2. SUBSCRIBE 'events'</text>
   </g>
 
-  <!-- STEP 3: Publisher Ingestion (y = 275) -->
-  <g transform="translate(0, 275)">
+  <!-- STEP 3: Publisher Ingestion (y = 255) -->
+  <g transform="translate(0, 255)">
     <!-- Publisher -> Node-Alpha -->
-    <line x1="480" y1="15" x2="290" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-    <rect x="310" y="0" width="150" height="20" rx="4" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
-    <text x="385" y="14" class="txt-msg" text-anchor="middle">3. POST /publish {"msg":..}</text>
+    <line x1="270" y1="15" x2="460" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="295" y="0" width="140" height="22" rx="4" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
+    <text x="365" y="15" class="txt-msg" text-anchor="middle">3. POST /publish</text>
   </g>
 
-  <!-- STEP 4: Redis Publish & ACK (y = 325) -->
-  <g transform="translate(0, 325)">
+  <!-- STEP 4: Redis Publish & ACK (y = 305) -->
+  <g transform="translate(0, 305)">
     <!-- Node-Alpha -> Redis PUBLISH -->
-    <line x1="290" y1="15" x2="680" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-    <rect x="390" y="0" width="190" height="20" rx="4" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
-    <text x="485" y="14" class="txt-msg" text-anchor="middle">4. PUBLISH 'sse_events_channel'</text>
+    <line x1="460" y1="15" x2="680" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="490" y="0" width="160" height="22" rx="4" fill="#ffeaea" stroke="#000000" stroke-width="1.2"/>
+    <text x="570" y="15" class="txt-msg" text-anchor="middle">4. PUBLISH 'events'</text>
 
     <!-- Node-Alpha -> Publisher ACK -->
-    <line x1="290" y1="35" x2="480" y2="35" stroke="#000000" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
-    <text x="385" y="48" class="txt-code" text-anchor="middle">HTTP 200 {"status": "broadcasted"}</text>
+    <line x1="460" y1="35" x2="270" y2="35" stroke="#000000" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+    <text x="365" y="48" class="txt-code" text-anchor="middle">HTTP 200 {"status": "broadcasted"}</text>
   </g>
 
-  <!-- STEP 5: In-Memory Fan-Out Broadcast (y = 385) -->
-  <g transform="translate(0, 385)">
+  <!-- STEP 5: In-Memory Fan-Out (y = 370) -->
+  <g transform="translate(0, 370)">
     <!-- Redis -> Node-Alpha -->
-    <line x1="680" y1="15" x2="290" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-    <rect x="370" y="0" width="220" height="20" rx="4" fill="#effff1" stroke="#000000" stroke-width="1.2"/>
-    <text x="480" y="14" class="txt-msg" text-anchor="middle">5. Redis Push Event Payload (&lt;1ms)</text>
+    <line x1="680" y1="15" x2="460" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="490" y="0" width="160" height="22" rx="4" fill="#effff1" stroke="#000000" stroke-width="1.2"/>
+    <text x="570" y="15" class="txt-msg" text-anchor="middle">5. Redis Push (&lt;1ms)</text>
 
     <!-- Redis -> Node-Beta -->
-    <line x1="680" y1="15" x2="880" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-    <rect x="710" y="0" width="150" height="20" rx="4" fill="#effff1" stroke="#000000" stroke-width="1.2"/>
-    <text x="785" y="14" class="txt-msg" text-anchor="middle">5. Redis Push Event Payload</text>
+    <line x1="680" y1="15" x2="900" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="710" y="0" width="160" height="22" rx="4" fill="#effff1" stroke="#000000" stroke-width="1.2"/>
+    <text x="790" y="15" class="txt-msg" text-anchor="middle">5. Redis Push (&lt;1ms)</text>
   </g>
 
-  <!-- STEP 6: Node Internal Queue Put (y = 440) -->
-  <g transform="translate(0, 440)">
-    <rect x="230" y="0" width="120" height="22" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-    <text x="290" y="15" class="txt-code" font-size="10.5" text-anchor="middle">6. Queue.put_nowait()</text>
+  <!-- STEP 6: Node Internal Queue Put (y = 420) -->
+  <g transform="translate(0, 420)">
+    <rect x="390" y="0" width="140" height="22" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="460" y="15" class="txt-code" font-size="11" text-anchor="middle">6. queue.put_nowait()</text>
 
-    <rect x="820" y="0" width="120" height="22" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-    <text x="880" y="15" class="txt-code" font-size="10.5" text-anchor="middle">6. Queue.put_nowait()</text>
+    <rect x="830" y="0" width="140" height="22" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="900" y="15" class="txt-code" font-size="11" text-anchor="middle">6. queue.put_nowait()</text>
   </g>
 
-  <!-- STEP 7: Real-Time SSE Chunk Yielded to Clients (y = 485) -->
-  <g transform="translate(0, 485)">
+  <!-- STEP 7: Real-Time SSE Chunk Dispatched (y = 465) -->
+  <g transform="translate(0, 465)">
     <!-- Node-Alpha -> Client 1 -->
-    <line x1="290" y1="15" x2="110" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-    <rect x="130" y="0" width="140" height="20" rx="4" fill="#d4f6d9" stroke="#000000" stroke-width="1.2"/>
-    <text x="200" y="14" class="txt-msg" text-anchor="middle">7. data: {"msg": "..."}\n\n</text>
+    <line x1="460" y1="15" x2="100" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="180" y="0" width="180" height="22" rx="4" fill="#d4f6d9" stroke="#000000" stroke-width="1.2"/>
+    <text x="270" y="15" class="txt-msg" text-anchor="middle">7. data: {"msg": "Alert"}\n\n</text>
 
     <!-- Node-Beta -> Client 2 -->
-    <line x1="880" y1="15" x2="1080" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
-    <rect x="910" y="0" width="140" height="20" rx="4" fill="#d4f6d9" stroke="#000000" stroke-width="1.2"/>
-    <text x="980" y="14" class="txt-msg" text-anchor="middle">7. data: {"msg": "..."}\n\n</text>
+    <line x1="900" y1="15" x2="1100" y2="15" stroke="#000000" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="930" y="0" width="180" height="22" rx="4" fill="#d4f6d9" stroke="#000000" stroke-width="1.2"/>
+    <text x="1020" y="15" class="txt-msg" text-anchor="middle">7. data: {"msg": "Alert"}\n\n</text>
   </g>
 
   <!-- Bottom Summary Banner Pill -->
-  <g transform="translate(45, 580)">
-    <rect width="1170" height="44" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="28" class="txt-node-title" font-size="16" text-anchor="middle">Complete Distributed Flow: Decoupled Multi-Node Push Achieved via Central Redis In-Memory Bus in &lt; 2ms</text>
+  <g transform="translate(45, 565)">
+    <rect width="1170" height="42" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+    <text x="585" y="27" class="txt-node-title" font-size="16" text-anchor="middle">Complete Distributed Flow: Decoupled Multi-Node Push Achieved via Central Redis In-Memory Bus in &lt; 2ms</text>
   </g>
 </svg>
