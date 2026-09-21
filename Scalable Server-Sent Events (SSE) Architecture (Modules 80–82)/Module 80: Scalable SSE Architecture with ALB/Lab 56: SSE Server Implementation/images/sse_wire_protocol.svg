@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630" width="100%">
   <defs>
     <style>
-      .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 18px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13.5px; font-weight: 600; fill: #000000; }
-      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 700; fill: #000000; }
-      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 14px; font-weight: 800; fill: #000000; }
+      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #4b5563; }
+      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 700; fill: #111827; }
+      .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
 
       @keyframes flow-dash {
         from { stroke-dashoffset: 0; }
@@ -22,117 +22,104 @@
     </marker>
   </defs>
 
-  <!-- Outer Canvas Border -->
+  <!-- Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <text x="630" y="45" class="txt-title" text-anchor="middle">Server-Sent Events (SSE) Wire Protocol Specification &amp; Reconnection Flow</text>
+  <!-- Diagram Title -->
+  <text x="630" y="48" class="txt-title" text-anchor="middle">SSE Wire Protocol and Automatic Reconnection</text>
 
-  <!-- ==================== 3 COLUMNS OF WIRE FRAMING ==================== -->
-  
-  <!-- Column 1: Reconnection Directive -->
-  <g transform="translate(45, 75)">
-    <rect width="365" height="235" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
-    <text x="182" y="32" class="txt-node-title" text-anchor="middle">1. Reconnection Directive</text>
-    <text x="182" y="52" class="txt-node-sub" text-anchor="middle">Specifies Client Retry Interval</text>
+  <!-- ==================== TOP: 4 PROTOCOL FIELDS ==================== -->
+  <g transform="translate(60, 80)">
+    <rect width="1140" height="190" rx="14" fill="#f8fafc" stroke="#000000" stroke-width="2"/>
+    <text x="570" y="34" class="txt-node-title" text-anchor="middle">The 4 Standard SSE Wire Fields</text>
 
-    <g transform="translate(18, 65)">
-      <rect width="329" height="70" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="16" y="32" class="txt-node-code">retry: 3000\n\n</text>
-      <text x="16" y="54" class="txt-node-sub" font-style="italic">Wait 3000ms before reconnecting</text>
+    <!-- 1. event -->
+    <g transform="translate(30, 55)">
+      <rect width="250" height="110" rx="10" fill="#eaf8ff" stroke="#000000" stroke-width="1.5"/>
+      <text x="125" y="32" class="txt-node-code" font-size="16" text-anchor="middle">event: &lt;name&gt;</text>
+      <text x="125" y="62" class="txt-node-sub" text-anchor="middle">Custom event type</text>
+      <rect x="25" y="75" width="200" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+      <text x="125" y="91" class="txt-node-code" font-size="11" text-anchor="middle">e.g. event: alert</text>
     </g>
 
-    <text x="35" y="165" class="txt-node-sub">• Informs browser EventSource retry backoff</text>
-    <text x="35" y="190" class="txt-node-sub">• Automatically parsed by browser runtime</text>
-    <text x="35" y="215" class="txt-node-sub">• Terminates with double newline (\n\n)</text>
-  </g>
-
-  <!-- Column 2: Event Data Frame -->
-  <g transform="translate(448, 75)">
-    <rect width="365" height="235" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
-    <text x="182" y="32" class="txt-node-title" text-anchor="middle">2. Structured Event Frame</text>
-    <text x="182" y="52" class="txt-node-sub" text-anchor="middle">Payload Data with ID &amp; Event Type</text>
-
-    <g transform="translate(18, 65)">
-      <rect width="329" height="90" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="16" y="26" class="txt-node-code">id: 101\n</text>
-      <text x="16" y="48" class="txt-node-code">event: server_telemetry\n</text>
-      <text x="16" y="70" class="txt-node-code">data: {"cpu": 34.2, "mem": 62.8}\n\n</text>
+    <!-- 2. data -->
+    <g transform="translate(310, 55)">
+      <rect width="250" height="110" rx="10" fill="#effff1" stroke="#000000" stroke-width="1.5"/>
+      <text x="125" y="32" class="txt-node-code" font-size="16" text-anchor="middle">data: &lt;payload&gt;</text>
+      <text x="125" y="62" class="txt-node-sub" text-anchor="middle">Message content (JSON/text)</text>
+      <rect x="25" y="75" width="200" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+      <text x="125" y="91" class="txt-node-code" font-size="11" text-anchor="middle">e.g. data: {"temp": 25}</text>
     </g>
 
-    <text x="35" y="180" class="txt-node-sub">• id: Stored automatically as Last-Event-ID</text>
-    <text x="35" y="205" class="txt-node-sub">• event: Dispatches named JavaScript listener</text>
-  </g>
-
-  <!-- Column 3: Keep-Alive Comment Frame -->
-  <g transform="translate(850, 75)">
-    <rect width="365" height="235" rx="14" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
-    <text x="182" y="32" class="txt-node-title" text-anchor="middle">3. Heartbeat Comment</text>
-    <text x="182" y="52" class="txt-node-sub" text-anchor="middle">Prevents Socket Idle Timeout</text>
-
-    <g transform="translate(18, 65)">
-      <rect width="329" height="70" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="16" y="32" class="txt-node-code">: keep-alive heartbeat\n\n</text>
-      <text x="16" y="54" class="txt-node-sub" font-style="italic">Ignored by browser EventSource</text>
+    <!-- 3. id -->
+    <g transform="translate(590, 55)">
+      <rect width="250" height="110" rx="10" fill="#ebeaff" stroke="#000000" stroke-width="1.5"/>
+      <text x="125" y="32" class="txt-node-code" font-size="16" text-anchor="middle">id: &lt;message_id&gt;</text>
+      <text x="125" y="62" class="txt-node-sub" text-anchor="middle">Unique identifier for tracking</text>
+      <rect x="25" y="75" width="200" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+      <text x="125" y="91" class="txt-node-code" font-size="11" text-anchor="middle">e.g. id: 101</text>
     </g>
 
-    <text x="35" y="165" class="txt-node-sub">• Any line starting with a colon is a comment</text>
-    <text x="35" y="190" class="txt-node-sub">• Keeps NAT gateways and proxies active</text>
-    <text x="35" y="215" class="txt-node-sub">• Prevents 504 Gateway Timeout socket drops</text>
+    <!-- 4. retry -->
+    <g transform="translate(870, 55)">
+      <rect width="240" height="110" rx="10" fill="#fffbe8" stroke="#000000" stroke-width="1.5"/>
+      <text x="120" y="32" class="txt-node-code" font-size="16" text-anchor="middle">retry: &lt;milliseconds&gt;</text>
+      <text x="120" y="62" class="txt-node-sub" text-anchor="middle">Client reconnect delay</text>
+      <rect x="20" y="75" width="200" height="24" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+      <text x="120" y="91" class="txt-node-code" font-size="11" text-anchor="middle">e.g. retry: 3000</text>
+    </g>
   </g>
 
-  <!-- ==================== BOTTOM RECONNECTION SEQUENCE ==================== -->
-  <g transform="translate(45, 330)">
-    <rect width="1170" height="210" rx="14" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="30" class="txt-node-title" text-anchor="middle">Automatic Browser Reconnection Lifecycle with Last-Event-ID</text>
+  <!-- ==================== BOTTOM: 3-STEP RECONNECTION LIFECYCLE ==================== -->
+  <g transform="translate(60, 300)">
+    <rect width="1140" height="225" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
+    <text x="570" y="36" class="txt-node-title" text-anchor="middle">Built-in Auto-Reconnection Lifecycle (Zero Custom Code Needed)</text>
 
-    <!-- Step 1 Box -->
-    <g transform="translate(30, 48)">
-      <rect width="280" height="135" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="140" y="28" class="txt-node-title" font-size="16" text-anchor="middle">Step 1: Active Stream</text>
-      <line x1="12" y1="38" x2="268" y2="38" stroke="#000000" stroke-width="1"/>
-      <text x="14" y="62" class="txt-node-sub">Server streams event with <tspan class="txt-node-code">id: 42</tspan></text>
-      <text x="14" y="86" class="txt-node-sub">Browser updates DOM UI</text>
-      <text x="14" y="110" class="txt-node-code">Last-Event-ID stored in memory</text>
+    <!-- Step 1 Card -->
+    <g transform="translate(40, 60)">
+      <rect width="300" height="140" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <rect x="15" y="15" width="70" height="24" rx="12" fill="#eaf8ff" stroke="#000000" stroke-width="1"/>
+      <text x="50" y="31" class="txt-badge" font-size="12" text-anchor="middle">Step 1</text>
+      <text x="150" y="68" class="txt-node-title" font-size="16" text-anchor="middle">Active Streaming</text>
+      <text x="150" y="95" class="txt-node-sub" text-anchor="middle">Server sends frame:</text>
+      <rect x="25" y="105" width="250" height="24" rx="6" fill="#f1f5f9" stroke="#000000" stroke-width="1"/>
+      <text x="150" y="121" class="txt-node-code" font-size="11" text-anchor="middle">id: 101 \n data: "ok"</text>
     </g>
 
     <!-- Arrow 1 -> 2 -->
-    <path d="M 310 115 L 420 115" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
-    <path d="M 310 115 L 420 115" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
-      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-    </path>
-    <text x="365" y="105" class="txt-arrow-label" text-anchor="middle">Socket Drop</text>
+    <path d="M 355 130 L 420 130" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+    <path d="M 355 130 L 420 130" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)"/>
 
-    <!-- Step 2 Box -->
-    <g transform="translate(420, 48)">
-      <rect width="280" height="135" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="140" y="28" class="txt-node-title" font-size="16" text-anchor="middle">Step 2: Network Interruption</text>
-      <line x1="12" y1="38" x2="268" y2="38" stroke="#000000" stroke-width="1"/>
-      <text x="14" y="62" class="txt-node-sub">TCP socket closed unexpectedly</text>
-      <text x="14" y="86" class="txt-node-sub">Browser EventSource fires onerror</text>
-      <text x="14" y="110" class="txt-node-sub">Waits 3000ms according to retry</text>
+    <!-- Step 2 Card -->
+    <g transform="translate(435, 60)">
+      <rect width="300" height="140" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <rect x="15" y="15" width="70" height="24" rx="12" fill="#ffeaea" stroke="#000000" stroke-width="1"/>
+      <text x="50" y="31" class="txt-badge" font-size="12" text-anchor="middle">Step 2</text>
+      <text x="150" y="68" class="txt-node-title" font-size="16" text-anchor="middle">Network Drop</text>
+      <text x="150" y="95" class="txt-node-sub" text-anchor="middle">Connection is interrupted</text>
+      <rect x="25" y="105" width="250" height="24" rx="6" fill="#ffeaea" stroke="#000000" stroke-width="1"/>
+      <text x="150" y="121" class="txt-node-code" font-size="11" text-anchor="middle">Browser waits 3000ms (retry)</text>
     </g>
 
     <!-- Arrow 2 -> 3 -->
-    <path d="M 700 115 L 810 115" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
-    <path d="M 700 115 L 810 115" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
-      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-    </path>
-    <text x="755" y="105" class="txt-arrow-label" text-anchor="middle">Reconnect</text>
+    <path d="M 750 130 L 815 130" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+    <path d="M 750 130 L 815 130" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)"/>
 
-    <!-- Step 3 Box -->
-    <g transform="translate(810, 48)">
-      <rect width="330" height="135" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="165" y="28" class="txt-node-title" font-size="16" text-anchor="middle">Step 3: Seamless Recovery</text>
-      <line x1="12" y1="38" x2="318" y2="38" stroke="#000000" stroke-width="1"/>
-      <text x="14" y="60" class="txt-node-sub">Browser sends HTTP request header:</text>
-      <text x="14" y="82" class="txt-node-code">Last-Event-ID: 42</text>
-      <text x="14" y="106" class="txt-node-sub">Server replays missed events from #43</text>
+    <!-- Step 3 Card -->
+    <g transform="translate(830, 60)">
+      <rect width="270" height="140" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+      <rect x="15" y="15" width="70" height="24" rx="12" fill="#d4f6d9" stroke="#000000" stroke-width="1"/>
+      <text x="50" y="31" class="txt-badge" font-size="12" text-anchor="middle">Step 3</text>
+      <text x="135" y="68" class="txt-node-title" font-size="16" text-anchor="middle">Auto Reconnect</text>
+      <text x="135" y="95" class="txt-node-sub" text-anchor="middle">Browser sends header:</text>
+      <rect x="15" y="105" width="240" height="24" rx="6" fill="#d4f6d9" stroke="#000000" stroke-width="1"/>
+      <text x="135" y="121" class="txt-node-code" font-size="11" text-anchor="middle">Last-Event-ID: 101</text>
     </g>
   </g>
 
-  <!-- Bottom Pill -->
-  <g transform="translate(260, 560)">
-    <rect width="740" height="42" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
-    <text x="370" y="27" class="txt-node-title" font-size="16" text-anchor="middle">Standardized SSE Wire Framing with Automatic Client Recovery</text>
+  <!-- Bottom Summary Pill -->
+  <g transform="translate(200, 545)">
+    <rect width="860" height="50" rx="25" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+    <text x="430" y="31" class="txt-badge" font-size="15" text-anchor="middle">Key Takeaway: The browser automatically handles reconnecting and sends Last-Event-ID to avoid losing events</text>
   </g>
 </svg>

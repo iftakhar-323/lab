@@ -1,14 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 630" width="100%">
   <defs>
     <style>
-      .txt-title { font-family: "Times New Roman", Times, serif; font-size: 21px; font-weight: 800; fill: #000000; }
-      .txt-node-title { font-family: "Times New Roman", Times, serif; font-size: 17px; font-weight: 800; fill: #000000; }
-      .txt-node-sub { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 600; fill: #000000; }
-      .txt-node-code { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; fill: #000000; }
-      .txt-arrow-label { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 800; fill: #000000; }
-      .txt-badge { font-family: "Times New Roman", Times, serif; font-size: 11.5px; font-weight: 800; fill: #000000; }
+      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #000000; }
+      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #4b5563; }
+      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 700; fill: #111827; }
+      .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #000000; }
+      .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
 
-      /* Live Flow Animations */
       @keyframes flow-dash {
         from { stroke-dashoffset: 0; }
         to { stroke-dashoffset: -32; }
@@ -24,216 +23,126 @@
     </marker>
   </defs>
 
-  <!-- Outer Canvas Border -->
+  <!-- Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- ==================== 1. CLIENT & PRODUCER TIER (LEFT) ==================== -->
-  <g transform="translate(45, 95)">
-    <rect width="180" height="445" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
-    
-    <text x="90" y="30" class="txt-title" text-anchor="middle">Clients &amp; Admin</text>
-    <text x="90" y="48" class="txt-node-sub" font-style="italic" text-anchor="middle">(External Actors)</text>
-    
-    <!-- 1.1 Event Publisher Sub-Card -->
-    <g transform="translate(12, 62)">
-      <rect width="156" height="110" rx="8" fill="#ffeaea" stroke="#000000" stroke-width="1.5"/>
-      <text x="78" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Event Publisher</text>
-      <line x1="8" y1="30" x2="148" y2="30" stroke="#000000" stroke-width="1"/>
-      <text x="78" y="50" class="txt-node-code" font-size="11" text-anchor="middle">POST /publish</text>
-      <text x="78" y="70" class="txt-node-sub" font-size="11" text-anchor="middle">Admin Webhook</text>
-      <text x="78" y="90" class="txt-node-code" font-size="10.5" text-anchor="middle">{"msg": "Alert!"}</text>
+  <!-- Title -->
+  <text x="630" y="48" class="txt-title" text-anchor="middle">Lab 60: Distributed SSE Architecture with Redis Pub/Sub</text>
+
+  <!-- ==================== 1. CLIENTS & PUBLISHER ==================== -->
+  <g transform="translate(60, 95)">
+    <rect width="210" height="430" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
+    <text x="105" y="40" class="txt-node-title" text-anchor="middle">Clients &amp; Admin</text>
+    <text x="105" y="64" class="txt-node-sub" text-anchor="middle">External Actors</text>
+
+    <!-- Admin Publisher -->
+    <rect x="15" y="85" width="180" height="95" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <text x="95" y="115" class="txt-node-title" font-size="15" text-anchor="middle">Publisher</text>
+    <rect x="25" y="130" width="160" height="24" rx="6" fill="#fee2e2"/>
+    <text x="105" y="146" class="txt-node-code" font-size="11" text-anchor="middle">POST /publish</text>
+
+    <!-- Client 1 -->
+    <rect x="15" y="195" width="180" height="100" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <text x="95" y="225" class="txt-node-title" font-size="15" text-anchor="middle">Client 1 (Web)</text>
+    <rect x="25" y="240" width="160" height="24" rx="6" fill="#dcfce7"/>
+    <text x="105" y="256" class="txt-node-code" font-size="11" text-anchor="middle">Connected to Node-A</text>
+    <text x="95" y="280" class="txt-node-sub" font-size="11" text-anchor="middle">Receives live stream</text>
+
+    <!-- Client 2 -->
+    <rect x="15" y="310" width="180" height="100" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <text x="95" y="340" class="txt-node-title" font-size="15" text-anchor="middle">Client 2 (Mobile)</text>
+    <rect x="25" y="355" width="160" height="24" rx="6" fill="#dcfce7"/>
+    <text x="105" y="371" class="txt-node-code" font-size="11" text-anchor="middle">Connected to Node-B</text>
+    <text x="95" y="395" class="txt-node-sub" font-size="11" text-anchor="middle">Receives live stream</text>
+  </g>
+
+  <!-- Flow: Clients -> Ingress -->
+  <path d="M 270 240 L 370 240" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 270 240 L 370 240" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)"/>
+  <text x="320" y="230" class="txt-arrow-label" text-anchor="middle">HTTP</text>
+
+  <path d="M 370 370 L 270 370" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+  <path d="M 370 370 L 270 370" fill="none" stroke="#059669" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)"/>
+  <text x="320" y="360" class="txt-arrow-label" text-anchor="middle" fill="#059669">Stream</text>
+
+  <!-- ==================== 2. NGINX INGRESS ==================== -->
+  <g transform="translate(370, 95)">
+    <rect width="210" height="430" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
+    <text x="105" y="40" class="txt-node-title" text-anchor="middle">Nginx Ingress</text>
+    <text x="105" y="64" class="txt-node-sub" text-anchor="middle">Port 8080</text>
+
+    <!-- Details -->
+    <rect x="20" y="95" width="170" height="305" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+    <rect x="35" y="115" width="140" height="30" rx="6" fill="#f1f5f9"/>
+    <text x="105" y="135" class="txt-node-code" font-size="12" text-anchor="middle">Reverse Proxy</text>
+
+    <text x="35" y="185" class="txt-node-title" font-size="14">Routing:</text>
+    <text x="35" y="215" class="txt-node-sub">&#8226; Round-robin</text>
+    <text x="35" y="245" class="txt-node-sub">&#8226; Disables proxy</text>
+    <text x="45" y="270" class="txt-node-sub">buffering</text>
+    <text x="35" y="300" class="txt-node-sub">&#8226; Balances clients</text>
+    <text x="45" y="325" class="txt-node-sub">to Node-A &amp; B</text>
+  </g>
+
+  <!-- Flow: Ingress -> Cluster -->
+  <path d="M 580 240 L 670 240" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M 580 240 L 670 240" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)"/>
+  <text x="625" y="230" class="txt-arrow-label" text-anchor="middle">Forward</text>
+
+  <path d="M 670 370 L 580 370" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+  <path d="M 670 370 L 580 370" fill="none" stroke="#059669" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)"/>
+  <text x="625" y="360" class="txt-arrow-label" text-anchor="middle" fill="#059669">Stream</text>
+
+  <!-- ==================== 3. DISTRIBUTED CLUSTER ==================== -->
+  <g transform="translate(670, 95)">
+    <rect width="530" height="430" rx="14" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
+    <text x="265" y="38" class="txt-node-title" text-anchor="middle">Distributed SSE Cluster</text>
+    <text x="265" y="60" class="txt-node-sub" text-anchor="middle">Multi-Node Backend Fleet with Shared Redis Bus</text>
+
+    <!-- Top: Redis Pub/Sub Bus -->
+    <g transform="translate(135, 75)">
+      <rect width="260" height="95" rx="10" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
+      <text x="130" y="32" class="txt-node-title" text-anchor="middle">Redis 7 Pub/Sub Bus</text>
+      <rect x="30" y="45" width="200" height="24" rx="6" fill="#fee2e2"/>
+      <text x="130" y="61" class="txt-node-code" font-size="11" text-anchor="middle">Channel: sse_events</text>
+      <text x="130" y="84" class="txt-node-sub" font-size="11" text-anchor="middle">Inter-node message broker</text>
     </g>
 
-    <!-- 1.2 Browser Client 1 Sub-Card -->
-    <g transform="translate(12, 185)">
-      <rect width="156" height="115" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="78" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Client 1 (Web)</text>
-      <line x1="8" y1="30" x2="148" y2="30" stroke="#000000" stroke-width="1"/>
-      <text x="78" y="50" class="txt-node-code" font-size="11" text-anchor="middle">EventSource('/events')</text>
-      <text x="78" y="72" class="txt-node-sub" font-size="11" text-anchor="middle">HTTP/2 Persistent Stream</text>
-      <text x="78" y="94" class="txt-node-sub" font-size="11" text-anchor="middle">Hosted on Node-A</text>
+    <!-- Connectors from Redis to Node A & B -->
+    <!-- Down to Node A -->
+    <path d="M 215 170 L 145 235" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+    <path d="M 215 170 L 145 235" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)"/>
+
+    <!-- Down to Node B -->
+    <path d="M 315 170 L 385 235" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+    <path d="M 315 170 L 385 235" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)"/>
+
+    <!-- Bottom Left: Node-Alpha -->
+    <g transform="translate(30, 240)">
+      <rect width="225" height="165" rx="10" fill="#ffefe0" stroke="#000000" stroke-width="1.5"/>
+      <rect x="25" y="15" width="175" height="24" rx="6" fill="#fed7aa"/>
+      <text x="112" y="31" class="txt-badge" font-size="12" text-anchor="middle">FastAPI: Node-Alpha</text>
+      <text x="112" y="68" class="txt-node-code" font-size="12" text-anchor="middle">Port 8001</text>
+      <text x="25" y="100" class="txt-node-sub">&#8226; Client 1 connected</text>
+      <text x="25" y="125" class="txt-node-sub">&#8226; Receives POST /publish</text>
+      <text x="25" y="150" class="txt-node-sub">&#8226; Pushes to Redis Bus</text>
     </g>
 
-    <!-- 1.3 Mobile Client 2 Sub-Card -->
-    <g transform="translate(12, 312)">
-      <rect width="156" height="115" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="78" y="22" class="txt-node-title" font-size="13" text-anchor="middle">Client 2 (Mobile)</text>
-      <line x1="8" y1="30" x2="148" y2="30" stroke="#000000" stroke-width="1"/>
-      <text x="78" y="50" class="txt-node-code" font-size="11" text-anchor="middle">curl -N /events</text>
-      <text x="78" y="72" class="txt-node-sub" font-size="11" text-anchor="middle">HTTP/1.1 TCP Stream</text>
-      <text x="78" y="94" class="txt-node-sub" font-size="11" text-anchor="middle">Hosted on Node-B</text>
+    <!-- Bottom Right: Node-Beta -->
+    <g transform="translate(275, 240)">
+      <rect width="225" height="165" rx="10" fill="#ffefe0" stroke="#000000" stroke-width="1.5"/>
+      <rect x="25" y="15" width="175" height="24" rx="6" fill="#fed7aa"/>
+      <text x="112" y="31" class="txt-badge" font-size="12" text-anchor="middle">FastAPI: Node-Beta</text>
+      <text x="112" y="68" class="txt-node-code" font-size="12" text-anchor="middle">Port 8002</text>
+      <text x="25" y="100" class="txt-node-sub">&#8226; Client 2 connected</text>
+      <text x="25" y="125" class="txt-node-sub">&#8226; Subscribed to Redis</text>
+      <text x="25" y="150" class="txt-node-sub">&#8226; Delivers live to Client 2</text>
     </g>
   </g>
 
-  <!-- Connectors: Clients/Admin <-> Nginx (100px Gap, Clean Straight Horizontal Arrows) -->
-  <!-- Arrow 1: POST /publish (Top) -->
-  <path d="M 225 210 L 325 210" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 225 210 L 325 210" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
-    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-  </path>
-  <text x="275" y="200" class="txt-arrow-label" text-anchor="middle">POST Event</text>
-
-  <!-- Arrow 2: SSE Stream 1 (Middle) -->
-  <path d="M 325 340 L 225 340" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 325 340 L 225 340" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
-    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-  </path>
-  <text x="275" y="330" class="txt-arrow-label" text-anchor="middle">Stream 1</text>
-
-  <!-- Arrow 3: SSE Stream 2 (Bottom) -->
-  <path d="M 325 460 L 225 460" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 325 460 L 225 460" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
-    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-  </path>
-  <text x="275" y="480" class="txt-arrow-label" text-anchor="middle">Stream 2</text>
-
-
-  <!-- ==================== 2. NGINX LOAD BALANCER (MIDDLE) ==================== -->
-  <g transform="translate(325, 95)">
-    <rect width="260" height="445" rx="14" fill="#effff1" stroke="#000000" stroke-width="2"/>
-    
-    <text x="130" y="32" class="txt-title" text-anchor="middle">Nginx Ingress</text>
-    <text x="130" y="52" class="txt-node-sub" font-weight="700" text-anchor="middle">Reverse Proxy (Port 8080)</text>
-
-    <!-- Sub-card 1: Proxy Directives -->
-    <g transform="translate(15, 68)">
-      <rect width="230" height="120" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="115" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Proxy Directives</text>
-      <line x1="10" y1="34" x2="220" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="115" y="55" class="txt-node-code" text-anchor="middle">proxy_pass http://sse_fleet;</text>
-      <text x="115" y="75" class="txt-node-code" text-anchor="middle">proxy_buffering off;</text>
-      <text x="115" y="95" class="txt-node-code" text-anchor="middle">proxy_read_timeout 3600s;</text>
-    </g>
-
-    <!-- Sub-card 2: Upstream Routing -->
-    <g transform="translate(15, 200)">
-      <rect width="230" height="140" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <text x="115" y="24" class="txt-node-title" font-size="14" text-anchor="middle">Round-Robin Ingress</text>
-      <line x1="10" y1="34" x2="220" y2="34" stroke="#000000" stroke-width="1"/>
-      <text x="115" y="55" class="txt-node-sub" text-anchor="middle">• POST /publish &#8594; Node-Alpha</text>
-      <text x="115" y="78" class="txt-node-sub" text-anchor="middle">• GET /events (1) &#8594; Node-Alpha</text>
-      <text x="115" y="100" class="txt-node-sub" text-anchor="middle">• GET /events (2) &#8594; Node-Beta</text>
-      <text x="115" y="122" class="txt-node-sub" font-size="11" text-anchor="middle">Clients split across separate servers</text>
-    </g>
-
-    <!-- Sub-card 3: Status Pill -->
-    <g transform="translate(15, 355)">
-      <rect width="230" height="72" rx="8" fill="#d4f6d9" stroke="#000000" stroke-width="1.5"/>
-      <text x="115" y="26" class="txt-node-title" font-size="13" text-anchor="middle">Stateless Edge Routing</text>
-      <text x="115" y="46" class="txt-node-code" text-anchor="middle">Zero Session Stickiness</text>
-      <text x="115" y="62" class="txt-node-sub" font-size="11" text-anchor="middle">Enables Horizontal Elasticity</text>
-    </g>
-  </g>
-
-  <!-- Connectors: Nginx <-> Distributed Fleet (100px Gap, Clean Straight Horizontal Arrows) -->
-  <!-- Top Arrow: Inbound Dispatch -->
-  <path d="M 585 240 L 685 240" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 585 240 L 685 240" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
-    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-  </path>
-  <text x="635" y="230" class="txt-arrow-label" text-anchor="middle">Dispatch</text>
-
-  <!-- Bottom Arrow: SSE Outbound Stream -->
-  <path d="M 685 410 L 585 410" fill="none" stroke="#cbd5e1" stroke-width="2"/>
-  <path d="M 685 410 L 585 410" fill="none" stroke="#000000" stroke-width="2" class="anim-flow" marker-end="url(#arrow)">
-    <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-  </path>
-  <text x="635" y="430" class="txt-arrow-label" text-anchor="middle">SSE Stream</text>
-
-
-  <!-- ==================== 3. DISTRIBUTED FLEET & REDIS BUS (RIGHT) ==================== -->
-  <!-- Modeled in identical hierarchy to Citus Cluster in Lab 45 -->
-  <g transform="translate(685, 30)">
-    <rect width="535" height="520" rx="16" fill="#ebeaff" stroke="#000000" stroke-width="2"/>
-    <text x="267" y="32" class="txt-title" text-anchor="middle">Distributed Realtime Fleet &amp; Message Bus</text>
-
-    <!-- 3.1 REDIS 7 PUB/SUB BUS (TOP CENTER, LIKE COORDINATOR IN LAB 45) -->
-    <g transform="translate(117, 50)">
-      <rect width="300" height="150" rx="14" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
-
-      <!-- Redis Cylinder Icon (Clean Red/Coral Cylinder like Lab 45 Citus Cylinder) -->
-      <g transform="translate(126, 12)">
-        <ellipse cx="24" cy="9" rx="22" ry="7" fill="#fca5a5" stroke="#000000" stroke-width="1.8"/>
-        <path d="M 2 9 L 2 30 A 22 7 0 0 0 46 30 L 46 9" fill="#fca5a5" stroke="#000000" stroke-width="1.8"/>
-        <path d="M 2 16 A 22 7 0 0 0 46 16" fill="none" stroke="#000000" stroke-width="1.4"/>
-        <path d="M 2 23 A 22 7 0 0 0 46 23" fill="none" stroke="#000000" stroke-width="1.4"/>
-        <ellipse cx="24" cy="9" rx="22" ry="7" fill="#fca5a5" stroke="#000000" stroke-width="1.8"/>
-      </g>
-
-      <text x="150" y="74" class="txt-node-title" text-anchor="middle">Redis 7 Message Bus</text>
-      <text x="150" y="94" class="txt-node-sub" text-anchor="middle">redis:6379 (In-Memory Pub/Sub)</text>
-      <text x="150" y="116" class="txt-node-code" text-anchor="middle">Channel: 'sse_events_channel'</text>
-      <text x="150" y="136" class="txt-node-sub" font-size="11.5" text-anchor="middle">&lt; 1ms In-Memory Fan-out Latency</text>
-    </g>
-
-    <!-- Branching Connectors from Redis to Node-Alpha and Node-Beta -->
-    <!-- Line to Node-Alpha -->
-    <path d="M 200 200 L 135 278" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
-    <path d="M 200 200 L 135 278" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
-      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-    </path>
-    <g transform="translate(30, 222)">
-      <rect width="135" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
-      <text x="67" y="18" class="txt-badge" text-anchor="middle">Pub/Sub Fan-out</text>
-    </g>
-
-    <!-- Line to Node-Beta -->
-    <path d="M 330 200 L 395 278" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
-    <path d="M 330 200 L 395 278" fill="none" stroke="#000000" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)">
-      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
-    </path>
-    <g transform="translate(365, 222)">
-      <rect width="135" height="26" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
-      <text x="67" y="18" class="txt-badge" text-anchor="middle">Pub/Sub Fan-out</text>
-    </g>
-
-
-    <!-- 3.2 FASTAPI NODE-ALPHA (BOTTOM LEFT, LIKE WORKER 1 IN LAB 45) -->
-    <g transform="translate(18, 275)">
-      <rect width="242" height="175" rx="14" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
-      
-      <text x="121" y="26" class="txt-node-title" font-size="15" text-anchor="middle">FastAPI Node-Alpha</text>
-      <text x="121" y="44" class="txt-node-code" font-size="11" text-anchor="middle">Port 8001 (Producer Ingress)</text>
-      <line x1="12" y1="52" x2="230" y2="52" stroke="#000000" stroke-width="1"/>
-
-      <g transform="translate(12, 60)">
-        <rect width="218" height="102" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-        <text x="109" y="22" class="txt-node-code" font-size="11" text-anchor="middle">POST /publish &#8594; redis.publish()</text>
-        <line x1="8" y1="30" x2="210" y2="30" stroke="#000000" stroke-width="1"/>
-        <text x="109" y="48" class="txt-node-sub" font-size="11" text-anchor="middle">Redis Subscriber Coroutine</text>
-        <text x="109" y="68" class="txt-node-sub" font-size="11" text-anchor="middle">Local Registry: Client 1 Queue</text>
-        <text x="109" y="88" class="txt-node-code" font-size="11" fill="#16a34a" text-anchor="middle">Delivers live event to Client 1</text>
-      </g>
-    </g>
-
-    <!-- 3.3 FASTAPI NODE-BETA (BOTTOM RIGHT, LIKE WORKER 2 IN LAB 45) -->
-    <g transform="translate(275, 275)">
-      <rect width="242" height="175" rx="14" fill="#ffefe0" stroke="#000000" stroke-width="2"/>
-      
-      <text x="121" y="26" class="txt-node-title" font-size="15" text-anchor="middle">FastAPI Node-Beta</text>
-      <text x="121" y="44" class="txt-node-code" font-size="11" text-anchor="middle">Port 8002 (Decoupled Node)</text>
-      <line x1="12" y1="52" x2="230" y2="52" stroke="#000000" stroke-width="1"/>
-
-      <g transform="translate(12, 60)">
-        <rect width="218" height="102" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
-        <text x="109" y="22" class="txt-node-code" font-size="11" text-anchor="middle">No Direct HTTP POST Hit</text>
-        <line x1="8" y1="30" x2="210" y2="30" stroke="#000000" stroke-width="1"/>
-        <text x="109" y="48" class="txt-node-sub" font-size="11" text-anchor="middle">Redis Subscriber Coroutine</text>
-        <text x="109" y="68" class="txt-node-sub" font-size="11" text-anchor="middle">Local Registry: Client 2 Queue</text>
-        <text x="109" y="88" class="txt-node-code" font-size="11" fill="#16a34a" text-anchor="middle">Delivers live event to Client 2</text>
-      </g>
-    </g>
-
-    <!-- Bottom Pill Inside Fleet (Like Lab 45!) -->
-    <g transform="translate(47, 465)">
-      <rect width="440" height="38" rx="8" fill="#d4f6d9" stroke="#000000" stroke-width="1.5"/>
-      <text x="220" y="24" class="txt-badge" font-size="13" text-anchor="middle">Horizontal Real-Time Scalability &amp; Cross-Node Synchronization</text>
-    </g>
-  </g>
-
-  <!-- Bottom Summary Banner Pill -->
-  <g transform="translate(45, 565)">
-    <rect width="1170" height="42" rx="10" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
-    <text x="585" y="27" class="txt-node-title" font-size="16" text-anchor="middle">Distributed SSE Architecture: Single Publisher &#8594; Redis Pub/Sub Bus &#8594; Multi-Node Fleet Fan-Out &#8594; All Connected Clients</text>
+  <!-- Bottom Summary Pill -->
+  <g transform="translate(200, 545)">
+    <rect width="860" height="50" rx="25" fill="#d4f6d9" stroke="#000000" stroke-width="2"/>
+    <text x="430" y="31" class="txt-badge" font-size="15" text-anchor="middle">Key Solution: Publishing an event to Node-Alpha broadcasts via Redis to Node-Beta and all clients</text>
   </g>
 </svg>
