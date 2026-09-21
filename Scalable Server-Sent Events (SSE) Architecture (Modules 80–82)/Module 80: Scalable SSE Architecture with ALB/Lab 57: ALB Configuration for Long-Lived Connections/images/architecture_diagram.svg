@@ -27,7 +27,7 @@
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
   <!-- Diagram Title -->
-  <text x="630" y="48" class="txt-title" text-anchor="middle">Lab 57: AWS ALB Architecture for Long-Lived SSE Connections</text>
+  <text x="630" y="48" class="txt-title" text-anchor="middle">AWS Application Load Balancer Architecture for Long-Lived SSE Streams</text>
 
   <!-- ==================== 1. CLIENT TIER ==================== -->
   <g transform="translate(60, 95)">

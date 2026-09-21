@@ -27,7 +27,7 @@
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
   <!-- Diagram Title -->
-  <text x="630" y="45" class="txt-title" text-anchor="middle">Lab 58: Auto Scaling Architecture for SSE Fleets</text>
+  <text x="630" y="45" class="txt-title" text-anchor="middle">Auto Scaling Architecture for Persistent SSE Streaming Fleets</text>
 
   <!-- ==================== TOP: 3 MAIN TIERS ==================== -->
   <!-- 1. Launch Template -->
