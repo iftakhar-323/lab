@@ -3,7 +3,7 @@
 In this lab, you will solve the fundamental architectural challenge of scaling Server-Sent Events across a multi-node cluster: **broadcasting messages to clients connected to different physical servers**. You will integrate a **Redis Pub/Sub** message bus into an asynchronous FastAPI cluster, deploy a multi-container environment using Docker Compose (Redis, 2 independent SSE server instances, and an Nginx Load Balancer), and verify that publishing an event to any node automatically rebroadcasts in real-time to all connected clients across the entire fleet.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2082:%20Redis%20Pub-Sub%20for%20Distributed%20SSE/Lab%2060:%20Distributed%20SSE%20Messaging%20with%20Redis/images/architecture_diagram.svg" alt="Lab 60 Distributed SSE Architecture Diagram" width="850">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2082:%20Redis%20Pub-Sub%20for%20Distributed%20SSE/Lab%2060:%20Distributed%20SSE%20Messaging%20with%20Redis/images/architecture_diagram.svg" alt="Lab 60 Distributed SSE Architecture Diagram" width="850">
 </p>
 
 ---
@@ -28,7 +28,7 @@ However, when scaling out horizontally behind an Application Load Balancer:
 ### Redis Pub/Sub Architecture
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2082:%20Redis%20Pub-Sub%20for%20Distributed%20SSE/Lab%2060:%20Distributed%20SSE%20Messaging%20with%20Redis/images/message_flow_sequence.svg" alt="Distributed SSE Message Flow Sequence" width="850">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2082:%20Redis%20Pub-Sub%20for%20Distributed%20SSE/Lab%2060:%20Distributed%20SSE%20Messaging%20with%20Redis/images/message_flow_sequence.svg" alt="Distributed SSE Message Flow Sequence" width="850">
 </p>
 
 Redis provides a lightweight, sub-millisecond in-memory Publish/Subscribe engine:

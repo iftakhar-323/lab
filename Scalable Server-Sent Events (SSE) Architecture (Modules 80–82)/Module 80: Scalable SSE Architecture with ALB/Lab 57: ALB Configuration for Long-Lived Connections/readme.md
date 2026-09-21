@@ -3,7 +3,7 @@
 In this lab, you will configure an **AWS Application Load Balancer (ALB)** and production reverse proxy layer specifically tuned for long-lived **Server-Sent Events (SSE)** connections. You will learn why default load balancer settings terminate SSE streams after 60 seconds with `504 Gateway Timeout`, how to configure the ALB idle timeout to `3600` seconds (1 hour), how to configure target group deregistration delays for graceful connection draining, and how to emulate and test this exact architecture locally in your Poridhi environment using an Nginx reverse proxy stack.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2080:%20Scalable%20SSE%20Architecture%20with%20ALB/Lab%2057:%20ALB%20Configuration%20for%20Long-Lived%20Connections/images/architecture_diagram.svg" alt="Lab 57 ALB Architecture Diagram" width="800">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2080:%20Scalable%20SSE%20Architecture%20with%20ALB/Lab%2057:%20ALB%20Configuration%20for%20Long-Lived%20Connections/images/architecture_diagram.svg" alt="Lab 57 ALB Architecture Diagram" width="800">
 </p>
 
 ---
@@ -13,7 +13,7 @@ In this lab, you will configure an **AWS Application Load Balancer (ALB)** and p
 ### The 60-Second Idle Timeout Problem
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2080:%20Scalable%20SSE%20Architecture%20with%20ALB/Lab%2057:%20ALB%20Configuration%20for%20Long-Lived%20Connections/images/idle_timeout_comparison.svg" alt="ALB Idle Timeout Comparison: 60s vs 3600s" width="800">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2080:%20Scalable%20SSE%20Architecture%20with%20ALB/Lab%2057:%20ALB%20Configuration%20for%20Long-Lived%20Connections/images/idle_timeout_comparison.svg" alt="ALB Idle Timeout Comparison: 60s vs 3600s" width="800">
 </p>
 
 By default, an AWS Application Load Balancer (ALB) enforces an **idle timeout of 60 seconds**.

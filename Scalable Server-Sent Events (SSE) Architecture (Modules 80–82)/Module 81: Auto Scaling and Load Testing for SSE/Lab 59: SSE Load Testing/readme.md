@@ -3,7 +3,7 @@
 In this lab, you will perform high-concurrency load testing against a **Server-Sent Events (SSE)** architecture. You will configure the Linux operating system kernel and file descriptor limits to support thousands of simultaneous open TCP sockets, implement load testing generators using both **Python (`asyncio`/`aiohttp`)** and **k6**, simulate **1,000+ concurrent persistent SSE clients**, and measure connection establishment rate, event continuity, memory footprint, and auto-scaling response under sustained load.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2059:%20SSE%20Load%20Testing/images/architecture_diagram.svg" alt="Lab 59 SSE Load Testing Architecture Diagram" width="800">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2059:%20SSE%20Load%20Testing/images/architecture_diagram.svg" alt="Lab 59 SSE Load Testing Architecture Diagram" width="800">
 </p>
 
 ---
@@ -13,7 +13,7 @@ In this lab, you will perform high-concurrency load testing against a **Server-S
 ### Standard HTTP Benchmarking vs SSE Load Testing
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2059:%20SSE%20Load%20Testing/images/load_metrics_chart.svg" alt="SSE Load Test Execution Telemetry" width="800">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2059:%20SSE%20Load%20Testing/images/load_metrics_chart.svg" alt="SSE Load Test Execution Telemetry" width="800">
 </p>
 
 Traditional load testing tools like ApacheBench (`ab`), `wrk`, or basic JMeter test **Request-Response throughput**:

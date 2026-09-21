@@ -3,7 +3,7 @@
 In this lab, you will architect, configure, and evaluate an **AWS Auto Scaling Group (ASG)** specifically engineered for persistent **Server-Sent Events (SSE)** workloads. You will learn why traditional CPU-utilization scaling policies fail for streaming servers, configure an EC2 Launch Template with an automated bootstrapping script, publish custom CloudWatch telemetry tracking active SSE connections, and implement a dynamic **Target Tracking Scaling Policy** based on `TargetConnectionCount` and custom connection metrics.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2058:%20Auto%20Scaling%20Setup%20for%20SSE%20Servers/images/architecture_diagram.svg" alt="Lab 58 Auto Scaling Architecture Diagram" width="800">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2058:%20Auto%20Scaling%20Setup%20for%20SSE%20Servers/images/architecture_diagram.svg" alt="Lab 58 Auto Scaling Architecture Diagram" width="800">
 </p>
 
 ---
@@ -13,7 +13,7 @@ In this lab, you will architect, configure, and evaluate an **AWS Auto Scaling G
 ### Why CPU-Based Auto Scaling Fails for SSE
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2058:%20Auto%20Scaling%20Setup%20for%20SSE%20Servers/images/scaling_dynamics.svg" alt="Scaling Metrics Comparison: CPU vs Connection Density" width="800">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2081:%20Auto%20Scaling%20and%20Load%20Testing%20for%20SSE/Lab%2058:%20Auto%20Scaling%20Setup%20for%20SSE%20Servers/images/scaling_dynamics.svg" alt="Scaling Metrics Comparison: CPU vs Connection Density" width="800">
 </p>
 
 Standard web APIs (such as CRUD REST endpoints) scale on **CPU Utilization** (e.g., target 70% CPU) because each request requires active computation (JSON serialization, DB queries, hashing). Once the request finishes in a few milliseconds, CPU drops.
