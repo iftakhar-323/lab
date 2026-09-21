@@ -2,28 +2,9 @@
 
 In this lab, you will implement a high-performance, asynchronous Server-Sent Events (SSE) streaming server using **FastAPI** and **Uvicorn** inside your Poridhi environment. You will explore the theoretical foundation of SSE versus WebSockets, learn how the HTTP streaming protocol operates, configure critical response headers (`Content-Type: text/event-stream`, `Cache-Control`, `Connection`, `X-Accel-Buffering`), handle client disconnections gracefully, and build an interactive browser client to verify real-time event streaming.
 
-```mermaid
-flowchart LR
-    subgraph Client ["Client Tier"]
-        Browser["Browser / JS EventSource"]
-        Curl["curl -N CLI Client"]
-    end
-
-    subgraph Server ["FastAPI Streaming Server (Port 8000)"]
-        Router["/events Route"]
-        Generator["Async Event Generator<br/>(event_stream)"]
-        ConnManager["Connection Manager<br/>(Active Clients Registry)"]
-        Heartbeat["Keep-Alive Heartbeat<br/>(: ping comment)"]
-    end
-
-    Browser -->|"GET /events (Accept: text/event-stream)"| Router
-    Curl -->|"GET /events"| Router
-    Router --> Generator
-    Generator --> ConnManager
-    Heartbeat --> Generator
-    Generator -->|"data: {...}\n\n (HTTP/1.1 200 Chunked)"| Browser
-    Generator -->|"data: {...}\n\n"| Curl
-```
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Lab 56 Architecture Diagram" width="800">
+</p>
 
 ---
 
@@ -50,6 +31,10 @@ Real-time web applications require servers to push updates to connected clients 
 4. **Log Streaming:** Real-time server or container log viewers.
 
 ### The SSE Wire Protocol
+
+<p align="center">
+  <img src="./images/sse_wire_protocol.svg" alt="SSE Wire Protocol and Frame Lifecycle" width="800">
+</p>
 
 Server-Sent Events use a simple text-based format over an open HTTP response. Each message is terminated by a **double newline** (`\n\n`). A message can contain the following fields:
 

@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 500" width="100%" height="auto">
+  <defs>
+    <style>
+      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 20px; font-weight: 800; fill: #0f172a; }
+      .txt-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13.5px; font-weight: 500; fill: #64748b; }
+      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; font-weight: 700; fill: #1e293b; }
+      .txt-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 600; fill: #0f172a; }
+      .txt-code-kw { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 700; fill: #0284c7; }
+      .txt-code-comm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 600; fill: #10b981; }
+      .txt-code-err { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 700; fill: #ef4444; }
+      .txt-desc { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12.5px; font-weight: 500; fill: #475569; }
+      .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; font-weight: 700; fill: #ffffff; }
+
+      @keyframes flow-vert {
+        from { stroke-dashoffset: 24; }
+        to { stroke-dashoffset: 0; }
+      }
+      .time-line {
+        stroke: #94a3b8;
+        stroke-width: 2;
+        stroke-dasharray: 6 4;
+        animation: flow-vert 1.5s linear infinite;
+      }
+    </style>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0284c7"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="500" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+
+  <text x="40" y="45" class="txt-title">SSE Wire Protocol Specification &amp; Frame Lifecycle</text>
+  <text x="40" y="68" class="txt-subtitle">Standardized formatting rules, keep-alive comments, double-newline framing, and auto-reconnect</text>
+
+  <!-- Frame Box 1: Reconnection Directive -->
+  <g transform="translate(40, 95)">
+    <rect width="320" height="175" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="320" height="34" rx="10" fill="#f1f5f9"/>
+    <rect y="24" width="320" height="10" fill="#f1f5f9"/>
+    <text x="16" y="23" class="txt-node-title" font-size="14">1. Reconnect Directive</text>
+    <rect x="235" y="8" width="70" height="18" rx="9" fill="#0284c7"/>
+    <text x="270" y="21" class="txt-badge" text-anchor="middle">retry: ms</text>
+
+    <g transform="translate(14, 45)">
+      <rect width="292" height="50" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="12" y="24" class="txt-code-kw">retry: <tspan fill="#0f172a">3000\n\n</tspan></text>
+      <text x="12" y="40" class="txt-desc" font-style="italic">Wait 3000ms before reconnecting</text>
+    </g>
+    <text x="16" y="125" class="txt-desc">• Browser parses and adjusts its</text>
+    <text x="16" y="145" class="txt-desc">  internal retry backoff timer.</text>
+    <text x="16" y="165" class="txt-desc">• Terminates with double newline (\n\n).</text>
+  </g>
+
+  <!-- Frame Box 2: Structured Data Frame -->
+  <g transform="translate(390, 95)">
+    <rect width="320" height="175" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="320" height="34" rx="10" fill="#f1f5f9"/>
+    <rect y="24" width="320" height="10" fill="#f1f5f9"/>
+    <text x="16" y="23" class="txt-node-title" font-size="14">2. Event Data Frame</text>
+    <rect x="235" y="8" width="70" height="18" rx="9" fill="#10b981"/>
+    <text x="270" y="21" class="txt-badge" text-anchor="middle">data: payload</text>
+
+    <g transform="translate(14, 45)">
+      <rect width="292" height="70" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="12" y="18" class="txt-code-kw">id: <tspan fill="#0f172a">101\n</tspan></text>
+      <text x="12" y="34" class="txt-code-kw">event: <tspan fill="#0f172a">server_telemetry\n</tspan></text>
+      <text x="12" y="50" class="txt-code-kw">data: <tspan fill="#0f172a">{"cpu": 34.2, "mem": 62.8}\n\n</tspan></text>
+    </g>
+    <text x="16" y="140" class="txt-desc">• <tspan class="txt-code-kw">id:</tspan> Stored as Last-Event-ID</text>
+    <text x="16" y="160" class="txt-desc">• <tspan class="txt-code-kw">event:</tspan> Dispatches named listener</text>
+  </g>
+
+  <!-- Frame Box 3: Keep-Alive Comment Frame -->
+  <g transform="translate(740, 95)">
+    <rect width="320" height="175" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="320" height="34" rx="10" fill="#f1f5f9"/>
+    <rect y="24" width="320" height="10" fill="#f1f5f9"/>
+    <text x="16" y="23" class="txt-node-title" font-size="14">3. Heartbeat Comment</text>
+    <rect x="235" y="8" width="70" height="18" rx="9" fill="#64748b"/>
+    <text x="270" y="21" class="txt-badge" text-anchor="middle">: comment</text>
+
+    <g transform="translate(14, 45)">
+      <rect width="292" height="50" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="12" y="24" class="txt-code-comm">: keep-alive heartbeat\n\n</text>
+      <text x="12" y="40" class="txt-desc" font-style="italic">Ignored by browser EventSource</text>
+    </g>
+    <text x="16" y="125" class="txt-desc">• Any line starting with a colon</text>
+    <text x="16" y="145" class="txt-desc">  is treated as a protocol comment.</text>
+    <text x="16" y="165" class="txt-desc">• Keeps NAT/proxy TCP sockets active.</text>
+  </g>
+
+  <!-- Flow Comparison Section Below -->
+  <g transform="translate(40, 295)">
+    <rect width="1020" height="175" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="1020" height="32" rx="10" fill="#0f172a"/>
+    <rect y="22" width="1020" height="10" fill="#0f172a"/>
+    <text x="20" y="21" class="txt-node-title" fill="#ffffff" font-size="14">Automatic Reconnection Sequence with Last-Event-ID</text>
+
+    <!-- Sequence Steps -->
+    <g transform="translate(30, 50)">
+      <circle cx="20" cy="20" r="14" fill="#0284c7"/>
+      <text x="20" y="25" class="txt-badge" text-anchor="middle">1</text>
+      <text x="45" y="18" class="txt-node-title" font-size="14">Active Stream</text>
+      <text x="45" y="36" class="txt-desc">Server streams event with <tspan class="txt-code-kw">id: 42</tspan></text>
+      <text x="45" y="52" class="txt-desc">Browser records current ID.</text>
+    </g>
+
+    <path d="M 280 70 L 340 70" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <g transform="translate(360, 50)">
+      <circle cx="20" cy="20" r="14" fill="#ef4444"/>
+      <text x="20" y="25" class="txt-badge" text-anchor="middle">2</text>
+      <text x="45" y="18" class="txt-node-title" font-size="14">Network Blip / Drop</text>
+      <text x="45" y="36" class="txt-desc">TCP connection closed.</text>
+      <text x="45" y="52" class="txt-desc">Browser fires <tspan class="txt-code-err">onerror</tspan> event.</text>
+    </g>
+
+    <path d="M 610 70 L 670 70" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <g transform="translate(690, 50)">
+      <circle cx="20" cy="20" r="14" fill="#10b981"/>
+      <text x="20" y="25" class="txt-badge" text-anchor="middle">3</text>
+      <text x="45" y="18" class="txt-node-title" font-size="14">Auto-Reconnect Header</text>
+      <text x="45" y="36" class="txt-desc">Browser waits 3s (from <tspan class="txt-code-kw">retry</tspan>)</text>
+      <text x="45" y="54" class="txt-code-comm">GET /events (Last-Event-ID: 42)</text>
+      <text x="45" y="70" class="txt-desc">Server resumes stream seamlessly!</text>
+    </g>
+  </g>
+</svg>

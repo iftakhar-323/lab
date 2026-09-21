@@ -2,41 +2,19 @@
 
 In this lab, you will architect, configure, and evaluate an **AWS Auto Scaling Group (ASG)** specifically engineered for persistent **Server-Sent Events (SSE)** workloads. You will learn why traditional CPU-utilization scaling policies fail for streaming servers, configure an EC2 Launch Template with an automated bootstrapping script, publish custom CloudWatch telemetry tracking active SSE connections, and implement a dynamic **Target Tracking Scaling Policy** based on `TargetConnectionCount` and custom connection metrics.
 
-```mermaid
-flowchart TD
-    subgraph Traffic ["Traffic & Ingress"]
-        Clients["10,000+ Concurrent SSE Clients"]
-        ALB["AWS Application Load Balancer<br/>(Idle Timeout: 3600s)"]
-    end
-
-    subgraph ASG ["EC2 Auto Scaling Group (Min: 2, Max: 10)"]
-        Instance1["EC2 Instance A<br/>- FastAPI SSE Worker<br/>- 1,000 Active Connections<br/>- CloudWatch Reporter"]
-        Instance2["EC2 Instance B<br/>- FastAPI SSE Worker<br/>- 1,000 Active Connections<br/>- CloudWatch Reporter"]
-        Instance3["EC2 Instance C (Scaled Out)<br/>- Absorbing New Connections"]
-    end
-
-    subgraph Monitoring ["Telemetry & Scaling Engine"]
-        CW["Amazon CloudWatch Metrics<br/>- ActiveSSEConnections (Custom)<br/>- TargetConnectionCount (ALB)"]
-        Alarm["CloudWatch Alarm<br/>Threshold: > 1,500 conn/instance"]
-        Policy["Target Tracking Scaling Policy<br/>Add +1 Instance"]
-    end
-
-    Clients --> ALB
-    ALB --> Instance1
-    ALB --> Instance2
-    ALB -.-> Instance3
-    Instance1 -->|"PutMetricData"| CW
-    Instance2 -->|"PutMetricData"| CW
-    CW --> Alarm
-    Alarm --> Policy
-    Policy -->|"Trigger Scale-Out"| ASG
-```
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Lab 58 Auto Scaling Architecture Diagram" width="800">
+</p>
 
 ---
 
 ## Theory: Auto Scaling Dynamics for Persistent Streaming
 
 ### Why CPU-Based Auto Scaling Fails for SSE
+
+<p align="center">
+  <img src="./images/scaling_dynamics.svg" alt="Scaling Metrics Comparison: CPU vs Connection Density" width="800">
+</p>
 
 Standard web APIs (such as CRUD REST endpoints) scale on **CPU Utilization** (e.g., target 70% CPU) because each request requires active computation (JSON serialization, DB queries, hashing). Once the request finishes in a few milliseconds, CPU drops.
 

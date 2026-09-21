@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="100%" height="auto">
+  <defs>
+    <style>
+      .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 22px; font-weight: 800; fill: #0f172a; }
+      .txt-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; font-weight: 500; fill: #64748b; }
+      .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 17px; font-weight: 700; fill: #1e293b; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: 500; fill: #475569; }
+      .txt-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: 500; fill: #334155; }
+      .txt-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 600; fill: #0284c7; }
+      .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; font-weight: 700; fill: #ffffff; }
+
+      @keyframes flow-dash {
+        from { stroke-dashoffset: 32; }
+        to { stroke-dashoffset: 0; }
+      }
+      .stream-flow {
+        stroke: #0284c7;
+        stroke-width: 2.5;
+        stroke-dasharray: 8 5;
+        animation: flow-dash 1.2s linear infinite;
+      }
+      .req-flow {
+        stroke: #64748b;
+        stroke-width: 2;
+        stroke-dasharray: 6 4;
+        animation: flow-dash 1.5s linear infinite;
+      }
+    </style>
+
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0284c7"/>
+    </marker>
+    <marker id="arrow-slate" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+    </marker>
+
+    <!-- Filters -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1200" height="600" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+
+  <!-- Header Section -->
+  <text x="50" y="50" class="txt-title">Lab 56: Server-Sent Events (SSE) Architecture</text>
+  <text x="50" y="74" class="txt-subtitle">Persistent Unidirectional Streaming with FastAPI, Uvicorn, and HTML5 EventSource</text>
+
+  <!-- ==================== 1. CLIENT TIER ==================== -->
+  <g transform="translate(50, 110)">
+    <rect width="320" height="440" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    
+    <!-- Header -->
+    <rect width="320" height="48" rx="14" fill="#f1f5f9"/>
+    <rect y="36" width="320" height="12" fill="#f1f5f9"/>
+    <line x1="0" y1="48" x2="320" y2="48" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="30" class="txt-node-title">Client Tier</text>
+    <rect x="235" y="14" width="70" height="20" rx="10" fill="#0284c7"/>
+    <text x="270" y="28" class="txt-badge" text-anchor="middle">Consumers</text>
+
+    <!-- Client 1: Browser EventSource -->
+    <g transform="translate(18, 70)">
+      <rect width="284" height="150" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <circle cx="28" cy="28" r="14" fill="#e0f2fe"/>
+      <path d="M 23 28 L 33 28 M 28 23 L 33 28 L 28 33" stroke="#0284c7" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <text x="52" y="30" class="txt-node-title" font-size="15">Browser Web Client</text>
+      <text x="52" y="48" class="txt-code">const es = new EventSource('/events')</text>
+
+      <line x1="15" y1="62" x2="269" y2="62" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="18" y="85" class="txt-body">• Auto-reconnection on socket drop</text>
+      <text x="18" y="105" class="txt-body">• Tracks <tspan class="txt-code">Last-Event-ID</tspan> automatically</text>
+      <text x="18" y="125" class="txt-body">• Dispatches <tspan class="txt-code">server_telemetry</tspan> events</text>
+    </g>
+
+    <!-- Client 2: CLI Client -->
+    <g transform="translate(18, 240)">
+      <rect width="284" height="160" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <circle cx="28" cy="28" r="14" fill="#f1f5f9"/>
+      <text x="28" y="33" class="txt-code" font-size="14" fill="#334155" text-anchor="middle">&gt;_</text>
+      <text x="52" y="30" class="txt-node-title" font-size="15">CLI / Diagnostic Client</text>
+      <text x="52" y="48" class="txt-code">curl -N http://localhost:8000/events</text>
+
+      <line x1="15" y1="62" x2="269" y2="62" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="18" y="85" class="txt-body">• <tspan font-weight="700">-N / --no-buffer</tspan> disables 4KB buffer</text>
+      <text x="18" y="105" class="txt-body">• Parses raw chunked HTTP stream</text>
+      <text x="18" y="125" class="txt-body">• Immediate disconnect signal on exit</text>
+    </g>
+  </g>
+
+  <!-- ==================== 2. FASTAPI SSE SERVER ==================== -->
+  <g transform="translate(560, 110)">
+    <rect width="590" height="440" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+
+    <!-- Header -->
+    <rect width="590" height="48" rx="14" fill="#0f172a"/>
+    <rect y="36" width="590" height="12" fill="#0f172a"/>
+    <text x="24" y="31" class="txt-node-title" fill="#ffffff">FastAPI SSE Server (Uvicorn Async Runtime)</text>
+    <rect x="490" y="14" width="80" height="20" rx="10" fill="#10b981"/>
+    <text x="530" y="28" class="txt-badge" text-anchor="middle">Port 8000</text>
+
+    <!-- Module 1: Streaming Response Pipeline -->
+    <g transform="translate(24, 70)">
+      <rect width="542" height="160" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <rect x="16" y="14" width="130" height="24" rx="6" fill="#e0f2fe"/>
+      <text x="81" y="30" class="txt-code" text-anchor="middle">GET /events</text>
+
+      <text x="165" y="30" class="txt-node-title" font-size="15">StreamingResponse Pipeline</text>
+      <text x="16" y="65" class="txt-body">HTTP/1.1 200 OK — Critical Streaming Headers:</text>
+      
+      <!-- Headers Table Box -->
+      <g transform="translate(16, 75)">
+        <rect width="510" height="68" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="15" y="22" class="txt-code">Content-Type: text/event-stream; charset=utf-8</text>
+        <text x="15" y="40" class="txt-code">Cache-Control: no-cache, no-transform</text>
+        <text x="15" y="58" class="txt-code">Connection: keep-alive  |  X-Accel-Buffering: no</text>
+      </g>
+    </g>
+
+    <!-- Module 2: Async Event Generator -->
+    <g transform="translate(24, 248)">
+      <rect width="260" height="175" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <text x="18" y="28" class="txt-node-title" font-size="15">Async Generator</text>
+      <text x="18" y="46" class="txt-code">async def event_generator()</text>
+      <line x1="15" y1="58" x2="245" y2="58" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="18" y="80" class="txt-body">• Yields <tspan class="txt-code">data: {...}\n\n</tspan></text>
+      <text x="18" y="102" class="txt-body">• Non-blocking <tspan class="txt-code">asyncio.sleep</tspan></text>
+      <text x="18" y="124" class="txt-body">• Interleaved <tspan class="txt-code">: ping\n\n</tspan> heartbeats</text>
+      <text x="18" y="146" class="txt-body">• Graceful CancelledError exit</text>
+    </g>
+
+    <!-- Module 3: Connection Registry & Health -->
+    <g transform="translate(306, 248)">
+      <rect width="260" height="175" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <text x="18" y="28" class="txt-node-title" font-size="15">State &amp; Disconnect</text>
+      <text x="18" y="46" class="txt-code">request.is_disconnected()</text>
+      <line x1="15" y1="58" x2="245" y2="58" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="18" y="80" class="txt-body">• Active connection counter</text>
+      <text x="18" y="102" class="txt-body">• Socket polling detection</text>
+      <text x="18" y="124" class="txt-body">• Garbage collects tasks</text>
+      <text x="18" y="146" class="txt-code" fill="#10b981">GET /health &rarr; HTTP 200</text>
+    </g>
+  </g>
+
+  <!-- ==================== FLOW CONNECTORS ==================== -->
+  <!-- Handshake Request Line -->
+  <path d="M 370 210 L 560 210" class="req-flow" marker-end="url(#arrow-slate)"/>
+  <rect x="405" y="188" width="120" height="22" rx="6" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="465" y="203" class="txt-code" font-size="11" text-anchor="middle">GET /events</text>
+
+  <!-- Continuous SSE Stream Line -->
+  <path d="M 560 270 L 370 270" class="stream-flow" marker-end="url(#arrow-blue)"/>
+  <rect x="390" y="248" width="150" height="22" rx="6" fill="#e0f2fe" stroke="#38bdf8"/>
+  <text x="465" y="263" class="txt-code" font-size="11" fill="#0369a1" text-anchor="middle">text/event-stream</text>
+</svg>

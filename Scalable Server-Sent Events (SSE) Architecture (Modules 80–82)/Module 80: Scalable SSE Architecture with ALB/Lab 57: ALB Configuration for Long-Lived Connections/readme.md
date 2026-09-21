@@ -2,37 +2,19 @@
 
 In this lab, you will configure an **AWS Application Load Balancer (ALB)** and production reverse proxy layer specifically tuned for long-lived **Server-Sent Events (SSE)** connections. You will learn why default load balancer settings terminate SSE streams after 60 seconds with `504 Gateway Timeout`, how to configure the ALB idle timeout to `3600` seconds (1 hour), how to configure target group deregistration delays for graceful connection draining, and how to emulate and test this exact architecture locally in your Poridhi environment using an Nginx reverse proxy stack.
 
-```mermaid
-flowchart TD
-    subgraph Clients ["Client Layer"]
-        C1["Client Browser A (HTTP/2)"]
-        C2["Client Browser B (HTTP/1.1)"]
-    end
-
-    subgraph ALB ["AWS Application Load Balancer / Reverse Proxy"]
-        Listener["HTTP/HTTPS Listener (Port 80 / 443)"]
-        Timeout["Idle Timeout: 3600 seconds<br/>(Default was 60s)"]
-        TG["Target Group: sse-tg<br/>- Protocol: HTTP/1.1<br/>- Health Check: /health (HTTP 200)<br/>- Deregistration Delay: 300s"]
-    end
-
-    subgraph Backend ["Backend EC2 / Target Group Instances"]
-        App1["SSE Instance 1<br/>FastAPI /events:8000"]
-        App2["SSE Instance 2<br/>FastAPI /events:8000"]
-    end
-
-    C1 -->|"Long-Lived HTTP Stream"| Listener
-    C2 -->|"Long-Lived HTTP Stream"| Listener
-    Listener --> Timeout
-    Timeout --> TG
-    TG -->|"Sticky/Routed Stream"| App1
-    TG -->|"Sticky/Routed Stream"| App2
-```
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Lab 57 ALB Architecture Diagram" width="800">
+</p>
 
 ---
 
 ## Theory: Long-Lived HTTP Connections and Load Balancers
 
 ### The 60-Second Idle Timeout Problem
+
+<p align="center">
+  <img src="./images/idle_timeout_comparison.svg" alt="ALB Idle Timeout Comparison: 60s vs 3600s" width="800">
+</p>
 
 By default, an AWS Application Load Balancer (ALB) enforces an **idle timeout of 60 seconds**.
 - If no data packets traverse the connection between the client and ALB, or between the ALB and the backend target within 60 seconds, the ALB closes the TCP socket and returns an `HTTP 504 Gateway Timeout` to the client.

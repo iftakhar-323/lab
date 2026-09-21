@@ -2,46 +2,9 @@
 
 In this lab, you will solve the fundamental architectural challenge of scaling Server-Sent Events across a multi-node cluster: **broadcasting messages to clients connected to different physical servers**. You will integrate a **Redis Pub/Sub** message bus into an asynchronous FastAPI cluster, deploy a multi-container environment using Docker Compose (Redis, 2 independent SSE server instances, and an Nginx Load Balancer), and verify that publishing an event to any node automatically rebroadcasts in real-time to all connected clients across the entire fleet.
 
-```mermaid
-flowchart TD
-    subgraph Publisher ["Event Producer"]
-        Producer["Admin / Backend Service<br/>POST /publish"]
-    end
-
-    subgraph Cluster ["Multi-Node SSE Cluster"]
-        subgraph Node1 ["SSE Node 1 (:8001)"]
-            API1["FastAPI Instance 1"]
-            Sub1["Redis Subscriber Task"]
-            Q1["Local Client Queues"]
-        end
-
-        subgraph Node2 ["SSE Node 2 (:8002)"]
-            API2["FastAPI Instance 2"]
-            Sub2["Redis Subscriber Task"]
-            Q2["Local Client Queues"]
-        end
-
-        subgraph RedisService ["Message Broker Tier"]
-            Redis[("Redis In-Memory Bus<br/>Channel: 'sse_events'")]
-        end
-    end
-
-    subgraph Ingress ["Ingress & Clients"]
-        LB["Nginx Load Balancer (:8080)"]
-        C1["Client 1 (Connected to Node 1)"]
-        C2["Client 2 (Connected to Node 2)"]
-    end
-
-    Producer -->|"1. POST /publish"| LB
-    LB --> API1
-    API1 -->|"2. PUBLISH sse_events"| Redis
-    Redis -->|"3. Message Fan-Out"| Sub1
-    Redis -->|"3. Message Fan-Out"| Sub2
-    Sub1 --> Q1
-    Sub2 --> Q2
-    Q1 -->|"4. SSE Stream"| C1
-    Q2 -->|"4. SSE Stream"| C2
-```
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Lab 60 Distributed SSE Architecture Diagram" width="850">
+</p>
 
 ---
 
@@ -63,6 +26,10 @@ However, when scaling out horizontally behind an Application Load Balancer:
 - Result: Without an inter-server message broker, Client 2 misses the event entirely.
 
 ### Redis Pub/Sub Architecture
+
+<p align="center">
+  <img src="./images/message_flow_sequence.svg" alt="Distributed SSE Message Flow Sequence" width="850">
+</p>
 
 Redis provides a lightweight, sub-millisecond in-memory Publish/Subscribe engine:
 1. **Pub/Sub Channels:** Decoupled named topics (e.g., `sse_events`, `room:123`, `user:tenant_a`).

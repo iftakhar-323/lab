@@ -2,32 +2,19 @@
 
 In this lab, you will perform high-concurrency load testing against a **Server-Sent Events (SSE)** architecture. You will configure the Linux operating system kernel and file descriptor limits to support thousands of simultaneous open TCP sockets, implement load testing generators using both **Python (`asyncio`/`aiohttp`)** and **k6**, simulate **1,000+ concurrent persistent SSE clients**, and measure connection establishment rate, event continuity, memory footprint, and auto-scaling response under sustained load.
 
-```mermaid
-flowchart TD
-    subgraph Generator ["Load Testing Generator (k6 / Python asyncio)"]
-        T1["Client Worker Pool<br/>(1,000 Concurrent Coroutines)"]
-        T2["Connection Ramp-Up<br/>(50 conn/sec to avoid socket flood)"]
-        T3["Event Validation Engine<br/>- Checks packet arrival<br/>- Computes event latency<br/>- Tracks reconnects"]
-    end
-
-    subgraph Target ["Application Load Balancer / Nginx Proxy"]
-        LB["Load Balancer (Port 8080)<br/>- Idle Timeout: 3600s<br/>- Buffering: OFF"]
-    end
-
-    subgraph Cluster ["SSE Backend Cluster"]
-        N1["FastAPI Instance 1<br/>- 500 Active Connections<br/>- CPU: ~12%, RAM: ~65MB"]
-        N2["FastAPI Instance 2<br/>- 500 Active Connections<br/>- CPU: ~11%, RAM: ~63MB"]
-    end
-
-    Generator -->|"1,000 Sustained TCP Streams"| Target
-    Target -->|"Round-Robin Distribution"| Cluster
-```
+<p align="center">
+  <img src="./images/architecture_diagram.svg" alt="Lab 59 SSE Load Testing Architecture Diagram" width="800">
+</p>
 
 ---
 
 ## Theory: High-Concurrency Load Testing for Persistent Streams
 
 ### Standard HTTP Benchmarking vs SSE Load Testing
+
+<p align="center">
+  <img src="./images/load_metrics_chart.svg" alt="SSE Load Test Execution Telemetry" width="800">
+</p>
 
 Traditional load testing tools like ApacheBench (`ab`), `wrk`, or basic JMeter test **Request-Response throughput**:
 - A client opens a TCP socket, sends `GET /`, receives `HTTP 200`, and closes the socket immediately.
