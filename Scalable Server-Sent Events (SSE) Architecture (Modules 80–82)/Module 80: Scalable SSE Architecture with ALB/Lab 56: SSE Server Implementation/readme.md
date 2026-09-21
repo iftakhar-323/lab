@@ -3,7 +3,7 @@
 In this lab, you will implement a high-performance, asynchronous Server-Sent Events (SSE) streaming server using **FastAPI** and **Uvicorn** inside your Poridhi environment. You will explore the theoretical foundation of SSE versus WebSockets, learn how the HTTP streaming protocol operates, configure critical response headers (`Content-Type: text/event-stream`, `Cache-Control`, `Connection`, `X-Accel-Buffering`), handle client disconnections gracefully, and build an interactive browser client to verify real-time event streaming.
 
 <p align="center">
-  <img src="./images/architecture_diagram.svg" alt="Lab 56 Architecture Diagram" width="800">
+  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2080:%20Scalable%20SSE%20Architecture%20with%20ALB/Lab%2056:%20SSE%20Server%20Implementation/images/architecture_diagram.svg" alt="Lab 56 Architecture Diagram" width="800">
 </p>
 
 ---
@@ -33,7 +33,7 @@ Real-time web applications require servers to push updates to connected clients 
 ### The SSE Wire Protocol
 
 <p align="center">
-  <img src="./images/sse_wire_protocol.svg" alt="SSE Wire Protocol and Frame Lifecycle" width="800">
+  <img src="https://raw.githubusercontent.com/poridhioss/lab/main/Scalable%20Server-Sent%20Events%20(SSE)%20Architecture%20(Modules%2080%E2%80%9382)/Module%2080:%20Scalable%20SSE%20Architecture%20with%20ALB/Lab%2056:%20SSE%20Server%20Implementation/images/sse_wire_protocol.svg" alt="SSE Wire Protocol and Frame Lifecycle" width="800">
 </p>
 
 Server-Sent Events use a simple text-based format over an open HTTP response. Each message is terminated by a **double newline** (`\n\n`). A message can contain the following fields:
