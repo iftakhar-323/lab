@@ -26,9 +26,6 @@
   <!-- Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- Diagram Title -->
-  <text x="630" y="48" class="txt-title" text-anchor="middle">Distributed SSE Message Flow: End-to-End Sequence</text>
-
   <!-- ==================== 5 ACTORS / LANES ==================== -->
   <!-- Lane 1: Client 1 (Web) -->
   <g transform="translate(70, 75)">

@@ -25,9 +25,6 @@
   <!-- Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- Diagram Title -->
-  <text x="630" y="48" class="txt-title" text-anchor="middle">ALB Idle Timeout Comparison: 60s Default vs 3600s Tuned</text>
-
   <!-- ==================== TOP: 60s DEFAULT TIMEOUT (FAILURE) ==================== -->
   <g transform="translate(60, 80)">
     <rect width="1140" height="205" rx="14" fill="#fff5f5" stroke="#ef4444" stroke-width="2"/>

@@ -26,9 +26,6 @@
   <!-- Canvas Border -->
   <rect x="10" y="10" width="1240" height="610" rx="16" fill="#ffffff" stroke="#000000" stroke-width="2"/>
 
-  <!-- Title -->
-  <text x="630" y="48" class="txt-title" text-anchor="middle">Distributed Multi-Node SSE Architecture with Redis Pub/Sub Bus</text>
-
   <!-- ==================== 1. CLIENTS & PUBLISHER ==================== -->
   <g transform="translate(60, 95)">
     <rect width="210" height="430" rx="14" fill="#eaf8ff" stroke="#000000" stroke-width="2"/>
