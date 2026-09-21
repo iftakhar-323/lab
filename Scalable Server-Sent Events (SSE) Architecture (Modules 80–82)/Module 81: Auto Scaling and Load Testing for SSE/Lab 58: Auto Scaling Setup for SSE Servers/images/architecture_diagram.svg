@@ -3,8 +3,8 @@
     <style>
       .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #000000; }
       .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
-      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #4b5563; }
-      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 700; fill: #111827; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #000000; }
+      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 700; fill: #000000; }
       .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #000000; }
       .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
 
@@ -60,7 +60,7 @@
     <!-- Node 1 -->
     <rect x="25" y="85" width="165" height="160" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
     <rect x="35" y="100" width="145" height="24" rx="6" fill="#dcfce7"/>
-    <text x="107" y="117" class="txt-badge" font-size="12" fill="#166534" text-anchor="middle">EC2 Instance 1</text>
+    <text x="107" y="117" class="txt-badge" font-size="12" text-anchor="middle">EC2 Instance 1</text>
     <text x="107" y="150" class="txt-node-title" font-size="15" text-anchor="middle">FastAPI Server</text>
     <text x="35" y="180" class="txt-node-sub">&#8226; Port: 8000</text>
     <text x="35" y="206" class="txt-node-sub">&#8226; Active Sockets:</text>
@@ -69,7 +69,7 @@
     <!-- Node 2 -->
     <rect x="210" y="85" width="165" height="160" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
     <rect x="220" y="100" width="145" height="24" rx="6" fill="#dcfce7"/>
-    <text x="292" y="117" class="txt-badge" font-size="12" fill="#166534" text-anchor="middle">EC2 Instance 2</text>
+    <text x="292" y="117" class="txt-badge" font-size="12" text-anchor="middle">EC2 Instance 2</text>
     <text x="292" y="150" class="txt-node-title" font-size="15" text-anchor="middle">FastAPI Server</text>
     <text x="220" y="180" class="txt-node-sub">&#8226; Port: 8000</text>
     <text x="220" y="206" class="txt-node-sub">&#8226; Active Sockets:</text>

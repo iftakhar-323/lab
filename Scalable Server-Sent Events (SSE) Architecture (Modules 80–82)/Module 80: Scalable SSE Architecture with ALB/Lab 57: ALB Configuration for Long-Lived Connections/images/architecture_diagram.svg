@@ -3,8 +3,8 @@
     <style>
       .txt-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #000000; }
       .txt-node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #000000; }
-      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #4b5563; }
-      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 700; fill: #111827; }
+      .txt-node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #000000; }
+      .txt-node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 700; fill: #000000; }
       .txt-arrow-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #000000; }
       .txt-badge { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; }
 
@@ -56,7 +56,7 @@
 
   <path d="M 410 360 L 290 360" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
   <path d="M 410 360 L 290 360" fill="none" stroke="#059669" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)"/>
-  <text x="350" y="350" class="txt-arrow-label" text-anchor="middle" fill="#059669">SSE Stream</text>
+  <text x="350" y="350" class="txt-arrow-label" text-anchor="middle">SSE Stream</text>
 
   <!-- ==================== 2. AWS ALB ==================== -->
   <g transform="translate(410, 95)">
@@ -66,8 +66,8 @@
 
     <!-- Critical Setting Box (Highlighted) -->
     <rect x="25" y="95" width="310" height="150" rx="10" fill="#ffeaea" stroke="#000000" stroke-width="2"/>
-    <rect x="100" y="110" width="160" height="24" rx="12" fill="#ef4444" stroke="#000000" stroke-width="1"/>
-    <text x="180" y="126" class="txt-badge" fill="#ffffff" font-size="12" text-anchor="middle">CRITICAL ALB SETTING</text>
+    <rect x="100" y="110" width="160" height="24" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/>
+    <text x="180" y="126" class="txt-badge" font-size="12" text-anchor="middle">CRITICAL ALB SETTING</text>
     <text x="180" y="160" class="txt-node-code" font-size="14" text-anchor="middle">idle_timeout = 3600 seconds</text>
     <text x="180" y="190" class="txt-node-sub" text-anchor="middle">Default is 60s (terminates stream)</text>
     <text x="180" y="215" class="txt-node-sub" text-anchor="middle">3600s allows 1-hour quiet streams!</text>
@@ -87,7 +87,7 @@
 
   <path d="M 870 360 L 770 360" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
   <path d="M 870 360 L 770 360" fill="none" stroke="#059669" stroke-width="2.5" class="anim-flow" marker-end="url(#arrow)"/>
-  <text x="820" y="350" class="txt-arrow-label" text-anchor="middle" fill="#059669">Stream</text>
+  <text x="820" y="350" class="txt-arrow-label" text-anchor="middle">Stream</text>
 
   <!-- ==================== 3. TARGET FLEET ==================== -->
   <g transform="translate(870, 95)">
