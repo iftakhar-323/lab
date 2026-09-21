@@ -88,7 +88,7 @@
     <text x="95" y="115" class="txt-node-title" font-size="14" text-anchor="middle">Listener: Port 80</text>
     <text x="25" y="145" class="txt-node-sub">&#8226; Idle: 3600s</text>
     <text x="25" y="172" class="txt-node-sub">&#8226; Tracks conns</text>
-    <rect x="25" y="195" width="140" height="26" rx="6" fill="#effff1"/>
+    <rect x="25" y="195" width="140" height="26" rx="6" fill="#effff1" stroke="#16a34a" stroke-width="1"/>
     <text x="95" y="213" class="txt-node-code" font-size="11" text-anchor="middle">TargetConnCount</text>
   </g>
 
@@ -100,19 +100,19 @@
     <!-- Policy 1 -->
     <g transform="translate(40, 55)">
       <rect width="500" height="85" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <rect x="15" y="15" width="190" height="24" rx="6" fill="#fef3c7"/>
+      <rect x="15" y="15" width="190" height="26" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
       <text x="110" y="32" class="txt-node-code" font-size="12" text-anchor="middle">TargetConnectionCount</text>
-      <text x="220" y="32" class="txt-node-title" font-size="15">= 1,000 conns/target</text>
-      <text x="20" y="65" class="txt-node-sub">Triggers scale-out when active socket count per server reaches 1,000</text>
+      <text x="220" y="33" class="txt-node-title" font-size="15">= 1,000 conns/target</text>
+      <text x="20" y="65" class="txt-node-sub" font-size="12.5">Triggers scale-out when active socket count per server reaches 1,000</text>
     </g>
 
     <!-- Policy 2 -->
     <g transform="translate(600, 55)">
       <rect width="500" height="85" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
-      <rect x="15" y="15" width="190" height="24" rx="6" fill="#fee2e2"/>
+      <rect x="15" y="15" width="190" height="26" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
       <text x="110" y="32" class="txt-node-code" font-size="12" text-anchor="middle">TargetResponseTime</text>
-      <text x="220" y="32" class="txt-node-title" font-size="15">&gt; 250ms Safeguard</text>
-      <text x="20" y="65" class="txt-node-sub">Triggers emergency scale-out if event-loop delay spikes under heavy load</text>
+      <text x="220" y="33" class="txt-node-title" font-size="15">&gt; 250ms Safeguard</text>
+      <text x="20" y="65" class="txt-node-sub" font-size="12.5">Triggers emergency scale-out if event loop experiences high latency</text>
     </g>
   </g>
 

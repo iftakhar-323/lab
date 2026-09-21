@@ -41,7 +41,8 @@
 
       <!-- CPU Alarm Threshold Line (70%) -->
       <line x1="40" y1="95" x2="450" y2="95" stroke="#ef4444" stroke-width="2" stroke-dasharray="6 4"/>
-      <text x="45" y="85" class="txt-node-code">Alarm Threshold (70% CPU)</text>
+      <rect x="45" y="65" width="180" height="24" rx="4" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+      <text x="135" y="81" class="txt-badge" font-size="11" text-anchor="middle">Alarm Threshold: 70% CPU</text>
 
       <!-- Connection Curve (Climbing rapidly to 5000) -->
       <path d="M 40 230 Q 150 200 240 140 T 360 60" fill="none" stroke="#2563eb" stroke-width="3"/>
@@ -88,7 +89,8 @@
 
       <!-- Target Value Line (1000 conns) -->
       <line x1="40" y1="120" x2="450" y2="120" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 4"/>
-      <text x="45" y="110" class="txt-node-code">Target: 1,000 conns/target</text>
+      <rect x="45" y="90" width="150" height="24" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+      <text x="120" y="106" class="txt-badge" font-size="11" text-anchor="middle">Target: 1,000 conns</text>
 
       <!-- Connection Curve with Scaling Normalization -->
       <path d="M 40 230 Q 140 180 220 115 L 230 110" fill="none" stroke="#2563eb" stroke-width="3"/>

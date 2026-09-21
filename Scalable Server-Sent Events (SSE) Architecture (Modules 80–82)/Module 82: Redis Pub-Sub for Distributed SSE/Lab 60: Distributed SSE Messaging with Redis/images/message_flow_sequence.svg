@@ -96,7 +96,8 @@
     <text x="90" y="25" class="txt-badge" text-anchor="middle">Admin: POST /publish</text>
   </g>
   <path d="M 280 295 L 390 295" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="335" y="288" class="txt-code" text-anchor="middle">3. Payload</text>
+  <rect x="290" y="275" width="90" height="20" rx="4" fill="#ffffff" stroke="#dc2626" stroke-width="1"/>
+  <text x="335" y="289" class="txt-code" text-anchor="middle">3. Payload</text>
 
   <!-- Step 4: Node-Alpha publishes to Redis -->
   <path d="M 390 350 L 630 350" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arrow)"/>
