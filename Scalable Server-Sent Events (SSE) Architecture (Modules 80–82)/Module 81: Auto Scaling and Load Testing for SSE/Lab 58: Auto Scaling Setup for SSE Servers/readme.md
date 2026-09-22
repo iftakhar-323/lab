@@ -79,7 +79,7 @@ cd ~/asg-sse-lab
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/01_create_directory.png" alt="Create Lab Directory Structure" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/01_create_directory.png" alt="Create Lab Directory Structure" width="850">
 </p>
 
 ---
@@ -99,7 +99,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/02_create_requirements.png" alt="Create Requirements File" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/02_create_requirements.png" alt="Create Requirements File" width="850">
 </p>
 
 Create `app/main.py` with an embedded connection tracker and background CloudWatch reporter:
@@ -219,7 +219,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/03_create_main_py.png" alt="Create FastAPI Main App" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/03_create_main_py.png" alt="Create FastAPI Main App" width="850">
 </p>
 
 ---
@@ -297,7 +297,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/04_create_user_data.png" alt="Create EC2 User Data Script" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/04_create_user_data.png" alt="Create EC2 User Data Script" width="900">
 </p>
 
 ---
@@ -352,7 +352,7 @@ chmod +x aws/create_asg.sh
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/05_create_asg_script.png" alt="Create Launch Template and Auto Scaling Group" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/05_create_asg_script.png" alt="Create Launch Template and Auto Scaling Group" width="900">
 </p>
 
 ---
@@ -392,7 +392,7 @@ chmod +x aws/configure_scaling_policy.sh
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/06_configure_scaling_policy.png" alt="Configure Target Tracking Scaling Policy" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/06_configure_scaling_policy.png" alt="Configure Target Tracking Scaling Policy" width="900">
 </p>
 
 ---
@@ -416,7 +416,7 @@ sleep 3
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/07_start_fastapi_server.png" alt="Start FastAPI Server Locally" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/07_start_fastapi_server.png" alt="Start FastAPI Server Locally" width="920">
 </p>
 
 ### 6.2 Create Scaling Metric Test Script
@@ -462,7 +462,7 @@ EOF
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/08_create_test_scaling_metric.png" alt="Create Test Scaling Metric Script" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/08_create_test_scaling_metric.png" alt="Create Test Scaling Metric Script" width="850">
 </p>
 
 ### 6.3 Run Concurrent SSE Stream Test
@@ -490,13 +490,13 @@ Final Health Status: {'status': 'healthy', 'instance_id': '...', 'active_connect
 **1. 15 Concurrent Client Connections Initialized:**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/09_run_concurrent_test_part1.png" alt="15 Concurrent Client Connections Initialized" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/09_run_concurrent_test_part1.png" alt="15 Concurrent Client Connections Initialized" width="850">
 </p>
 
 **2. Client Streams Completed & Health Status Reset:**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/10_run_concurrent_test_part2.png" alt="Client Streams Completed and Health Status Reset" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/10_run_concurrent_test_part2.png" alt="Client Streams Completed and Health Status Reset" width="900">
 </p>
 
 ### 6.4 Verify Active Connection Telemetry Cleanup
@@ -504,7 +504,7 @@ Final Health Status: {'status': 'healthy', 'instance_id': '...', 'active_connect
 Observe the server terminal to confirm that the background telemetry publisher records active connections resetting to `0` following client disconnections:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/11_verify_telemetry.png" alt="Verify Active Connection Telemetry Cleanup" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/11_verify_telemetry.png" alt="Verify Active Connection Telemetry Cleanup" width="900">
 </p>
 
 ### 6.5 Terminate Background Server
