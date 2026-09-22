@@ -17,6 +17,7 @@ In this lab, you will configure an **AWS Application Load Balancer (ALB)** and p
 </p>
 
 By default, an AWS Application Load Balancer (ALB) enforces an **idle timeout of 60 seconds**.
+
 - If no data packets traverse the connection between the client and ALB, or between the ALB and the backend target within 60 seconds, the ALB closes the TCP socket and returns an `HTTP 504 Gateway Timeout` to the client.
 - For transactional APIs (REST/GraphQL), 60 seconds is more than generous.
 - However, Server-Sent Events (SSE) maintain an open HTTP connection for minutes or hours. In scenarios where events occur intermittently (e.g., waiting for a long-running batch job, periodic stock alerts, or off-peak hours), an unmodified ALB will sever the client connection repeatedly.
@@ -35,6 +36,7 @@ guarantees that connections remain open for up to 1 hour even during prolonged q
 ### Target Group Deregistration Delay (Connection Draining)
 
 When an instance in an Auto Scaling Group (ASG) or Target Group is marked for termination (due to scale-in or rolling updates), the ALB initiates **deregistration delay**:
+
 - **Default value**: 300 seconds (5 minutes).
 - The ALB stops forwarding new connections to the deregistering instance.
 - Existing long-lived connections (such as SSE streams) are permitted to remain open until the deregistration delay elapses, allowing the application to drain streams gracefully before the underlying host is terminated.
@@ -42,6 +44,7 @@ When an instance in an Auto Scaling Group (ASG) or Target Group is marked for te
 ### Health Check Isolation
 
 In an SSE architecture, target group health checks must never point to the streaming endpoint (`/events`):
+
 - Pointing health checks to `/events` will cause the health checker to hang waiting for the stream to close, resulting in health check timeouts and marking healthy nodes as `Unhealthy`.
 - Always configure health checks to probe a dedicated, fast-returning lightweight endpoint like `/health` returning `200 OK`.
 
@@ -367,7 +370,7 @@ http {
         # SSE Streaming endpoint routing with 3600s idle timeout
         location /events {
             proxy_pass http://sse_backend_tg/events;
-            
+          
             # Use HTTP/1.1 for upstream keepalive
             proxy_http_version 1.1;
             proxy_set_header Connection "";
@@ -461,9 +464,11 @@ docker compose up -d
 
 > [!NOTE]
 > Wait approximately 10–15 seconds after running `docker compose up -d` for the backend containers to download dependencies (`fastapi`, `uvicorn`) and start the Uvicorn processes. You can monitor startup progress by running:
+>
 > ```bash
 > docker compose logs -f app1 app2
 > ```
+>
 > Once you see `Application startup complete`, proceed to test the endpoints.
 
 <p align="center">
@@ -482,7 +487,7 @@ Expected Output:
 NAME            IMAGE              COMMAND                  SERVICE         CREATED         STATUS         PORTS
 sse_alb_proxy   nginx:alpine       "/docker-entrypoint.…"   load_balancer   4 seconds ago   Up 3 seconds   0.0.0.0:8080->80/tcp
 sse_node_1      python:3.11-slim   "sh -c 'pip install …"   app1            4 seconds ago   Up 3 seconds   
-sse_node_2      python:3.11-slim   "sh -c 'pip install …"   app2            4 seconds ago   Up 3 seconds   
+sse_node_2      python:3.11-slim   "sh -c 'pip install …"   app2            4 seconds ago   Up 3 seconds
 ```
 
 <p align="center">
@@ -551,6 +556,10 @@ data: {"event_id": 3, "node": "sse-node-1", "timestamp": "12:05:11", "status": "
 ---------------------------------------------------------
 Streaming verification complete!
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/11_test_stream_verification.png" alt="Streaming Verification via Load Balancer" width="700">
+</p>
 
 ---
 
