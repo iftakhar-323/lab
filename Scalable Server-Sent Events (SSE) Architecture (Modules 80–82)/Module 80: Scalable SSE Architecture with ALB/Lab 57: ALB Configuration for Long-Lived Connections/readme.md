@@ -85,6 +85,10 @@ mkdir -p ~/alb-sse-lab/aws ~/alb-sse-lab/proxy ~/alb-sse-lab/app
 cd ~/alb-sse-lab
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/01_create_directory.png" alt="Set Up Lab Directory" width="700">
+</p>
+
 ---
 
 ## Step 2: Implement the FastAPI SSE Backend
@@ -97,6 +101,10 @@ fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
 EOF
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/02_create_requirements.png" alt="Create Requirements File" width="700">
+</p>
 
 Create `app/main.py`:
 
@@ -160,6 +168,10 @@ async def health():
     return {"status": "ok", "node": INSTANCE_HOSTNAME}
 EOF
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/03_create_main_py.png" alt="Create FastAPI Main App" width="700">
+</p>
 
 ---
 
@@ -235,6 +247,10 @@ EOF
 chmod +x aws/create_alb.sh
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/04_create_alb_script.png" alt="Create ALB Script" width="700">
+</p>
+
 ---
 
 ## Step 4: AWS CloudFormation Template
@@ -308,6 +324,10 @@ Outputs:
     Value: !Ref SseTargetGroup
 EOF
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/05_create_cloudformation.png" alt="Create CloudFormation Template" width="700">
+</p>
 
 ---
 
