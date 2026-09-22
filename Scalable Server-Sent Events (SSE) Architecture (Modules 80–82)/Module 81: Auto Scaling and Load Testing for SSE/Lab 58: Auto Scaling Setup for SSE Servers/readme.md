@@ -391,13 +391,19 @@ EOF
 chmod +x aws/configure_scaling_policy.sh
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/06_configure_scaling_policy.png" alt="Configure Target Tracking Scaling Policy" width="700">
+</p>
+
 ---
 
 ## Step 6: Test Local Simulation and Metric Verification
 
 To verify that the application correctly counts active connections and cleans up upon disconnection in the Poridhi environment:
 
-1. Start the FastAPI server locally:
+### 6.1 Start FastAPI SSE Server
+
+In the terminal, activate the virtual environment and start the server:
 
 ```bash
 cd ~/asg-sse-lab
@@ -409,7 +415,13 @@ SERVER_PID=$!
 sleep 3
 ```
 
-2. Run `test_scaling_metric.py` to open multiple concurrent SSE streams and observe the connection counter:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/07_start_fastapi_server.png" alt="Start FastAPI Server Locally" width="700">
+</p>
+
+### 6.2 Create Scaling Metric Test Script
+
+Create `test_scaling_metric.py` to simulate concurrent SSE client connections:
 
 ```bash
 cat << 'EOF' > test_scaling_metric.py
@@ -447,7 +459,17 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 EOF
+```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/08_create_test_scaling_metric.png" alt="Create Test Scaling Metric Script" width="700">
+</p>
+
+### 6.3 Run Concurrent SSE Stream Test
+
+Execute the test script to open 15 concurrent SSE streams and observe the connection counter:
+
+```bash
 python3 test_scaling_metric.py
 ```
 
@@ -462,6 +484,12 @@ Opening 15 concurrent SSE connections...
 All client streams finished.
 Final Health Status: {'status': 'healthy', 'instance_id': '...', 'active_connections': 0}
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/09_run_concurrent_test.png" alt="Run Concurrent SSE Test and Metric Verification" width="700">
+</p>
+
+### 6.4 Terminate Background Server
 
 Terminate the background server:
 
