@@ -1022,46 +1022,56 @@ Notice that:
 
 ---
 
-## Step 8: Interactive Real-Time Dashboard via Load Balancer
+## Step 8: Expose and Access via Poridhi Load Balancer
 
-In addition to the command-line test, you can visually observe the distributed architecture in action using the built-in web dashboard.
+To access the live interactive Distributed SSE Dashboard from your browser outside the Poridhi VM, expose the Nginx Load Balancer on port `8080` using the **Poridhi Load Balancer**:
 
-### 8.1 Access the Dashboard
+### 8.1 Find Your VM's Private IP
 
-Open your web browser and navigate to the Load Balancer port:
+In your Poridhi terminal, retrieve the primary private IP address of your VM:
 
-```text
-http://<poridhi-vm-ip>:8080/
+```bash
+hostname -I | awk '{print $1}'
 ```
 
-*(If testing locally or inside the VM, navigate to `http://localhost:8080/`)*.
+Copy the first IP address returned (for example: `10.x.x.x` or `192.168.x.x`).
 
-### 8.2 Dashboard Features
+### 8.2 Configure Poridhi Load Balancer
+
+1. Click the **Load Balancer** button in the top bar / header of the Poridhi interface.
+2. In the configuration modal, enter:
+   - **Enter IP:** Paste your VM Private IP from the `hostname -I | awk '{print $1}'` command.
+   - **Enter Port:** `8080` (The Nginx Load Balancer port).
+3. Click **Expose** (or **Create**).
+4. Poridhi will generate an external public URL (for example: `http://<lab-id>-8080.lb.poridhi.io`).
+5. Click this URL to open the **Real-Time Distributed SSE Dashboard** in your web browser!
+
+*(Note: If you are running locally or inside the VM desktop, you can navigate directly to `http://localhost:8080/`)*.
+
+### 8.3 Live Dashboard Features & Interactive Verification
+
+Once the dashboard opens in your browser, verify the distributed architecture in real time:
 
 1. **Cluster Architecture Topology Bar:**
-   - **Nginx Load Balancer (Port 8080):** Reverse proxy & round-robin load distribution.
-   - **Redis Pub/Sub Bus (`sse_events_channel`):** Central in-memory message broker running on port 6379.
+   - **Nginx Load Balancer (Port 8080):** Reverse proxy distributing incoming connections.
+   - **Redis Pub/Sub Bus (`sse_events_channel`):** In-memory message broker running on port 6379.
    - **Node Alpha (Port 8001):** FastAPI SSE instance 1.
    - **Node Beta (Port 8002):** FastAPI SSE instance 2.
-   - **Serving Instance Badge:** Shows which node served the dashboard via the load balancer.
+   - **Serving Instance Badge:** Shows which node answered the HTTP request via round-robin.
 
 2. **Interactive Publish Console (Left Panel):**
-   - Choose the target destination route:
-     - `🔀 Load Balancer (:8080/publish)`: Dispatched to the fleet via round-robin.
-     - `🖥️ Direct to Node-Alpha (:8080/node-a/publish)`: Targets Node-Alpha specifically.
-     - `🖥️ Direct to Node-Beta (:8080/node-b/publish)`: Targets Node-Beta specifically.
-   - Enter a title, select a category (`Urgent Alert`, `General Broadcast`, `System Notice`), and enter a message.
-   - Click **"🚀 Broadcast to Fleet via Redis"** or use the quick buttons.
+   - Select your target route:
+     - `🔀 Load Balancer (:8080/publish)`: Round-robin dispatched to the fleet.
+     - `🖥️ Direct to Node-Alpha (:8080/node-a/publish)`: Dispatched directly to Node-Alpha.
+     - `🖥️ Direct to Node-Beta (:8080/node-b/publish)`: Dispatched directly to Node-Beta.
+   - Enter a title, choose a category (`Urgent Alert`, `General Broadcast`, `System Notice`), and enter your message.
+   - Click **"🚀 Broadcast to Fleet via Redis"** or use the quick-send presets.
 
 3. **Live Multi-Node SSE Monitor (Right Panel):**
-   - **Client 1:** Subscribed to Node-Alpha via `/node-a/events`.
-   - **Client 2:** Subscribed to Node-Beta via `/node-b/events`.
-   - **Client 3:** Subscribed to the Load Balancer via `/events`.
-   - Watch the broadcast card instantaneously slide into all 3 client feeds at the same millisecond!
-   - Each card highlights:
-     - **Origin Node:** The node that received the HTTP POST publish request.
-     - **Category Tag:** Visual colored tag.
-     - **Event Payload & Timestamp:** Proving synchronization across distinct physical servers.
+   - **Client 1:** Connected directly to Node-Alpha (`/node-a/events`).
+   - **Client 2:** Connected directly to Node-Beta (`/node-b/events`).
+   - **Client 3:** Connected through the Load Balancer (`/events`).
+   - Notice that publishing a broadcast through ANY node causes the event card to slide simultaneously into ALL 3 client streams within milliseconds, visually demonstrating zero-loss distributed pub/sub synchronization!
 
 ---
 
