@@ -78,6 +78,10 @@ mkdir -p ~/asg-sse-lab/aws ~/asg-sse-lab/app
 cd ~/asg-sse-lab
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/01_create_directory.png" alt="Create Lab Directory Structure" width="700">
+</p>
+
 ---
 
 ## Step 2: Implement FastAPI Application with CloudWatch Telemetry
@@ -93,6 +97,10 @@ psutil>=5.9.8
 httpx>=0.27.0
 EOF
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/02_create_requirements.png" alt="Create Requirements File" width="700">
+</p>
 
 Create `app/main.py` with an embedded connection tracker and background CloudWatch reporter:
 
@@ -210,6 +218,10 @@ async def health():
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/03_create_main_py.png" alt="Create FastAPI Main App" width="700">
+</p>
+
 ---
 
 ## Step 3: EC2 User Data Bootstrapping Script
@@ -284,6 +296,10 @@ systemctl start sse-app
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/04_create_user_data.png" alt="Create EC2 User Data Script" width="700">
+</p>
+
 ---
 
 ## Step 4: Create Launch Template and Auto Scaling Group
@@ -334,6 +350,10 @@ echo "=== Auto Scaling Group Provisioned Successfully! ==="
 EOF
 chmod +x aws/create_asg.sh
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/05_create_asg_script.png" alt="Create Launch Template and Auto Scaling Group" width="700">
+</p>
 
 ---
 
