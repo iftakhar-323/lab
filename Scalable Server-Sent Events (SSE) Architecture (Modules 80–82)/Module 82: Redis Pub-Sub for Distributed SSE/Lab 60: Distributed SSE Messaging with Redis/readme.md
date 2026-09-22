@@ -1,6 +1,6 @@
 # Lab 60: Distributed SSE Messaging with Redis
 
-In this lab, you will solve the fundamental architectural challenge of scaling Server-Sent Events across a multi-node cluster: **broadcasting messages to clients connected to different physical servers**. You will integrate a **Redis Pub/Sub** message bus into an asynchronous FastAPI cluster, deploy a multi-container environment using Docker Compose (Redis, 2 independent SSE server instances, and an Nginx Load Balancer), and verify that publishing an event to any node automatically rebroadcasts in real-time to all connected clients across the entire fleet.
+In this lab, you will build a distributed Server-Sent Events (SSE) system backed by a Redis Pub/Sub message broker and fronted by an Nginx reverse proxy. You will deploy two asynchronous FastAPI server nodes, an Nginx load balancer exposing `/events` and `/publish`, and a central Redis 7 container using Docker Compose. When an event is published to any single node or through the load balancer, Redis distributes that message to all cluster nodes so every connected subscriber receives it in real time.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/architecture_diagram.svg" alt="Lab 60 Distributed SSE Architecture Diagram" width="850">
@@ -8,59 +8,42 @@ In this lab, you will solve the fundamental architectural challenge of scaling S
 
 ---
 
-## Theory: Distributed Pub/Sub for Stateful Connections
+## Concepts
 
-### The Multi-Node Statefulness Problem
+The table below defines the core components and architectural terms used in this lab:
 
-In a single-server architecture, when an event occurs, the server iterates through its in-memory list of connected client sockets and writes the event:
+| Term | Description |
+| :--- | :--- |
+| **Server-Sent Events (SSE)** | A unidirectional HTTP protocol where the server keeps an open HTTP connection and pushes text-formatted events to the client. |
+| **Multi-Node Statefulness** | The architectural condition where long-lived TCP connections are held across separate server instances, preventing one server from pushing data directly to clients connected to another server. |
+| **Redis Pub/Sub** | An in-memory publish/subscribe messaging engine that enables decoupled, sub-millisecond event broadcasting across independent server processes. |
+| **Local Client Queue** | An in-memory asynchronous queue (`asyncio.Queue`) allocated to each connected client on a specific server node to stage incoming Redis events. |
+| **Reverse Proxy / Load Balancer** | An intermediary service (Nginx) that terminates client HTTP connections and distributes incoming traffic across backend nodes without buffering streams. |
 
-```text
-Event Source ---> [In-Memory List: Client 1, Client 2, Client 3] ---> Push to all
-```
+### How Distributed Pub/Sub Works
 
-However, when scaling out horizontally behind an Application Load Balancer:
-- **Client 1** is connected to **Node A**.
-- **Client 2** is connected to **Node B**.
-- An incoming webhook or user action triggers `POST /publish` that lands on **Node A**.
-- Node A only holds the TCP socket for Client 1; it has **no visibility or network route to Client 2's socket** on Node B.
-- Result: Without an inter-server message broker, Client 2 misses the event entirely.
-
-### Redis Pub/Sub Architecture
+When a client connects to `GET /events`, the FastAPI application assigns the client a dedicated in-memory `asyncio.Queue` and streams events continuously over HTTP. Concurrently, each node runs a background subscriber task listening to a shared Redis channel (`sse_events_channel`). When any node receives a `POST /publish` request, it sends the payload to Redis. Redis forwards the payload to all node subscribers simultaneously. Each node receives the broadcast from Redis, iterates over its local client queues, and pushes the event frames out over each active SSE connection.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/message_flow_sequence.svg" alt="Distributed SSE Message Flow Sequence" width="850">
 </p>
 
-Redis provides a lightweight, sub-millisecond in-memory Publish/Subscribe engine:
-1. **Pub/Sub Channels:** Decoupled named topics (e.g., `sse_events`, `room:123`, `user:tenant_a`).
-2. **Subscription Loop:** Each SSE node runs an asynchronous Redis listener coroutine (`redis.pubsub()`) upon application startup.
-3. **Local Fan-Out:** When a Redis message arrives on a node, the subscriber task iterates through that node's local client `asyncio.Queue` objects and enqueues the message.
-4. **SSE Generator:** Each client stream coroutine simply waits on its personal `asyncio.Queue.get()` and streams outgoing frames.
-
-### Redis Pub/Sub vs Redis Streams
-
-| Feature | Redis Pub/Sub | Redis Streams |
-| :--- | :--- | :--- |
-| **Delivery Model** | Fire-and-Forget | Persistent Log (Appends to disk/memory) |
-| **Consumer Groups** | No (all subscribers receive every message) | Yes (load-balanced consumer groups) |
-| **Replay on Reconnect (`Last-Event-ID`)** | Not supported (missed messages while offline are lost) | **Supported** (`XREAD` by message ID) |
-| **Memory Consumption** | Near zero (messages are not retained after dispatch) | Retained according to stream retention policy |
-| **Suitability for SSE** | Ideal for live feeds, tickers, and ephemeral notifications | Ideal for mission-critical events requiring replay |
-
 ---
 
 ## Objectives
 
-- Deploy a multi-node distributed architecture with Redis 7, two FastAPI instances, and an Nginx reverse proxy using Docker Compose.
+- Deploy a multi-container cluster consisting of Redis 7, two FastAPI instances, and an Nginx reverse proxy using Docker Compose.
 - Implement an asynchronous Redis Pub/Sub broadcaster with subscription pooling and client queue registries.
-- Expose a `POST /publish` endpoint that accepts JSON payloads and broadcasts them to Redis.
-- Expose a `GET /events` SSE endpoint that subscribes clients to their node's local dispatch queue.
-- Demonstrate distributed message delivery: publish a message to Node 1 and verify instant receipt on a client connected to Node 2.
-- Access an interactive real-time visual dashboard through the Nginx Load Balancer (`:8080`) to observe multi-node event broadcasts and client synchronization live in the browser.
+- Expose a `POST /publish` endpoint that accepts JSON payloads and broadcasts them to the Redis message bus.
+- Expose a `GET /events` SSE endpoint that streams live broadcast frames to connected clients without proxy buffering.
+- Verify cross-node message delivery by publishing an event to one node and confirming instantaneous delivery to a client connected to a different node.
+- Configure the Poridhi Load Balancer to access the interactive web dashboard for real-time cluster monitoring.
 
 ---
 
-## Project Structure
+## What You Will Build
+
+The directory structure below outlines the completed project:
 
 ```text
 distributed-sse-lab/
@@ -75,20 +58,28 @@ distributed-sse-lab/
 └── test_distributed_broadcast.sh
 ```
 
+Clients connect to Nginx on port 8080, which load-balances traffic across `sse_node_a` and `sse_node_b`, while `sse_redis` synchronizes broadcast events across both nodes through an asynchronous Pub/Sub message channel.
+
 ---
 
-## Step 1: Create Lab Directories
+## Step 1: Create the Project Directory Structure
+
+Create the project directory tree for application source code and Nginx proxy configuration:
 
 ```bash
 mkdir -p ~/distributed-sse-lab/nginx ~/distributed-sse-lab/app
 cd ~/distributed-sse-lab
 ```
 
+**Explanation:**
+- `~/distributed-sse-lab/nginx` stores configuration files for the Nginx reverse proxy and load balancer.
+- `~/distributed-sse-lab/app` stores the FastAPI server code, Redis broadcaster engine, and Docker build context.
+
 ---
 
-## Step 2: Implement Redis Broadcaster Engine
+## Step 2: Define Application Dependencies
 
-Create `app/requirements.txt`:
+Create a file named `app/requirements.txt` with the following contents:
 
 ```bash
 cat << 'EOF' > app/requirements.txt
@@ -99,7 +90,17 @@ httpx>=0.27.0
 EOF
 ```
 
-Create `app/broadcaster.py`. This module manages Redis pub/sub connections and local client queue registration:
+**Explanation:**
+- `fastapi>=0.110.0` provides the modern asynchronous web framework used to expose SSE streams and JSON endpoints.
+- `uvicorn[standard]>=0.28.0` provides an ASGI web server with event loop optimizations.
+- `redis>=5.0.3` includes `redis.asyncio` for non-blocking asynchronous interaction with the Redis message bus.
+- `httpx>=0.27.0` provides an asynchronous HTTP client used for server-side testing and request handling.
+
+---
+
+## Step 3: Implement the Redis Broadcaster Engine
+
+Create a file named `app/broadcaster.py` with the following contents:
 
 ```bash
 cat << 'EOF' > app/broadcaster.py
@@ -136,7 +137,7 @@ class Broadcaster:
         logger.info("Broadcaster disconnected.")
 
     async def _listen_to_redis(self):
-        """Listens for incoming messages from Redis and fans out to all local client queues."""
+        """Listens for incoming messages from Redis and fans out to local client queues."""
         pubsub = self.redis.pubsub()
         await pubsub.subscribe(REDIS_CHANNEL)
         logger.info(f"Subscribed to Redis channel: {REDIS_CHANNEL}")
@@ -145,7 +146,6 @@ class Broadcaster:
             async for message in pubsub.listen():
                 if message["type"] == "message":
                     payload = message["data"]
-                    # Fan out to all local queues
                     for queue in list(self.local_client_queues):
                         await queue.put(payload)
         except asyncio.CancelledError:
@@ -172,11 +172,20 @@ class Broadcaster:
 EOF
 ```
 
+**Explanation:**
+- `aioredis.from_url(self.redis_url, decode_responses=True)` establishes an asynchronous Redis client that does not block FastAPI coroutines.
+- `asyncio.create_task(self._listen_to_redis())` runs the Redis listener coroutine in the background for the duration of the server process.
+- `pubsub.subscribe(REDIS_CHANNEL)` binds this server node to the shared cluster channel `sse_events_channel`.
+- `self.local_client_queues` maintains references to all `asyncio.Queue` objects for clients connected to this specific node.
+- `queue.put(payload)` fans out incoming Redis messages to every connected local client queue.
+- `register_client` creates and stores a dedicated queue for each newly connected SSE client.
+- `unregister_client` discards the queue when a client disconnects, preventing memory leaks.
+
 ---
 
-## Step 3: Implement the FastAPI Distributed SSE Server
+## Step 4: Implement the FastAPI Server and Dashboard
 
-Create `app/main.py`:
+Create a file named `app/main.py` with the following contents:
 
 ```bash
 cat << 'EOF' > app/main.py
@@ -199,10 +208,8 @@ broadcaster = Broadcaster(redis_url=REDIS_URL)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     await broadcaster.connect()
     yield
-    # Shutdown
     await broadcaster.disconnect()
 
 
@@ -249,7 +256,6 @@ async def sse_event_stream(request: Request):
     queue = broadcaster.register_client()
     event_id = 0
     try:
-        # Initial greeting frame
         init_frame = {
             "node": NODE_ID,
             "message": f"Connected to {NODE_ID}. Waiting for distributed events...",
@@ -262,12 +268,10 @@ async def sse_event_stream(request: Request):
                 break
 
             try:
-                # Wait for next event from Redis subscriber queue (with 15s timeout for keep-alive)
                 data = await asyncio.wait_for(queue.get(), timeout=15.0)
                 event_id += 1
                 yield f"id: {event_id}\nevent: broadcast\ndata: {data}\n\n"
             except asyncio.TimeoutError:
-                # Send periodic heartbeat if no events were published
                 yield ": keep-alive\n\n"
 
     finally:
@@ -321,15 +325,13 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     .container { max-width: 1300px; margin: 0 auto; }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); flex-wrap: wrap; gap: 16px; }
-    .title-group h1 { font-size: 24px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
-    .title-group p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+    .title-group h1 { font-size: 22px; font-weight: 700; color: #fff; }
+    .title-group p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
     .node-badge { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; padding: 6px 14px; border-radius: 9999px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
-    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } }
+    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-green); }
 
     .arch-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px; }
     .arch-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
-    .arch-icon { font-size: 26px; }
     .arch-info h4 { font-size: 14px; font-weight: 600; color: #fff; }
     .arch-info p { font-size: 12px; color: var(--text-muted); }
     .arch-status { margin-left: auto; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
@@ -340,19 +342,18 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
     .card-header { padding: 16px 20px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
-    .card-header h3 { font-size: 16px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .card-header h3 { font-size: 15px; font-weight: 600; color: #fff; }
     .card-body { padding: 20px; flex: 1; }
 
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .form-control { width: 100%; background: #0c121e; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-control { width: 100%; background: #0c121e; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; }
     .form-control:focus { border-color: var(--accent-cyan); }
     textarea.form-control { resize: vertical; min-height: 80px; }
 
-    .btn { background: linear-gradient(135deg, #06b6d4, #3b82f6); color: #fff; border: none; border-radius: 8px; padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; transition: opacity 0.2s, transform 0.1s; }
-    .btn:hover { opacity: 0.95; }
-    .btn:active { transform: scale(0.98); }
-    .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 6px 12px; font-size: 12px; border-radius: 6px; width: auto; cursor: pointer; }
+    .btn { background: #0284c7; color: #fff; border: none; border-radius: 8px; padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; }
+    .btn:hover { background: #0369a1; }
+    .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; }
     .btn-secondary:hover { background: #334155; }
     
     .quick-pub { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
@@ -366,13 +367,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     .clients-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
     .client-panel { background: #0c1322; border: 1px solid var(--card-border); border-radius: 10px; display: flex; flex-direction: column; height: 560px; overflow: hidden; }
     .client-header { padding: 12px 14px; background: #131b2e; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
-    .client-info h4 { font-size: 13px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 6px; }
+    .client-info h4 { font-size: 13px; font-weight: 600; color: #fff; }
     .client-info span.route { font-size: 11px; color: var(--accent-cyan); font-family: monospace; }
     .client-counter { font-size: 11px; background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); padding: 2px 7px; border-radius: 4px; font-weight: bold; }
 
     .event-feed { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .event-card { background: #162035; border: 1px solid #23304c; border-radius: 8px; padding: 10px 12px; animation: slideDown 0.3s ease-out; font-size: 13px; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .event-card { background: #162035; border: 1px solid #23304c; border-radius: 8px; padding: 10px 12px; font-size: 13px; }
     .event-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; }
     .badge-node { background: rgba(99, 102, 241, 0.25); color: #a5b4fc; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
     .badge-urgent { background: rgba(244, 63, 94, 0.25); color: #fda4af; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
@@ -392,18 +392,16 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   <div class="container">
     <header>
       <div class="title-group">
-        <h1>🌐 Distributed SSE Cluster Visualizer</h1>
-        <p>Real-Time Multi-Node Server-Sent Events with Redis Pub/Sub & Nginx Load Balancer</p>
+        <h1>Distributed SSE Cluster Visualizer</h1>
+        <p>Real-Time Multi-Node Server-Sent Events with Redis Pub/Sub and Nginx Load Balancer</p>
       </div>
       <div>
         <span class="node-badge"><span class="pulse-dot"></span> Serving Instance: <strong id="servingNode">Detecting...</strong></span>
       </div>
     </header>
 
-    <!-- Architecture Topology Bar -->
     <div class="arch-bar">
       <div class="arch-card">
-        <div class="arch-icon">🔀</div>
         <div class="arch-info">
           <h4>Nginx Load Balancer</h4>
           <p>Port 8080 (Round-Robin)</p>
@@ -411,7 +409,6 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <span class="arch-status status-online">Active</span>
       </div>
       <div class="arch-card">
-        <div class="arch-icon">⚡</div>
         <div class="arch-info">
           <h4>Redis Pub/Sub Bus</h4>
           <p>sse_events_channel</p>
@@ -419,7 +416,6 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <span class="arch-status status-online">Synced</span>
       </div>
       <div class="arch-card">
-        <div class="arch-icon">🖥️</div>
         <div class="arch-info">
           <h4>Node Alpha</h4>
           <p>FastAPI (Port 8001)</p>
@@ -427,7 +423,6 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <span class="arch-status status-online">Online</span>
       </div>
       <div class="arch-card">
-        <div class="arch-icon">🖥️</div>
         <div class="arch-info">
           <h4>Node Beta</h4>
           <p>FastAPI (Port 8002)</p>
@@ -436,26 +431,24 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- Main Grid -->
     <div class="main-grid">
-      <!-- Left Column: Publisher Form -->
       <div class="card">
         <div class="card-header">
-          <h3>📢 Publish Distributed Broadcast</h3>
+          <h3>Publish Distributed Broadcast</h3>
         </div>
         <div class="card-body">
           <form id="publishForm">
             <div class="form-group">
               <label>Publish Route Target</label>
               <select id="targetEndpoint" class="form-control">
-                <option value="/publish">🔀 Load Balancer (:8080/publish - Round-Robin)</option>
-                <option value="/node-a/publish">🖥️ Direct to Node-Alpha (:8080/node-a/publish)</option>
-                <option value="/node-b/publish">🖥️ Direct to Node-Beta (:8080/node-b/publish)</option>
+                <option value="/publish">Load Balancer (:8080/publish - Round-Robin)</option>
+                <option value="/node-a/publish">Direct to Node-Alpha (:8080/node-a/publish)</option>
+                <option value="/node-b/publish">Direct to Node-Beta (:8080/node-b/publish)</option>
               </select>
             </div>
             <div class="form-group">
               <label>Event Title</label>
-              <input type="text" id="eventTitle" class="form-control" value="Flash Notification" required>
+              <input type="text" id="eventTitle" class="form-control" value="System Notification" required>
             </div>
             <div class="form-group">
               <label>Category</label>
@@ -467,40 +460,38 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             </div>
             <div class="form-group">
               <label>Message Content</label>
-              <textarea id="eventMessage" class="form-control" placeholder="Enter message payload...">Distributed Redis broadcast across multiple SSE nodes!</textarea>
+              <textarea id="eventMessage" class="form-control" placeholder="Enter message payload...">Distributed Redis broadcast across multiple SSE nodes</textarea>
             </div>
             <button type="submit" class="btn" id="btnPublish">
-              <span>🚀 Broadcast to Fleet via Redis</span>
+              <span>Broadcast to Fleet via Redis</span>
             </button>
           </form>
 
           <div class="quick-pub">
-            <button class="btn-secondary" onclick="quickSend('Node-Alpha', '/node-a/publish')">⚡ Send via Alpha</button>
-            <button class="btn-secondary" onclick="quickSend('Node-Beta', '/node-b/publish')">⚡ Send via Beta</button>
+            <button class="btn-secondary" onclick="quickSend('Node-Alpha', '/node-a/publish')">Send via Alpha</button>
+            <button class="btn-secondary" onclick="quickSend('Node-Beta', '/node-b/publish')">Send via Beta</button>
           </div>
 
           <div class="flow-box">
             <div class="flow-step"><span class="num">1</span> <strong>HTTP POST:</strong> Message sent to target node.</div>
             <div class="flow-step"><span class="num">2</span> <strong>Redis Bus:</strong> Node executes <code>redis.publish()</code>.</div>
             <div class="flow-step"><span class="num">3</span> <strong>Fleet Fan-Out:</strong> All nodes receive event via PubSub.</div>
-            <div class="flow-step"><span class="num">4</span> <strong>SSE Push:</strong> Every connected client receives frame!</div>
+            <div class="flow-step"><span class="num">4</span> <strong>SSE Push:</strong> Every connected client receives frame.</div>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Live Clients Feed -->
       <div class="card">
         <div class="card-header">
-          <h3>⚡ Live Multi-Node SSE Monitor</h3>
+          <h3>Live Multi-Node SSE Monitor</h3>
           <button class="btn-secondary" onclick="clearAllFeeds()">Clear All Feeds</button>
         </div>
         <div class="card-body">
           <div class="clients-grid">
-            <!-- Client 1 -->
             <div class="client-panel">
               <div class="client-header">
                 <div class="client-info">
-                  <h4>🖥️ Client 1 (Node-Alpha)</h4>
+                  <h4>Client 1 (Node-Alpha)</h4>
                   <span class="route">/node-a/events</span>
                 </div>
                 <span class="client-counter" id="c1-count">0 msgs</span>
@@ -512,11 +503,10 @@ DASHBOARD_HTML = """<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Client 2 -->
             <div class="client-panel">
               <div class="client-header">
                 <div class="client-info">
-                  <h4>🖥️ Client 2 (Node-Beta)</h4>
+                  <h4>Client 2 (Node-Beta)</h4>
                   <span class="route">/node-b/events</span>
                 </div>
                 <span class="client-counter" id="c2-count">0 msgs</span>
@@ -528,11 +518,10 @@ DASHBOARD_HTML = """<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Client 3 -->
             <div class="client-panel">
               <div class="client-header">
                 <div class="client-info">
-                  <h4>🔀 Client 3 (Load Balancer)</h4>
+                  <h4>Client 3 (Load Balancer)</h4>
                   <span class="route">/events</span>
                 </div>
                 <span class="client-counter" id="c3-count">0 msgs</span>
@@ -549,7 +538,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     </div>
 
     <footer>
-      Poridhi Lab 60 • Scalable Server-Sent Events Architecture with Redis Pub/Sub & Nginx Load Balancing
+      Poridhi Lab 60 - Scalable Server-Sent Events Architecture with Redis Pub/Sub and Nginx Load Balancing
     </footer>
   </div>
 
@@ -605,7 +594,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       });
 
       es.onerror = () => {
-        statusEl.innerHTML = '<span style="color:#ef4444;">● Disconnected</span>';
+        statusEl.innerHTML = '<span style="color:#ef4444;">Disconnected</span>';
       };
     }
 
@@ -615,7 +604,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       if (c.es) {
         c.es.close();
         c.es = null;
-        statusEl.innerHTML = '<span style="color:#9ca3af;">○ Offline</span>';
+        statusEl.innerHTML = '<span style="color:#9ca3af;">Offline</span>';
       } else {
         startClient(id);
       }
@@ -671,21 +660,21 @@ DASHBOARD_HTML = """<!DOCTYPE html>
           body: JSON.stringify({ title, category, message })
         });
         const data = await res.json();
-        btn.innerText = '✓ Broadcast Sent!';
+        btn.innerText = 'Broadcast Sent';
         setTimeout(() => {
           btn.disabled = false;
-          btn.innerText = '🚀 Broadcast to Fleet via Redis';
+          btn.innerText = 'Broadcast to Fleet via Redis';
         }, 1200);
       } catch (err) {
         alert('Error publishing event: ' + err.message);
         btn.disabled = false;
-        btn.innerText = '🚀 Broadcast to Fleet via Redis';
+        btn.innerText = 'Broadcast to Fleet via Redis';
       }
     });
 
     function quickSend(originNode, endpoint) {
       document.getElementById('eventTitle').value = `Alert from ${originNode}`;
-      document.getElementById('eventMessage').value = `Live test broadcast initiated directly from ${originNode}!`;
+      document.getElementById('eventMessage').value = `Live test broadcast initiated directly from ${originNode}`;
       document.getElementById('targetEndpoint').value = endpoint;
       document.getElementById('publishForm').dispatchEvent(new Event('submit'));
     }
@@ -709,7 +698,20 @@ async def dashboard():
 EOF
 ```
 
-Create `app/Dockerfile`:
+**Explanation:**
+- `@asynccontextmanager lifespan` establishes the asynchronous Redis connection when the FastAPI application starts up and terminates it gracefully during shutdown.
+- `app.add_middleware(CORSMiddleware, ...)` configures Cross-Origin Resource Sharing so browser clients can connect from any origin.
+- `POST /publish` accepts the JSON message payload conforming to `PublishMessage`, appends metadata (`publisher_node`, `published_at`), and pushes the message to Redis.
+- `GET /events` returns a `StreamingResponse` using `sse_event_stream`. It sets `Cache-Control: no-cache` and `X-Accel-Buffering: no` to instruct reverse proxies not to buffer the stream.
+- `asyncio.wait_for(queue.get(), timeout=15.0)` waits for new messages in the client queue and sends `: keep-alive\n\n` comments when no messages arrive within 15 seconds.
+- `GET /health` returns JSON reporting current node health, node name, and the count of active local client connections.
+- `GET /` and `GET /dashboard` serve the visual HTML dashboard containing multi-client real-time monitors and event publishing forms.
+
+---
+
+## Step 5: Create the Application Container Dockerfile
+
+Create a file named `app/Dockerfile` with the following contents:
 
 ```bash
 cat << 'EOF' > app/Dockerfile
@@ -723,11 +725,18 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 EOF
 ```
 
+**Explanation:**
+- `FROM python:3.11-slim` provides a lightweight Linux environment with Python 3.11.
+- `COPY requirements.txt .` and `RUN pip install --no-cache-dir` install dependencies separately from source code to leverage Docker layer caching.
+- `COPY . .` copies `main.py` and `broadcaster.py` into `/app`.
+- `EXPOSE 8000` documents the container network port.
+- `CMD ["uvicorn", "main:app", ...]` defines the entrypoint command to start the asynchronous web server listening on all network interfaces.
+
 ---
 
-## Step 4: Configure Nginx Load Balancer
+## Step 6: Configure the Nginx Load Balancer
 
-Create `nginx/nginx.conf` configured with unbuffered streaming and upstream round-robin:
+Create a file named `nginx/nginx.conf` with the following contents:
 
 ```bash
 cat << 'EOF' > nginx/nginx.conf
@@ -767,7 +776,7 @@ http {
             proxy_set_header Host $host;
         }
 
-        # Health & Stats Endpoint
+        # Health and Stats Endpoint
         location /health {
             proxy_pass http://sse_fleet/health;
             proxy_set_header Host $host;
@@ -801,11 +810,18 @@ http {
 EOF
 ```
 
+**Explanation:**
+- `upstream sse_fleet` declares the backend pool with `sse_node_a:8000` and `sse_node_b:8000` for round-robin balancing.
+- `proxy_buffering off` disables response buffering so individual SSE event chunks are forwarded to clients immediately.
+- `proxy_cache off` prevents intermediate response caching of dynamic streaming data.
+- `proxy_read_timeout 3600s` increases the timeout to one hour so long-lived idle SSE streams are not terminated prematurely.
+- `location /node-a/` and `location /node-b/` use URL rewrites to route requests directly to a specific backend node through Nginx port 80 without requiring additional ports to be exposed externally.
+
 ---
 
-## Step 5: Define Docker Compose Multi-Node Stack
+## Step 7: Define the Docker Compose Multi-Node Stack
 
-Create `docker-compose.yml`:
+Create a file named `docker-compose.yml` with the following contents:
 
 ```bash
 cat << 'EOF' > docker-compose.yml
@@ -855,18 +871,24 @@ services:
 EOF
 ```
 
+**Explanation:**
+- `redis` runs the official Redis 7 Alpine image as the central in-memory message broker.
+- `sse_node_a` and `sse_node_b` build independent containers from `./app`, passing environment variables `NODE_NAME` and `REDIS_URL` to identify instances.
+- `load_balancer` runs Nginx on port 8080, mounting the local `nginx/nginx.conf` file as read-only.
+- `depends_on` defines service startup order so backend nodes wait for Redis, and the load balancer waits for backend nodes.
+
 ---
 
-## Step 6: Deploy Stack with Docker Compose
+## Step 8: Deploy the Stack with Docker Compose
 
-Launch all containers:
+Launch the multi-container stack in detached mode:
 
 ```bash
 cd ~/distributed-sse-lab
 docker compose up -d --build
 ```
 
-Verify that all 4 containers (`sse_redis`, `sse_node_a`, `sse_node_b`, `sse_load_balancer`) are running:
+Verify that all four containers are running:
 
 ```bash
 docker compose ps
@@ -875,93 +897,105 @@ docker compose ps
 Expected Output:
 
 ```text
-NAME                 IMAGE                     STATUS         PORTS
-sse_load_balancer    nginx:alpine              Up 5 seconds   0.0.0.0:8080->80/tcp
-sse_node_a           distributed-sse-lab-app   Up 5 seconds   0.0.0.0:8001->8000/tcp
-sse_node_b           distributed-sse-lab-app   Up 5 seconds   0.0.0.0:8002->8000/tcp
-sse_redis            redis:7-alpine            Up 5 seconds   0.0.0.0:6379->6379/tcp
+NAME                IMAGE                            COMMAND                  SERVICE         CREATED         STATUS         PORTS
+sse_load_balancer   nginx:alpine                     "/docker-entrypoint.…"   load_balancer   5 seconds ago   Up 4 seconds   0.0.0.0:8080->80/tcp
+sse_node_a          distributed-sse-lab-sse_node_a   "uvicorn main:app --…"   sse_node_a      5 seconds ago   Up 4 seconds   0.0.0.0:8001->8000/tcp
+sse_node_b          distributed-sse-lab-sse_node_b   "uvicorn main:app --…"   sse_node_b      5 seconds ago   Up 4 seconds   0.0.0.0:8002->8000/tcp
+sse_redis           redis:7-alpine                   "docker-entrypoint.s…"   redis           5 seconds ago   Up 5 seconds   0.0.0.0:6379->6379/tcp
 ```
+
+**Explanation:**
+- `docker compose up -d --build` compiles the Docker image from `./app` and starts the containers in the background.
+- `docker compose ps` verifies that each container is active and mapped to its assigned host port.
 
 ---
 
-## Step 7: Verify Distributed Cross-Node Rebroadcast via CLI
+## Verification
 
-To prove that Redis successfully distributes messages across instances and through the Load Balancer:
-1. Connect **Client 1** directly to **Node A** (`http://localhost:8001/events`).
-2. Connect **Client 2** directly to **Node B** (`http://localhost:8002/events`).
-3. Connect **Client 3** directly to the **Load Balancer** (`http://localhost:8080/events`).
-4. Send an HTTP POST request to the **Load Balancer** (`http://localhost:8080/publish`).
-5. Validate that **all three clients receive the broadcast frame simultaneously**!
+### Scenario 1: Verify Node Health and Cluster Connectivity
 
-Create `test_distributed_broadcast.sh`:
+Query the `/health` endpoint through the Nginx Load Balancer:
+
+```bash
+curl -s -i http://localhost:8080/health
+```
+
+Expected Output:
+
+```text
+HTTP/1.1 200 OK
+Server: nginx/1.27.4
+Content-Type: application/json
+Content-Length: 54
+
+{"status":"healthy","node":"Node-Alpha","active_subscribers":0}
+```
+
+Repeat the request to observe round-robin distribution:
+
+```bash
+curl -s http://localhost:8080/health
+```
+
+Expected Output:
+
+```json
+{"status":"healthy","node":"Node-Beta","active_subscribers":0}
+```
+
+### Scenario 2: Verify Cross-Node Distributed Message Delivery
+
+To verify that publishing an event to one server reaches subscribers on other servers via Redis, create and run an automated test script.
+
+Create a file named `test_distributed_broadcast.sh` with the following contents:
 
 ```bash
 cat << 'EOF' > test_distributed_broadcast.sh
 #!/usr/bin/env bash
 set -e
 
-# ANSI Color Codes
-GREEN='\033[0;32m'
-CYAN='\033[0;36m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-BOLD='\033[1m'
-NC='\033[0m'
-
-echo -e "${CYAN}${BOLD}╔══════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}${BOLD}║      DISTRIBUTED SSE REBROADCAST TEST VIA LOAD BALANCER & REDIS      ║${NC}"
-echo -e "${CYAN}${BOLD}╚══════════════════════════════════════════════════════════════════════╝${NC}"
-echo ""
-
-echo -e "${BLUE}[STEP 1/5]${NC} Connecting Client 1 to ${BOLD}Node-Alpha (:8001)${NC}..."
+echo "=== 1. Starting Client 1 connected to Node-Alpha (:8001) in background ==="
 curl -N -s http://localhost:8001/events > client_1.log 2>&1 &
 PID_C1=$!
 
-echo -e "${BLUE}[STEP 2/5]${NC} Connecting Client 2 to ${BOLD}Node-Beta (:8002)${NC}..."
+echo "=== 2. Starting Client 2 connected to Node-Beta (:8002) in background ==="
 curl -N -s http://localhost:8002/events > client_2.log 2>&1 &
 PID_C2=$!
 
-echo -e "${BLUE}[STEP 3/5]${NC} Connecting Client 3 through ${BOLD}Nginx Load Balancer (:8080)${NC}..."
+echo "=== 3. Starting Client 3 connected to Load Balancer (:8080) in background ==="
 curl -N -s http://localhost:8080/events > client_3.log 2>&1 &
 PID_C3=$!
 
 sleep 2
 
-echo ""
-echo -e "${PURPLE}[STEP 4/5]${NC} Publishing broadcast message through ${BOLD}Load Balancer (:8080/publish)${NC}..."
-PUB_RESPONSE=$(curl -s -X POST http://localhost:8080/publish \
+echo "=== 4. Publishing message to Load Balancer (:8080/publish) ==="
+curl -s -X POST http://localhost:8080/publish \
      -H "Content-Type: application/json" \
      -d '{
-       "title": "Flash Alert",
-       "message": "Distributed Redis broadcast across multiple SSE nodes!",
+       "title": "System Alert",
+       "message": "Distributed Redis broadcast across multiple SSE nodes",
        "category": "urgent"
-     }')
-echo -e "${YELLOW}${PUB_RESPONSE}${NC}"
+     }'
 
 sleep 2
 
 echo ""
-echo -e "${GREEN}${BOLD}==================== VERIFYING RECEIVED EVENTS ====================${NC}"
-
-echo -e "\n${CYAN}${BOLD}▶ Client 1 Output (Connected directly to Node-Alpha :8001):${NC}"
+echo "=== 5. Inspecting Client 1 (Node-Alpha) Received Events ==="
 cat client_1.log
 
-echo -e "\n${CYAN}${BOLD}▶ Client 2 Output (Connected directly to Node-Beta :8002):${NC}"
+echo ""
+echo "=== 6. Inspecting Client 2 (Node-Beta) Received Events ==="
 cat client_2.log
 
-echo -e "\n${CYAN}${BOLD}▶ Client 3 Output (Connected through Nginx Load Balancer :8080):${NC}"
+echo ""
+echo "=== 7. Inspecting Client 3 (Load Balancer) Received Events ==="
 cat client_3.log
 
-# Cleanup background client processes
+# Cleanup background processes
 kill $PID_C1 $PID_C2 $PID_C3 2>/dev/null || true
 rm -f client_1.log client_2.log client_3.log
-
 echo ""
-echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}${BOLD}║  ✔ SUCCESS: Redis Pub/Sub Distributed SSE Fan-Out Verified!          ║${NC}"
-echo -e "${GREEN}${BOLD}║  All clients across the fleet received the event simultaneously!    ║${NC}"
-echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════════════════════════════╝${NC}"
+echo "Distributed rebroadcast test passed."
 EOF
 chmod +x test_distributed_broadcast.sh
 ./test_distributed_broadcast.sh
@@ -970,111 +1004,119 @@ chmod +x test_distributed_broadcast.sh
 Expected Output:
 
 ```text
-╔══════════════════════════════════════════════════════════════════════╗
-║      DISTRIBUTED SSE REBROADCAST TEST VIA LOAD BALANCER & REDIS      ║
-╚══════════════════════════════════════════════════════════════════════╝
+=== 1. Starting Client 1 connected to Node-Alpha (:8001) in background ===
+=== 2. Starting Client 2 connected to Node-Beta (:8002) in background ===
+=== 3. Starting Client 3 connected to Load Balancer (:8080) in background ===
+=== 4. Publishing message to Load Balancer (:8080/publish) ===
+{"status":"published_to_redis","node":"Node-Alpha","payload":{"title":"System Alert","message":"Distributed Redis broadcast across multiple SSE nodes","category":"urgent","publisher_node":"Node-Alpha","published_at":"2026-09-23 01:15:00"}}
 
-[STEP 1/5] Connecting Client 1 to Node-Alpha (:8001)...
-[STEP 2/5] Connecting Client 2 to Node-Beta (:8002)...
-[STEP 3/5] Connecting Client 3 through Nginx Load Balancer (:8080)...
-
-[STEP 4/5] Publishing broadcast message through Load Balancer (:8080/publish)...
-{"status":"published_to_redis","node":"Node-Alpha","payload":{"title":"Flash Alert","message":"Distributed Redis broadcast across multiple SSE nodes!","category":"urgent","publisher_node":"Node-Alpha","published_at":"2026-09-23 01:15:00"}}
-
-==================== VERIFYING RECEIVED EVENTS ====================
-
-▶ Client 1 Output (Connected directly to Node-Alpha :8001):
+=== 5. Inspecting Client 1 (Node-Alpha) Received Events ===
 event: system
 data: {'node': 'Node-Alpha', 'message': 'Connected to Node-Alpha. Waiting for distributed events...', 'timestamp': 1790104500.12}
 
 id: 1
 event: broadcast
-data: {"title": "Flash Alert", "message": "Distributed Redis broadcast across multiple SSE nodes!", "category": "urgent", "publisher_node": "Node-Alpha", "published_at": "2026-09-23 01:15:00"}
+data: {"title": "System Alert", "message": "Distributed Redis broadcast across multiple SSE nodes", "category": "urgent", "publisher_node": "Node-Alpha", "published_at": "2026-09-23 01:15:00"}
 
 
-▶ Client 2 Output (Connected directly to Node-Beta :8002):
+=== 6. Inspecting Client 2 (Node-Beta) Received Events ===
 event: system
 data: {'node': 'Node-Beta', 'message': 'Connected to Node-Beta. Waiting for distributed events...', 'timestamp': 1790104500.15}
 
 id: 1
 event: broadcast
-data: {"title": "Flash Alert", "message": "Distributed Redis broadcast across multiple SSE nodes!", "category": "urgent", "publisher_node": "Node-Alpha", "published_at": "2026-09-23 01:15:00"}
+data: {"title": "System Alert", "message": "Distributed Redis broadcast across multiple SSE nodes", "category": "urgent", "publisher_node": "Node-Alpha", "published_at": "2026-09-23 01:15:00"}
 
 
-▶ Client 3 Output (Connected through Nginx Load Balancer :8080):
+=== 7. Inspecting Client 3 (Load Balancer) Received Events ===
 event: system
 data: {'node': 'Node-Alpha', 'message': 'Connected to Node-Alpha. Waiting for distributed events...', 'timestamp': 1790104500.18}
 
 id: 1
 event: broadcast
-data: {"title": "Flash Alert", "message": "Distributed Redis broadcast across multiple SSE nodes!", "category": "urgent", "publisher_node": "Node-Alpha", "published_at": "2026-09-23 01:15:00"}
+data: {"title": "System Alert", "message": "Distributed Redis broadcast across multiple SSE nodes", "category": "urgent", "publisher_node": "Node-Alpha", "published_at": "2026-09-23 01:15:00"}
 
 
-╔══════════════════════════════════════════════════════════════════════╗
-║  ✔ SUCCESS: Redis Pub/Sub Distributed SSE Fan-Out Verified!          ║
-║  All clients across the fleet received the event simultaneously!    ║
-╚══════════════════════════════════════════════════════════════════════╝
+Distributed rebroadcast test passed.
 ```
 
-Notice that:
-- The broadcast message was accepted by the Load Balancer on port `8080` and handled by one node.
-- **Every single client**—whether connected directly to Node-Alpha, directly to Node-Beta, or routed through the Load Balancer—received the exact broadcast frame with 0 message loss!
+### Scenario 3: Verify Error Handling for Invalid Payloads (Failure Case)
 
----
-
-## Step 8: Expose and Access via Poridhi Load Balancer
-
-To access the live interactive Distributed SSE Dashboard from your browser outside the Poridhi VM, expose the Nginx Load Balancer on port `8080` using the **Poridhi Load Balancer**:
-
-### 8.1 Find Your VM's Private IP
-
-In your Poridhi terminal, retrieve the primary private IP address of your VM:
+Send an HTTP POST request to `/publish` with a missing required field (`message`):
 
 ```bash
-hostname -I | awk '{print $1}'
+curl -s -i -X POST http://localhost:8080/publish \
+     -H "Content-Type: application/json" \
+     -d '{"title": "Incomplete Payload"}'
 ```
 
-Copy the first IP address returned (for example: `10.x.x.x` or `192.168.x.x`).
+Expected Output:
 
-### 8.2 Configure Poridhi Load Balancer
+```text
+HTTP/1.1 422 Unprocessable Entity
+Server: nginx/1.27.4
+Content-Type: application/json
+Content-Length: 106
 
-1. Click the **Load Balancer** button in the top bar / header of the Poridhi interface.
-2. In the configuration modal, enter:
-   - **Enter IP:** Paste your VM Private IP from the `hostname -I | awk '{print $1}'` command.
-   - **Enter Port:** `8080` (The Nginx Load Balancer port).
-3. Click **Expose** (or **Create**).
-4. Poridhi will generate an external public URL (for example: `http://<lab-id>-8080.lb.poridhi.io`).
-5. Click this URL to open the **Real-Time Distributed SSE Dashboard** in your web browser!
+{"detail":[{"type":"missing","loc":["body","message"],"msg":"Field required","input":{"title":"Incomplete Payload"}}]}
+```
 
-*(Note: If you are running locally or inside the VM desktop, you can navigate directly to `http://localhost:8080/`)*.
+Send a request with an empty body:
 
-### 8.3 Live Dashboard Features & Interactive Verification
+```bash
+curl -s -i -X POST http://localhost:8080/publish \
+     -H "Content-Type: application/json" \
+     -d ''
+```
 
-Once the dashboard opens in your browser, verify the distributed architecture in real time:
+Expected Output:
 
-1. **Cluster Architecture Topology Bar:**
-   - **Nginx Load Balancer (Port 8080):** Reverse proxy distributing incoming connections.
-   - **Redis Pub/Sub Bus (`sse_events_channel`):** In-memory message broker running on port 6379.
-   - **Node Alpha (Port 8001):** FastAPI SSE instance 1.
-   - **Node Beta (Port 8002):** FastAPI SSE instance 2.
-   - **Serving Instance Badge:** Shows which node answered the HTTP request via round-robin.
+```text
+HTTP/1.1 422 Unprocessable Entity
+Server: nginx/1.27.4
+Content-Type: application/json
+Content-Length: 95
 
-2. **Interactive Publish Console (Left Panel):**
-   - Select your target route:
-     - `🔀 Load Balancer (:8080/publish)`: Round-robin dispatched to the fleet.
-     - `🖥️ Direct to Node-Alpha (:8080/node-a/publish)`: Dispatched directly to Node-Alpha.
-     - `🖥️ Direct to Node-Beta (:8080/node-b/publish)`: Dispatched directly to Node-Beta.
-   - Enter a title, choose a category (`Urgent Alert`, `General Broadcast`, `System Notice`), and enter your message.
-   - Click **"🚀 Broadcast to Fleet via Redis"** or use the quick-send presets.
+{"detail":[{"type":"json_invalid","loc":["body",0],"msg":"JSON decode error","input":{}}]}
+```
 
-3. **Live Multi-Node SSE Monitor (Right Panel):**
-   - **Client 1:** Connected directly to Node-Alpha (`/node-a/events`).
-   - **Client 2:** Connected directly to Node-Beta (`/node-b/events`).
-   - **Client 3:** Connected through the Load Balancer (`/events`).
-   - Notice that publishing a broadcast through ANY node causes the event card to slide simultaneously into ALL 3 client streams within milliseconds, visually demonstrating zero-loss distributed pub/sub synchronization!
+### Scenario 4: Access and Verify via Poridhi Load Balancer
+
+To access the interactive visual dashboard from your browser outside the Poridhi VM, expose port `8080` using the Poridhi Load Balancer:
+
+1. In the terminal, find the primary private IP address of the VM:
+   ```bash
+   hostname -I | awk '{print $1}'
+   ```
+   Example Output:
+   ```text
+   10.0.1.15
+   ```
+
+2. Open the Poridhi interface header and click **Load Balancer**.
+3. Enter the configuration:
+   - **Enter IP:** Paste the private IP obtained from `hostname -I | awk '{print $1}'`.
+   - **Enter Port:** `8080`.
+4. Click **Expose**. Poridhi generates a public URL (for example: `http://<lab-id>-8080.lb.poridhi.io`).
+5. Open the generated URL in your web browser.
+6. Verify the following on the dashboard:
+   - The top status bar displays **Nginx Load Balancer**, **Redis Pub/Sub Bus**, **Node Alpha**, and **Node Beta** in online state.
+   - All three client monitors (**Client 1**, **Client 2**, and **Client 3**) show **Connected**.
+   - Under **Publish Distributed Broadcast**, submit an event. Observe that the event card immediately appears in all three client logs simultaneously.
+
+### Verification Summary
+
+| # | Call | Status | Body snippet |
+| :--- | :--- | :--- | :--- |
+| 1 | `GET /health` | `200 OK` | `{"status":"healthy","node":"Node-Alpha",...}` |
+| 2 | `POST /publish` (valid payload) | `200 OK` | `{"status":"published_to_redis","node":"Node-Alpha",...}` |
+| 3 | `GET /events` (SSE stream) | `200 OK` | `event: broadcast\ndata: {"title":"System Alert",...}` |
+| 4 | `POST /publish` (missing `message`) | `422 Unprocessable Entity` | `{"detail":[{"type":"missing","loc":["body","message"]...}]}` |
+| 5 | `POST /publish` (empty body) | `422 Unprocessable Entity` | `{"detail":[{"type":"json_invalid","loc":["body",0]...}]}` |
+| 6 | `GET /` (dashboard) | `200 OK` | `<!DOCTYPE html><html lang="en">...` |
 
 ---
 
 ## Conclusion
 
-In this lab, you resolved the multi-node statefulness problem inherent to streaming architectures. You integrated **Redis Pub/Sub** into FastAPI using asynchronous subscription loops and in-memory queue fan-outs. You deployed a resilient 4-container distributed stack with Docker Compose and validated that events published to any single node or through an **Nginx Load Balancer** are immediately rebroadcast to all connected clients across every node in the cluster. This completes the end-to-end scalable SSE architecture!
+In this lab, you built a distributed Server-Sent Events architecture using FastAPI, Redis 7 Pub/Sub, and Nginx. You resolved the multi-node statefulness problem by subscribing each node to a shared Redis channel and fanning out received messages to local client queues. You verified that messages published to any single node or through the load balancer are delivered instantaneously to all connected subscribers across the cluster.
