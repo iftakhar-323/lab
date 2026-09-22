@@ -422,6 +422,12 @@ To support persistent SSE streams without premature drops or buffering stalls, N
 3. `least_conn;` — Distributes incoming SSE streams based on active open connections rather than round-robin.
 4. `proxy_set_header Connection "";` — Enables HTTP/1.1 persistent keepalive upstream connections.
 
+Ensure Nginx is installed on the system:
+
+```bash
+sudo apt update && sudo apt install -y nginx
+```
+
 Create `proxy/nginx.conf`:
 
 ```bash
@@ -677,7 +683,7 @@ Open your web browser and navigate to:
 http://<poridhi-vm-ip>:8080/
 ```
 
-> **Note:** If running inside the Poridhi lab environment, you can use the built-in Port Preview feature for port `8080` or curl directly.
+> **Note:** If running inside the Poridhi lab environment, you can use the built-in Port Preview feature for port `8080` (via Nginx load balancer) or port `8000` (directly from FastAPI). Both serve the real-time live dashboard!
 
 You will see the dark-themed SSE Dashboard displaying:
 - **Active SSE Connections:** Live counter and progress bar scaling up to 1,000+.
