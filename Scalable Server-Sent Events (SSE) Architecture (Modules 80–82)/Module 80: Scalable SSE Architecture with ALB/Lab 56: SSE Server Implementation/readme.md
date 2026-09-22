@@ -482,6 +482,7 @@ Terminate the curl process with `Ctrl+C`. In the server terminal, observe the im
 To access the live SSE web dashboard from your browser outside the Poridhi VM, expose port `8000` using the **Poridhi Load Balancer**:
 
 ### 1. Find Your VM's Private IP
+
 Open a **second terminal tab** (by clicking the `+` icon next to `Terminal` in the top bar) and run:
 
 ```bash
@@ -490,7 +491,12 @@ hostname -I | awk '{print $1}'
 
 Copy the output IP address (e.g., `10.x.x.x`).
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/06_hostname_ip.png" alt="Find VM Private IP" width="700">
+</p>
+
 ### 2. Configure Poridhi Load Balancer
+
 1. Click the **Load Balancer** button in the Poridhi interface header.
 2. Enter the details:
    - **Enter IP:** Paste your VM Private IP.
@@ -498,7 +504,12 @@ Copy the output IP address (e.g., `10.x.x.x`).
 3. Click **Expose**.
 4. Poridhi will generate an external public URL (e.g., `http://<lab-id>-8000.lb.poridhi.io`).
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/07_load_balancer_exposed.png" alt="Configure Poridhi Load Balancer" width="700">
+</p>
+
 ### 3. Open the Dashboard in Web Browser
+
 1. Click the generated Load Balancer URL to open the frontend dashboard in your browser.
 2. Verify the following:
    - The status badge in the top right shows a green **CONNECTED (Streaming)**.
@@ -506,6 +517,10 @@ Copy the output IP address (e.g., `10.x.x.x`).
    - The **Live Event Stream** log box streams continuous telemetry events with incremental Event IDs.
    - Click **Disconnect** to test client disconnection handling (badge changes to red **DISCONNECTED**).
    - Click **Reconnect** to observe automatic session recovery and resume event streaming.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/08_sse_live_dashboard.png" alt="SSE Real-time Streaming Dashboard" width="700">
+</p>
 
 ---
 
