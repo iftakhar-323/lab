@@ -877,6 +877,10 @@ services:
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/01_create_docker_compose.png" alt="Create Docker Compose Multi-Node Stack" width="850">
+</p>
+
 **Explanation:**
 
 - `redis` runs the official Redis 7 Alpine image as the central in-memory message broker.
@@ -895,6 +899,10 @@ cd ~/distributed-sse-lab
 docker compose up -d --build
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/02_docker_compose_build.png" alt="Deploy Multi-Container Stack with Docker Compose" width="850">
+</p>
+
 Verify that all four containers are running:
 
 ```bash
@@ -910,6 +918,10 @@ sse_node_a          distributed-sse-lab-sse_node_a   "uvicorn main:app --…"   
 sse_node_b          distributed-sse-lab-sse_node_b   "uvicorn main:app --…"   sse_node_b      5 seconds ago   Up 4 seconds   0.0.0.0:8002->8000/tcp
 sse_redis           redis:7-alpine                   "docker-entrypoint.s…"   redis           5 seconds ago   Up 5 seconds   0.0.0.0:6379->6379/tcp
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/03_docker_compose_ps.png" alt="Verify Docker Compose Running Containers" width="850">
+</p>
 
 **Explanation:**
 
@@ -933,14 +945,32 @@ Expected Output:
 ```text
 HTTP/1.1 200 OK
 Server: nginx/1.31.6
+Date: Tue, 22 Sep 2026 19:23:14 GMT
 Content-Type: application/json
-Content-Length: 53
+Content-Length: 63
+Connection: keep-alive
 
+{"status":"healthy","node":"Node-Alpha","active_subscribers":0}
+```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/04_health_check_node_a.png" alt="Health Check Response from Node-Alpha" width="850">
+</p>
+
+Repeat the request to observe round-robin distribution:
+
+```bash
+curl -s http://localhost:8080/health
+```
+
+Expected Output:
+
+```json
 {"status":"healthy","node":"Node-Beta","active_subscribers":0}
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/01_verify_health_check.png" alt="Verify Node Health and Prepare Test Script" width="850">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/05_health_check_node_b.png" alt="Round-Robin Health Check Response from Node-Beta" width="850">
 </p>
 
 ### Scenario 2: Verify Cross-Node Distributed Message Delivery
@@ -1000,6 +1030,10 @@ EOF
 chmod +x test_distributed_broadcast.sh
 ./test_distributed_broadcast.sh
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/06_create_test_broadcast_script.png" alt="Create Distributed Broadcast Test Script" width="850">
+</p>
 
 Expected Output:
 
@@ -1064,7 +1098,7 @@ Connection: keep-alive
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/02_validation_missing_field.png" alt="Validation Error for Missing Message Field" width="850">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/07_validation_missing_field.png" alt="Validation Error for Missing Message Field" width="850">
 </p>
 
 Send a request with an empty body:
@@ -1089,7 +1123,7 @@ Connection: keep-alive
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/03_validation_empty_body.png" alt="Validation Error for Empty Body" width="850">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/08_validation_empty_body.png" alt="Validation Error for Empty Body" width="850">
 </p>
 
 ### Scenario 4: Access and Verify via Poridhi Load Balancer
@@ -1109,7 +1143,7 @@ To access the interactive visual dashboard from your browser outside the Poridhi
    ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/04_find_vm_ip.png" alt="Find VM Private IP" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/09_find_vm_ip.png" alt="Find VM Private IP" width="700">
 </p>
 
 2. Open the Poridhi interface header and click **Load Balancer**.
@@ -1126,7 +1160,7 @@ To access the interactive visual dashboard from your browser outside the Poridhi
    - Under **Publish Distributed Broadcast**, submit an event. Observe that the event card immediately appears in all three client logs simultaneously.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/05_live_dashboard.png" alt="Real-Time Distributed SSE Visualizer Dashboard" width="850">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/10_live_dashboard.png" alt="Real-Time Distributed SSE Visualizer Dashboard" width="850">
 </p>
 
 ### Verification Summary
