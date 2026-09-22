@@ -14,17 +14,18 @@ Real-time web applications require servers to push updates to connected clients 
 
 ### Comparison: Server-Sent Events vs WebSockets
 
-| Dimension | Server-Sent Events (SSE) | WebSockets |
-| :--- | :--- | :--- |
-| **Communication Direction** | **Unidirectional** (Server to Client only) | **Full-Duplex / Bidirectional** (Client to Server & Server to Client) |
-| **Underlying Protocol** | Standard **HTTP/1.1** or **HTTP/2** | **WebSocket Protocol (`ws://`, `wss://`)** upgraded from HTTP |
-| **Data Format** | UTF-8 Text stream (structured plain text or JSON) | Binary (ArrayBuffer, Blob) and UTF-8 Text |
-| **Reconnection Handling** | **Built-in native auto-reconnect** with `retry:` interval and `Last-Event-ID` tracking | Manual implementation required in application code |
-| **Proxy / Firewall Traversal** | Seamless over standard HTTP ports (80/443); works with standard ALBs, CDNs, and reverse proxies | Requires explicit proxy upgrade support (`Upgrade: websocket`) and stateful gateway support |
-| **Connection Limits** | HTTP/1.1: 6 concurrent connections per domain in browsers. HTTP/2: 100+ multiplexed streams over a single TCP connection | 1 dedicated TCP socket per WebSocket connection |
-| **Implementation Complexity** | Simple: uses standard HTTP endpoints and browser `EventSource` API | Moderate to High: requires stateful protocol management and custom framing |
+| Dimension                            | Server-Sent Events (SSE)                                                                                                 | WebSockets                                                                                    |
+| :----------------------------------- | :----------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| **Communication Direction**    | **Unidirectional** (Server to Client only)                                                                         | **Full-Duplex / Bidirectional** (Client to Server & Server to Client)                   |
+| **Underlying Protocol**        | Standard**HTTP/1.1** or **HTTP/2**                                                                           | **WebSocket Protocol (`ws://`, `wss://`)** upgraded from HTTP                       |
+| **Data Format**                | UTF-8 Text stream (structured plain text or JSON)                                                                        | Binary (ArrayBuffer, Blob) and UTF-8 Text                                                     |
+| **Reconnection Handling**      | **Built-in native auto-reconnect** with `retry:` interval and `Last-Event-ID` tracking                         | Manual implementation required in application code                                            |
+| **Proxy / Firewall Traversal** | Seamless over standard HTTP ports (80/443); works with standard ALBs, CDNs, and reverse proxies                          | Requires explicit proxy upgrade support (`Upgrade: websocket`) and stateful gateway support |
+| **Connection Limits**          | HTTP/1.1: 6 concurrent connections per domain in browsers. HTTP/2: 100+ multiplexed streams over a single TCP connection | 1 dedicated TCP socket per WebSocket connection                                               |
+| **Implementation Complexity**  | Simple: uses standard HTTP endpoints and browser`EventSource` API                                                      | Moderate to High: requires stateful protocol management and custom framing                    |
 
 ### When to Choose SSE Over WebSocket:
+
 1. **Status Feeds and Dashboards:** Stock tickers, cryptocurrency prices, live telemetry, and sports scores.
 2. **AI / LLM Token Streaming:** Real-time token-by-token output from Large Language Models (such as OpenAI or Google Gemini streaming APIs).
 3. **Notification Systems:** System alerts, workflow step updates, background job progress bars.
@@ -53,12 +54,12 @@ data: {"cpu": 42.5, "memory": 68.1}\n\n
 
 ### Essential HTTP Response Headers for SSE
 
-| Header | Value | Purpose |
-| :--- | :--- | :--- |
-| `Content-Type` | `text/event-stream` | Informs browser/proxy that the response is an infinite event stream. |
-| `Cache-Control` | `no-cache, no-transform` | Prevents intermediate caches or browser from caching streamed data. |
-| `Connection` | `keep-alive` | Keeps the underlying TCP socket open for continuous streaming. |
-| `X-Accel-Buffering` | `no` | Instructs Nginx and reverse proxies to disable response buffering and flush chunks immediately to the client. |
+| Header                | Value                      | Purpose                                                                                                       |
+| :-------------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------ |
+| `Content-Type`      | `text/event-stream`      | Informs browser/proxy that the response is an infinite event stream.                                          |
+| `Cache-Control`     | `no-cache, no-transform` | Prevents intermediate caches or browser from caching streamed data.                                           |
+| `Connection`        | `keep-alive`             | Keeps the underlying TCP socket open for continuous streaming.                                                |
+| `X-Accel-Buffering` | `no`                     | Instructs Nginx and reverse proxies to disable response buffering and flush chunks immediately to the client. |
 
 ---
 
@@ -99,6 +100,10 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/01_create_directory.png" alt="Create Lab Directory and Virtual Environment" width="700">
+</p>
+
 ---
 
 ## Step 2: Define Dependencies and Install
@@ -116,11 +121,16 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/02_install_requirements.png" alt="Define Dependencies and Install" width="700">
+</p>
+
 ---
 
 ## Step 3: Implement the FastAPI SSE Server
 
 Create `app/main.py`. This implementation includes:
+
 1. An asynchronous generator that formats messages adhering to the SSE standard.
 2. Interleaved heartbeat comments (`: keep-alive\n\n`) sent every 15 seconds to keep intermediate connections alive.
 3. Client disconnection detection via `request.is_disconnected()` to ensure server resources are freed immediately.
@@ -246,6 +256,10 @@ async def serve_index():
         return HTMLResponse(content=f.read())
 EOF
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/03_create_main_py.png" alt="Implement FastAPI SSE Server" width="700">
+</p>
 
 ---
 
@@ -386,6 +400,10 @@ cat << 'EOF' > app/static/index.html
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/04_create_index_html.png" alt="Create Frontend Browser Client" width="700">
+</p>
+
 ---
 
 ## Step 5: Start the FastAPI Server
@@ -404,6 +422,10 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab56/05_start_uvicorn.png" alt="Start FastAPI Server with Uvicorn" width="700">
+</p>
 
 ---
 
@@ -455,13 +477,35 @@ Terminate the curl process with `Ctrl+C`. In the server terminal, observe the im
 
 ---
 
-## Step 7: Verify via Poridhi Load Balancer / Web Browser
+## Step 7: Expose and Verify via Poridhi Load Balancer
 
-If working in the Poridhi cloud environment:
-1. Identify the public URL or load balancer port mapping for port `8000`.
-2. Open `http://<YOUR_PORIDHI_HOST>:8000/` in your web browser.
-3. Observe the green **CONNECTED** status badge, real-time metric cards updating every 2 seconds, and raw frames streaming into the console log.
-4. Click **Disconnect** and notice how the active subscriber count on the server decrements immediately. Click **Reconnect** to observe automatic session recovery.
+To access the live SSE web dashboard from your browser outside the Poridhi VM, expose port `8000` using the **Poridhi Load Balancer**:
+
+### 1. Find Your VM's Private IP
+Open a **second terminal tab** (by clicking the `+` icon next to `Terminal` in the top bar) and run:
+
+```bash
+hostname -I | awk '{print $1}'
+```
+
+Copy the output IP address (e.g., `10.x.x.x`).
+
+### 2. Configure Poridhi Load Balancer
+1. Click the **Load Balancer** button in the Poridhi interface header.
+2. Enter the details:
+   - **Enter IP:** Paste your VM Private IP.
+   - **Enter Port:** `8000`
+3. Click **Expose**.
+4. Poridhi will generate an external public URL (e.g., `http://<lab-id>-8000.lb.poridhi.io`).
+
+### 3. Open the Dashboard in Web Browser
+1. Click the generated Load Balancer URL to open the frontend dashboard in your browser.
+2. Verify the following:
+   - The status badge in the top right shows a green **CONNECTED (Streaming)**.
+   - The **CPU Utilization** and **Memory Utilization** cards update in real time every 2 seconds.
+   - The **Live Event Stream** log box streams continuous telemetry events with incremental Event IDs.
+   - Click **Disconnect** to test client disconnection handling (badge changes to red **DISCONNECTED**).
+   - Click **Reconnect** to observe automatic session recovery and resume event streaming.
 
 ---
 
