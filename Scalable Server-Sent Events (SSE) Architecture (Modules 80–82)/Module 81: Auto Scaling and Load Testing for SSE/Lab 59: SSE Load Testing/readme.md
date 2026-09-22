@@ -79,6 +79,10 @@ mkdir -p ~/load-test-sse-lab/scripts ~/load-test-sse-lab/server
 cd ~/load-test-sse-lab
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/01_create_directory.png" alt="Create Project Directory" width="850">
+</p>
+
 ---
 
 ## Step 2: System Kernel Tuning
@@ -113,6 +117,10 @@ chmod +x scripts/tune_system.sh
 source scripts/tune_system.sh
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/02_tune_system.png" alt="Tune System Kernel Parameters" width="850">
+</p>
+
 ---
 
 ## Step 3: Implement High-Efficiency SSE Server and Web Dashboard
@@ -134,6 +142,10 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r server/requirements.txt
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/03_install_requirements.png" alt="Install Server Dependencies" width="850">
+</p>
 
 ### 2. Create the Real-Time Dashboard UI
 
@@ -197,6 +209,10 @@ cat << 'EOF' > server/dashboard.html
 </html>
 EOF
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/04_create_dashboard.png" alt="Create Dashboard HTML" width="850">
+</p>
 
 ### 3. Create the FastAPI Server
 
@@ -281,6 +297,10 @@ async def stats():
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/05_create_server.png" alt="Create FastAPI SSE Server" width="850">
+</p>
+
 ---
 
 ## Step 4: Implement Asynchronous 1,000-Client Load Tester
@@ -295,13 +315,13 @@ import aiohttp
 
 TARGET_URL = "http://localhost:8000/events"
 TARGET_CONCURRENCY = 1000
-RAMP_UP_RATE = 50
-TEST_DURATION = 30
+RAMP_UP_RATE = 100
+TEST_DURATION = 10
 
 stats = {"connected": 0, "events": 0, "errors": 0}
 
 
-async def sse_client(session, stop_event):
+async def sse_client(session):
     try:
         async with session.get(TARGET_URL, timeout=aiohttp.ClientTimeout(total=None)) as resp:
             if resp.status != 200:
@@ -309,41 +329,46 @@ async def sse_client(session, stop_event):
                 return
             stats["connected"] += 1
             async for line in resp.content:
-                if stop_event.is_set():
-                    break
                 if line.startswith(b"data:"):
                     stats["events"] += 1
+    except asyncio.CancelledError:
+        pass
     except Exception:
         stats["errors"] += 1
     finally:
         stats["connected"] -= 1
 
 
-async def monitor(stop_event):
+async def monitor():
     start = time.time()
-    while not stop_event.is_set():
-        elapsed = int(time.time() - start)
-        print(f"[{elapsed:02d}s] Active Streams: {stats['connected']} | Events: {stats['events']} | Errors: {stats['errors']}")
-        await asyncio.sleep(2)
+    try:
+        while True:
+            elapsed = int(time.time() - start)
+            print(f"[{elapsed:02d}s] Active Streams: {stats['connected']} | Events: {stats['events']} | Errors: {stats['errors']}")
+            await asyncio.sleep(2)
+    except asyncio.CancelledError:
+        pass
 
 
 async def main():
     print(f"=== Starting SSE Load Test (Target: {TARGET_URL}) ===")
     print(f"Ramping up {TARGET_CONCURRENCY} connections ({RAMP_UP_RATE}/sec)...")
-    stop_event = asyncio.Event()
     connector = aiohttp.TCPConnector(limit=0)
     async with aiohttp.ClientSession(connector=connector) as session:
-        mon_task = asyncio.create_task(monitor(stop_event))
+        mon_task = asyncio.create_task(monitor())
         tasks = []
         for i in range(TARGET_CONCURRENCY):
-            tasks.append(asyncio.create_task(sse_client(session, stop_event)))
+            tasks.append(asyncio.create_task(sse_client(session)))
             if (i + 1) % RAMP_UP_RATE == 0:
                 await asyncio.sleep(1.0)
         print(f"--> Ramp-up complete! Holding 1,000 streams for {TEST_DURATION}s...")
         await asyncio.sleep(TEST_DURATION)
-        stop_event.set()
-        await mon_task
+        print("--> Stopping load test. Draining connections...")
+        mon_task.cancel()
+        for t in tasks:
+            t.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
     print("\n=== Test Results Summary ===")
     print(f"Peak Concurrent Streams: {TARGET_CONCURRENCY}")
     print(f"Total SSE Events Received: {stats['events']}")
@@ -421,21 +446,26 @@ Expected Terminal Output:
 
 ```text
 === Starting SSE Load Test (Target: http://localhost:8000/events) ===
-Ramping up 1000 connections (50/sec)...
-[00s] Active Streams: 50 | Events: 0 | Errors: 0
-[02s] Active Streams: 150 | Events: 98 | Errors: 0
-[06s] Active Streams: 350 | Events: 492 | Errors: 0
-[10s] Active Streams: 550 | Events: 1204 | Errors: 0
-[16s] Active Streams: 850 | Events: 2845 | Errors: 0
-[20s] Active Streams: 1000 | Events: 4610 | Errors: 0
---> Ramp-up complete! Holding 1,000 streams for 30s...
-[24s] Active Streams: 1000 | Events: 5930 | Errors: 0
-[28s] Active Streams: 1000 | Events: 7260 | Errors: 0
+Ramping up 1000 connections (100/sec)...
+[00s] Active Streams: 0 | Events: 0 | Errors: 0
+[02s] Active Streams: 200 | Events: 100 | Errors: 0
+[04s] Active Streams: 400 | Events: 300 | Errors: 0
+[06s] Active Streams: 600 | Events: 700 | Errors: 0
+[08s] Active Streams: 800 | Events: 1300 | Errors: 0
+[10s] Active Streams: 1000 | Events: 2100 | Errors: 0
+--> Ramp-up complete! Holding 1,000 streams for 10s...
+[12s] Active Streams: 1000 | Events: 3100 | Errors: 0
+[14s] Active Streams: 1000 | Events: 4100 | Errors: 0
+[16s] Active Streams: 1000 | Events: 5100 | Errors: 0
+[18s] Active Streams: 1000 | Events: 6100 | Errors: 0
+[20s] Active Streams: 1000 | Events: 7100 | Errors: 0
+--> Stopping load test. Draining connections...
 
-=== Test Complete ===
+=== Test Results Summary ===
 Peak Concurrent Streams: 1000
-Total Events Received: 8940
-Errors: 0
+Total SSE Events Received: 7100
+Total Errors / Drops: 0
+============================
 ```
 
 > **Live Dashboard Observation:** Switch to your browser tab while the test is running. You will see the **Active Streams** counter dynamically climb to **1,000**, with zero drops and continuous real-time broadcast streaming!
