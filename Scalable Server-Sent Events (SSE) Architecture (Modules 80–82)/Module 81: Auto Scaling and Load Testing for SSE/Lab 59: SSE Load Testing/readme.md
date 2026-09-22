@@ -352,13 +352,18 @@ Expected Output:
 
 ### 3. Open Real-Time Web Dashboard in Browser
 
-Open your web browser and navigate to:
+To access the live SSE web dashboard from your browser outside the Poridhi VM, expose port `8000` using the **Poridhi Load Balancer**:
 
-```text
-http://<poridhi-vm-ip>:8000/
-```
-
-> **Tip:** In the Poridhi lab environment, you can use the built-in **Port Preview** feature for port `8000` to view the dashboard directly in your browser.
+1. Find your VM's Private IP in the terminal:
+   ```bash
+   hostname -I | awk '{print $1}'
+   ```
+2. Click the **Load Balancer** button in the top bar of the Poridhi interface.
+3. Enter the configuration:
+   - **Enter IP:** Paste your VM Private IP from above
+   - **Enter Port:** `8000`
+4. Click **Expose**.
+5. Poridhi will generate an external public URL (e.g., `http://<lab-id>-8000.lb.poridhi.io`). Click this URL to open the Real-Time Dashboard in your browser!
 
 You will see the live dark-themed SSE Dashboard displaying:
 - **Active Streams:** Live real-time connection counter.
