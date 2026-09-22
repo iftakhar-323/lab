@@ -17,10 +17,12 @@ In this lab, you will perform high-concurrency load testing against a **Server-S
 </p>
 
 Traditional load testing tools like ApacheBench (`ab`), `wrk`, or basic JMeter test **Request-Response throughput**:
+
 - A client opens a TCP socket, sends `GET /`, receives `HTTP 200`, and closes the socket immediately.
 - The primary metric reported is **Requests Per Second (RPS)**.
 
 In contrast, **SSE Load Testing evaluates Connection Concurrency**:
+
 - Clients open connections and **hold them open indefinitely** (minutes or hours).
 - The metric is **Sustained Concurrent Active Streams**, stream survival rate, and event broadcast latency.
 - Tests must measure whether events sent by the server arrive within milliseconds across all 1,000+ connected clients without drops or socket buffer overflows.
@@ -30,16 +32,17 @@ In contrast, **SSE Load Testing evaluates Connection Concurrency**:
 Operating systems are configured by default with conservative networking limits that throttle high concurrency:
 
 1. **File Descriptor Limits (`nofile`):**
+
    - In Linux, every open TCP socket is a file descriptor.
    - The default limit is usually `1024`. A test trying to open 1,000 connections will immediately crash with `OSError: [Errno 24] Too many open files`.
    - **Resolution:** Raise `ulimit -n` to `65535`.
-
 2. **Ephemeral Port Exhaustion:**
+
    - Outbound connections from a single client IP use ephemeral ports.
    - Default range: `32768 to 60999` (~28,000 ports).
    - **Resolution:** Expand range to `1024 to 65535` via `net.ipv4.ip_local_port_range`.
-
 3. **TCP Socket Backlog (`somaxconn`):**
+
    - Determines the maximum length of the pending connection queue for incoming TCP handshakes.
    - **Resolution:** Increase `net.core.somaxconn` to `65535`.
 
@@ -62,6 +65,7 @@ load-test-sse-lab/
 │   ├── tune_system.sh
 │   └── load_test_async.py
 └── server/
+    ├── dashboard.html
     ├── main.py
     └── requirements.txt
 ```
@@ -111,7 +115,9 @@ source scripts/tune_system.sh
 
 ---
 
-## Step 3: Implement High-Efficiency SSE Server with Real-Time Web Dashboard
+## Step 3: Implement High-Efficiency SSE Server and Web Dashboard
+
+### 1. Install Server Dependencies
 
 Create `server/requirements.txt`:
 
@@ -129,10 +135,72 @@ pip install --upgrade pip
 pip install -r server/requirements.txt
 ```
 
-Create `server/main.py`. This server contains:
-1. An unbuffered `/events` endpoint that streams real-time JSON event packets every 2 seconds.
-2. An interactive Real-Time HTML5 Web Dashboard at `GET /` that visualizes active connections, dispatched events, process memory, and live incoming event streams.
-3. A `/stats` telemetry endpoint reporting connection metrics and process resource usage.
+### 2. Create the Real-Time Dashboard UI
+
+Create `server/dashboard.html` to provide a real-time dark-themed monitoring interface:
+
+```bash
+cat << 'EOF' > server/dashboard.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SSE Real-Time Load Dashboard</title>
+  <style>
+    body { background: #0f172a; color: #f8fafc; font-family: -apple-system, sans-serif; padding: 24px; margin: 0; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 18px; text-align: center; }
+    .title { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .val { font-size: 36px; font-weight: 800; margin-top: 8px; }
+    #log { background: #020617; border: 1px solid #334155; border-radius: 8px; height: 260px; overflow-y: auto; padding: 12px; font-family: monospace; font-size: 13px; color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>⚡ SSE Real-Time Telemetry Dashboard</h2>
+    <span style="color: #10b981; font-weight: bold;">● LIVE STREAMING</span>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="title">Active Streams</div><div class="val" id="conns" style="color: #38bdf8;">0</div></div>
+    <div class="card"><div class="title">Total Events</div><div class="val" id="events" style="color: #a7f3d0;">0</div></div>
+    <div class="card"><div class="title">Memory (RSS)</div><div class="val" id="mem" style="color: #fbbf24;">0 MB</div></div>
+    <div class="card"><div class="title">CPU Utilization</div><div class="val" id="cpu" style="color: #f43f5e;">0%</div></div>
+  </div>
+  <div style="font-weight: 600; margin-bottom: 8px;">Live Stream Preview (/events):</div>
+  <div id="log"></div>
+  <script>
+    async function updateStats() {
+      try {
+        const res = await fetch('/stats');
+        const data = await res.json();
+        document.getElementById('conns').innerText = data.active_streams;
+        document.getElementById('events').innerText = data.total_dispatched;
+        document.getElementById('mem').innerText = data.memory_mb + ' MB';
+        document.getElementById('cpu').innerText = data.cpu_percent + '%';
+      } catch (err) {}
+    }
+    setInterval(updateStats, 1000);
+    updateStats();
+
+    const streamLog = document.getElementById('log');
+    const evtSource = new EventSource('/events');
+    evtSource.addEventListener('broadcast', (e) => {
+      const entry = document.createElement('div');
+      entry.innerText = e.data;
+      streamLog.appendChild(entry);
+      if (streamLog.childNodes.length > 40) streamLog.removeChild(streamLog.firstChild);
+      streamLog.scrollTop = streamLog.scrollHeight;
+    });
+  </script>
+</body>
+</html>
+EOF
+```
+
+### 3. Create the FastAPI Server
+
+Create `server/main.py` with an unbuffered `/events` streaming endpoint, dashboard serving route at `GET /`, and telemetry metrics endpoint at `/stats`:
 
 ```bash
 cat << 'EOF' > server/main.py
@@ -152,52 +220,6 @@ app = FastAPI(title="SSE High-Load Target")
 active_streams = 0
 total_events_dispatched = 0
 
-DASHBOARD_HTML = """<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>SSE Live Dashboard</title>
-<style>
-body{background:#0f172a;color:#f8fafc;font-family:sans-serif;margin:0;padding:20px}
-.header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:12px;margin-bottom:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
-.card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px;text-align:center}
-.title{font-size:12px;color:#94a3b8;text-transform:uppercase}
-.val{font-size:32px;font-weight:bold;margin-top:8px}
-#log{background:#020617;border:1px solid #334155;border-radius:8px;height:240px;overflow-y:auto;padding:12px;font-family:monospace;font-size:12px;color:#38bdf8}
-</style>
-</head>
-<body>
-<div class="header"><h2>⚡ SSE Real-Time Dashboard</h2><span style="color:#10b981;font-weight:bold">● LIVE</span></div>
-<div class="grid">
-  <div class="card"><div class="title">Active Streams</div><div class="val" id="conns" style="color:#38bdf8">0</div></div>
-  <div class="card"><div class="title">Total Events</div><div class="val" id="events" style="color:#a7f3d0">0</div></div>
-  <div class="card"><div class="title">Memory (RSS)</div><div class="val" id="mem" style="color:#fbbf24">0 MB</div></div>
-  <div class="card"><div class="title">CPU Utilization</div><div class="val" id="cpu" style="color:#f43f5e">0%</div></div>
-</div>
-<div style="font-weight:bold;margin-bottom:8px">Live Stream Preview (/events):</div>
-<div id="log"></div>
-<script>
-async function poll(){
-  try{
-    let r=await fetch('/stats');let d=await r.json();
-    document.getElementById('conns').innerText=d.active_streams;
-    document.getElementById('events').innerText=d.total_dispatched;
-    document.getElementById('mem').innerText=d.memory_mb+' MB';
-    document.getElementById('cpu').innerText=d.cpu_percent+'%';
-  }catch(e){}
-}
-setInterval(poll,1000);poll();
-let es=new EventSource('/events');
-es.addEventListener('broadcast',e=>{
-  let l=document.getElementById('log');
-  let p=document.createElement('div');p.innerText=e.data;l.appendChild(p);
-  if(l.childNodes.length>30)l.removeChild(l.firstChild);
-  l.scrollTop=l.scrollHeight;
-});
-</script>
-</body>
-</html>"""
 
 async def event_generator(request: Request):
     global active_streams, total_events_dispatched
@@ -209,7 +231,11 @@ async def event_generator(request: Request):
                 break
             msg_id += 1
             total_events_dispatched += 1
-            payload = {"id": msg_id, "time": time.time(), "active": active_streams}
+            payload = {
+                "id": msg_id,
+                "timestamp": time.time(),
+                "active_streams": active_streams,
+            }
             yield f"id: {msg_id}\nevent: broadcast\ndata: {json.dumps(payload)}\n\n"
             await asyncio.sleep(2.0)
     except asyncio.CancelledError:
@@ -217,9 +243,12 @@ async def event_generator(request: Request):
     finally:
         active_streams -= 1
 
+
 @app.get("/", response_class=HTMLResponse)
-async def dashboard():
-    return HTMLResponse(content=DASHBOARD_HTML)
+async def serve_dashboard():
+    with open("server/dashboard.html", "r") as f:
+        return HTMLResponse(content=f.read())
+
 
 @app.get("/events")
 async def events(request: Request):
@@ -233,6 +262,7 @@ async def events(request: Request):
             "X-Accel-Buffering": "no",
         },
     )
+
 
 @app.get("/stats")
 async def stats():
@@ -270,6 +300,7 @@ TEST_DURATION = 30
 
 stats = {"connected": 0, "events": 0, "errors": 0}
 
+
 async def sse_client(session, stop_event):
     try:
         async with session.get(TARGET_URL, timeout=aiohttp.ClientTimeout(total=None)) as resp:
@@ -287,18 +318,21 @@ async def sse_client(session, stop_event):
     finally:
         stats["connected"] -= 1
 
+
 async def monitor(stop_event):
     start = time.time()
     while not stop_event.is_set():
-        print(f"[{int(time.time() - start):02d}s] Active Streams: {stats['connected']} | Events: {stats['events']} | Errors: {stats['errors']}")
+        elapsed = int(time.time() - start)
+        print(f"[{elapsed:02d}s] Active Streams: {stats['connected']} | Events: {stats['events']} | Errors: {stats['errors']}")
         await asyncio.sleep(2)
+
 
 async def main():
     print(f"=== Starting SSE Load Test (Target: {TARGET_URL}) ===")
     print(f"Ramping up {TARGET_CONCURRENCY} connections ({RAMP_UP_RATE}/sec)...")
     stop_event = asyncio.Event()
-    conn = aiohttp.TCPConnector(limit=0)
-    async with aiohttp.ClientSession(connector=conn) as session:
+    connector = aiohttp.TCPConnector(limit=0)
+    async with aiohttp.ClientSession(connector=connector) as session:
         mon_task = asyncio.create_task(monitor(stop_event))
         tasks = []
         for i in range(TARGET_CONCURRENCY):
@@ -310,10 +344,12 @@ async def main():
         stop_event.set()
         await mon_task
         await asyncio.gather(*tasks, return_exceptions=True)
-    print("\n=== Test Complete ===")
+    print("\n=== Test Results Summary ===")
     print(f"Peak Concurrent Streams: {TARGET_CONCURRENCY}")
-    print(f"Total Events Received: {stats['events']}")
-    print(f"Errors: {stats['errors']}")
+    print(f"Total SSE Events Received: {stats['events']}")
+    print(f"Total Errors / Drops: {stats['errors']}")
+    print("============================\n")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -326,19 +362,19 @@ EOF
 
 ### 1. Start the High-Performance SSE Server
 
-Start the Uvicorn server in the background:
+Start the Uvicorn server in the background (redirecting logs to `server.log` to keep your terminal prompt clean):
 
 ```bash
 cd ~/load-test-sse-lab
 source venv/bin/activate
-uvicorn server.main:app --host 0.0.0.0 --port 8000 &
+nohup uvicorn server.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
 SERVER_PID=$!
 sleep 2
 ```
 
 ### 2. Verify Initial Server Telemetry
 
-Confirm that the server is online:
+Confirm that the server is online and responding:
 
 ```bash
 curl -s http://localhost:8000/stats
@@ -376,6 +412,8 @@ You will see the live dark-themed SSE Dashboard displaying:
 In your terminal, execute the asynchronous load test:
 
 ```bash
+cd ~/load-test-sse-lab
+source venv/bin/activate
 python3 scripts/load_test_async.py
 ```
 
@@ -427,4 +465,3 @@ kill $SERVER_PID
 ## Conclusion
 
 In this lab, you tuned the Linux networking stack for high connection concurrency by expanding file descriptor and ephemeral port limits. You implemented an unbuffered **FastAPI SSE server** equipped with an interactive **real-time browser telemetry dashboard**. Using an asynchronous Python load generator, you simulated **1,000+ concurrent persistent SSE connections**, observing dynamic connection ramp-up, zero event loss, and exceptional resource efficiency. In Module 82, you will implement **Redis Pub/Sub** to scale event distribution horizontally across multiple isolated cluster nodes.
-
