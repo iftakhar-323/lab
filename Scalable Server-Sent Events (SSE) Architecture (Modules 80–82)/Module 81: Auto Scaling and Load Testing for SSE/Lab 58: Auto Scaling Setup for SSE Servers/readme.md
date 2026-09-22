@@ -90,6 +90,7 @@ fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
 boto3>=1.34.0
 psutil>=5.9.8
+httpx>=0.27.0
 EOF
 ```
 
@@ -145,7 +146,10 @@ async def push_metrics_loop():
                     ],
                 )
         except Exception as e:
-            logger.error(f"Failed to publish metrics to CloudWatch: {e}")
+            if "Unable to locate credentials" in str(e):
+                logger.info(f"[{INSTANCE_ID}] Local environment: CloudWatch credentials not present (local telemetry active).")
+            else:
+                logger.error(f"Failed to publish metrics to CloudWatch: {e}")
         await asyncio.sleep(30)
 
 
