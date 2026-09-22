@@ -489,7 +489,15 @@ Final Health Status: {'status': 'healthy', 'instance_id': '...', 'active_connect
   <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/09_run_concurrent_test.png" alt="Run Concurrent SSE Test and Metric Verification" width="700">
 </p>
 
-### 6.4 Terminate Background Server
+### 6.4 Verify Active Connection Telemetry Cleanup
+
+Observe the server terminal to confirm that the background telemetry publisher records active connections resetting to `0` following client disconnections:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/10_verify_telemetry.png" alt="Verify Active Connection Telemetry Cleanup" width="700">
+</p>
+
+### 6.5 Terminate Background Server
 
 Terminate the background server:
 
