@@ -477,16 +477,26 @@ Expected Output:
 
 ```text
 Opening 15 concurrent SSE connections...
+INFO:      127.0.0.1:53610 - "GET /events HTTP/1.1" 200 OK
 [Client 0] Connected. Status: 200
 [Client 1] Connected. Status: 200
 [Client 2] Connected. Status: 200
 ...
 All client streams finished.
+INFO:      127.0.0.1:53640 - "GET /health HTTP/1.1" 200 OK
 Final Health Status: {'status': 'healthy', 'instance_id': '...', 'active_connections': 0}
 ```
 
+**1. 15 Concurrent Client Connections Initialized:**
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/09_run_concurrent_test.png" alt="Run Concurrent SSE Test and Metric Verification" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/09_run_concurrent_test_part1.png" alt="15 Concurrent Client Connections Initialized" width="700">
+</p>
+
+**2. Client Streams Completed & Health Status Reset:**
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/10_run_concurrent_test_part2.png" alt="Client Streams Completed and Health Status Reset" width="700">
 </p>
 
 ### 6.4 Verify Active Connection Telemetry Cleanup
@@ -494,7 +504,7 @@ Final Health Status: {'status': 'healthy', 'instance_id': '...', 'active_connect
 Observe the server terminal to confirm that the background telemetry publisher records active connections resetting to `0` following client disconnections:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/10_verify_telemetry.png" alt="Verify Active Connection Telemetry Cleanup" width="700">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab58/11_verify_telemetry.png" alt="Verify Active Connection Telemetry Cleanup" width="700">
 </p>
 
 ### 6.5 Terminate Background Server
