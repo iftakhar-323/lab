@@ -398,6 +398,7 @@ services:
     image: python:3.11-slim
     container_name: sse_node_2
     hostname: sse-node-2
+    working_dir: /app
     volumes:
       - ../app:/app
     command: >
@@ -429,6 +430,13 @@ Start the containers using Docker Compose:
 cd ~/alb-sse-lab/proxy
 docker compose up -d
 ```
+
+> [!NOTE]
+> Wait approximately 10–15 seconds after running `docker compose up -d` for the backend containers to download dependencies (`fastapi`, `uvicorn`) and start the Uvicorn processes. You can monitor startup progress by running:
+> ```bash
+> docker compose logs -f app1 app2
+> ```
+> Once you see `Application startup complete`, proceed to test the endpoints.
 
 Check the status of all three services:
 
