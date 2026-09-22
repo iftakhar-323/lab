@@ -12,13 +12,13 @@ In this lab, you will build a distributed Server-Sent Events (SSE) system backed
 
 The table below defines the core components and architectural terms used in this lab:
 
-| Term | Description |
-| :--- | :--- |
-| **Server-Sent Events (SSE)** | A unidirectional HTTP protocol where the server keeps an open HTTP connection and pushes text-formatted events to the client. |
-| **Multi-Node Statefulness** | The architectural condition where long-lived TCP connections are held across separate server instances, preventing one server from pushing data directly to clients connected to another server. |
-| **Redis Pub/Sub** | An in-memory publish/subscribe messaging engine that enables decoupled, sub-millisecond event broadcasting across independent server processes. |
-| **Local Client Queue** | An in-memory asynchronous queue (`asyncio.Queue`) allocated to each connected client on a specific server node to stage incoming Redis events. |
-| **Reverse Proxy / Load Balancer** | An intermediary service (Nginx) that terminates client HTTP connections and distributes incoming traffic across backend nodes without buffering streams. |
+| Term                                    | Description                                                                                                                                                                                      |
+| :-------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Server-Sent Events (SSE)**      | A unidirectional HTTP protocol where the server keeps an open HTTP connection and pushes text-formatted events to the client.                                                                    |
+| **Multi-Node Statefulness**       | The architectural condition where long-lived TCP connections are held across separate server instances, preventing one server from pushing data directly to clients connected to another server. |
+| **Redis Pub/Sub**                 | An in-memory publish/subscribe messaging engine that enables decoupled, sub-millisecond event broadcasting across independent server processes.                                                  |
+| **Local Client Queue**            | An in-memory asynchronous queue (`asyncio.Queue`) allocated to each connected client on a specific server node to stage incoming Redis events.                                                 |
+| **Reverse Proxy / Load Balancer** | An intermediary service (Nginx) that terminates client HTTP connections and distributes incoming traffic across backend nodes without buffering streams.                                         |
 
 ### How Distributed Pub/Sub Works
 
@@ -72,6 +72,7 @@ cd ~/distributed-sse-lab
 ```
 
 **Explanation:**
+
 - `~/distributed-sse-lab/nginx` stores configuration files for the Nginx reverse proxy and load balancer.
 - `~/distributed-sse-lab/app` stores the FastAPI server code, Redis broadcaster engine, and Docker build context.
 
@@ -91,6 +92,7 @@ EOF
 ```
 
 **Explanation:**
+
 - `fastapi>=0.110.0` provides the modern asynchronous web framework used to expose SSE streams and JSON endpoints.
 - `uvicorn[standard]>=0.28.0` provides an ASGI web server with event loop optimizations.
 - `redis>=5.0.3` includes `redis.asyncio` for non-blocking asynchronous interaction with the Redis message bus.
@@ -173,6 +175,7 @@ EOF
 ```
 
 **Explanation:**
+
 - `aioredis.from_url(self.redis_url, decode_responses=True)` establishes an asynchronous Redis client that does not block FastAPI coroutines.
 - `asyncio.create_task(self._listen_to_redis())` runs the Redis listener coroutine in the background for the duration of the server process.
 - `pubsub.subscribe(REDIS_CHANNEL)` binds this server node to the shared cluster channel `sse_events_channel`.
@@ -323,7 +326,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
     .container { max-width: 1300px; margin: 0 auto; }
-    
+  
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); flex-wrap: wrap; gap: 16px; }
     .title-group h1 { font-size: 22px; font-weight: 700; color: #fff; }
     .title-group p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
@@ -355,7 +358,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     .btn:hover { background: #0369a1; }
     .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; }
     .btn-secondary:hover { background: #334155; }
-    
+  
     .quick-pub { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 
     .flow-box { margin-top: 20px; padding: 14px; background: #0b111c; border-radius: 8px; border: 1px dashed #2d3748; font-size: 12px; }
@@ -699,6 +702,7 @@ EOF
 ```
 
 **Explanation:**
+
 - `@asynccontextmanager lifespan` establishes the asynchronous Redis connection when the FastAPI application starts up and terminates it gracefully during shutdown.
 - `app.add_middleware(CORSMiddleware, ...)` configures Cross-Origin Resource Sharing so browser clients can connect from any origin.
 - `POST /publish` accepts the JSON message payload conforming to `PublishMessage`, appends metadata (`publisher_node`, `published_at`), and pushes the message to Redis.
@@ -726,6 +730,7 @@ EOF
 ```
 
 **Explanation:**
+
 - `FROM python:3.11-slim` provides a lightweight Linux environment with Python 3.11.
 - `COPY requirements.txt .` and `RUN pip install --no-cache-dir` install dependencies separately from source code to leverage Docker layer caching.
 - `COPY . .` copies `main.py` and `broadcaster.py` into `/app`.
@@ -811,6 +816,7 @@ EOF
 ```
 
 **Explanation:**
+
 - `upstream sse_fleet` declares the backend pool with `sse_node_a:8000` and `sse_node_b:8000` for round-robin balancing.
 - `proxy_buffering off` disables response buffering so individual SSE event chunks are forwarded to clients immediately.
 - `proxy_cache off` prevents intermediate response caching of dynamic streaming data.
@@ -872,6 +878,7 @@ EOF
 ```
 
 **Explanation:**
+
 - `redis` runs the official Redis 7 Alpine image as the central in-memory message broker.
 - `sse_node_a` and `sse_node_b` build independent containers from `./app`, passing environment variables `NODE_NAME` and `REDIS_URL` to identify instances.
 - `load_balancer` runs Nginx on port 8080, mounting the local `nginx/nginx.conf` file as read-only.
@@ -905,6 +912,7 @@ sse_redis           redis:7-alpine                   "docker-entrypoint.s…"   
 ```
 
 **Explanation:**
+
 - `docker compose up -d --build` compiles the Docker image from `./app` and starts the containers in the background.
 - `docker compose ps` verifies that each container is active and mapped to its assigned host port.
 
@@ -924,24 +932,16 @@ Expected Output:
 
 ```text
 HTTP/1.1 200 OK
-Server: nginx/1.27.4
+Server: nginx/1.31.6
 Content-Type: application/json
-Content-Length: 54
+Content-Length: 53
 
-{"status":"healthy","node":"Node-Alpha","active_subscribers":0}
-```
-
-Repeat the request to observe round-robin distribution:
-
-```bash
-curl -s http://localhost:8080/health
-```
-
-Expected Output:
-
-```json
 {"status":"healthy","node":"Node-Beta","active_subscribers":0}
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/01_verify_health_check.png" alt="Verify Node Health and Prepare Test Script" width="850">
+</p>
 
 ### Scenario 2: Verify Cross-Node Distributed Message Delivery
 
@@ -1054,12 +1054,18 @@ Expected Output:
 
 ```text
 HTTP/1.1 422 Unprocessable Entity
-Server: nginx/1.27.4
+Server: nginx/1.31.6
+Date: Tue, 22 Sep 2026 19:23:50 GMT
 Content-Type: application/json
-Content-Length: 106
+Content-Length: 118
+Connection: keep-alive
 
 {"detail":[{"type":"missing","loc":["body","message"],"msg":"Field required","input":{"title":"Incomplete Payload"}}]}
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/02_validation_missing_field.png" alt="Validation Error for Missing Message Field" width="850">
+</p>
 
 Send a request with an empty body:
 
@@ -1073,46 +1079,65 @@ Expected Output:
 
 ```text
 HTTP/1.1 422 Unprocessable Entity
-Server: nginx/1.27.4
+Server: nginx/1.31.6
+Date: Tue, 22 Sep 2026 19:24:02 GMT
 Content-Type: application/json
-Content-Length: 95
+Content-Length: 82
+Connection: keep-alive
 
-{"detail":[{"type":"json_invalid","loc":["body",0],"msg":"JSON decode error","input":{}}]}
+{"detail":[{"type":"missing","loc":["body"],"msg":"Field required","input":null}]}
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/03_validation_empty_body.png" alt="Validation Error for Empty Body" width="850">
+</p>
 
 ### Scenario 4: Access and Verify via Poridhi Load Balancer
 
 To access the interactive visual dashboard from your browser outside the Poridhi VM, expose port `8080` using the Poridhi Load Balancer:
 
 1. In the terminal, find the primary private IP address of the VM:
+
    ```bash
    hostname -I | awk '{print $1}'
    ```
-   Example Output:
+
+   Expected Output:
+
    ```text
-   10.0.1.15
+   10.62.31.128
    ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/04_find_vm_ip.png" alt="Find VM Private IP" width="700">
+</p>
 
 2. Open the Poridhi interface header and click **Load Balancer**.
 3. Enter the configuration:
+
    - **Enter IP:** Paste the private IP obtained from `hostname -I | awk '{print $1}'`.
    - **Enter Port:** `8080`.
 4. Click **Expose**. Poridhi generates a public URL (for example: `http://<lab-id>-8080.lb.poridhi.io`).
 5. Open the generated URL in your web browser.
 6. Verify the following on the dashboard:
+
    - The top status bar displays **Nginx Load Balancer**, **Redis Pub/Sub Bus**, **Node Alpha**, and **Node Beta** in online state.
    - All three client monitors (**Client 1**, **Client 2**, and **Client 3**) show **Connected**.
    - Under **Publish Distributed Broadcast**, submit an event. Observe that the event card immediately appears in all three client logs simultaneously.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab60/05_live_dashboard.png" alt="Real-Time Distributed SSE Visualizer Dashboard" width="850">
+</p>
 
 ### Verification Summary
 
 | # | Call | Status | Body snippet |
 | :--- | :--- | :--- | :--- |
-| 1 | `GET /health` | `200 OK` | `{"status":"healthy","node":"Node-Alpha",...}` |
+| 1 | `GET /health` | `200 OK` | `{"status":"healthy","node":"Node-Beta",...}` |
 | 2 | `POST /publish` (valid payload) | `200 OK` | `{"status":"published_to_redis","node":"Node-Alpha",...}` |
 | 3 | `GET /events` (SSE stream) | `200 OK` | `event: broadcast\ndata: {"title":"System Alert",...}` |
 | 4 | `POST /publish` (missing `message`) | `422 Unprocessable Entity` | `{"detail":[{"type":"missing","loc":["body","message"]...}]}` |
-| 5 | `POST /publish` (empty body) | `422 Unprocessable Entity` | `{"detail":[{"type":"json_invalid","loc":["body",0]...}]}` |
+| 5 | `POST /publish` (empty body) | `422 Unprocessable Entity` | `{"detail":[{"type":"missing","loc":["body"]...}]}` |
 | 6 | `GET /` (dashboard) | `200 OK` | `<!DOCTYPE html><html lang="en">...` |
 
 ---
