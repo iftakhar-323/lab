@@ -381,6 +381,10 @@ if __name__ == "__main__":
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/06_create_load_tester.png" alt="Implement Python Asynchronous Load Tester" width="850">
+</p>
+
 ---
 
 ## Step 5: Execute Load Test and Monitor via Live Web Dashboard
@@ -396,6 +400,10 @@ nohup uvicorn server.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
 SERVER_PID=$!
 sleep 2
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/07_start_server.png" alt="Start FastAPI Server with Uvicorn" width="850">
+</p>
 
 ### 2. Verify Initial Server Telemetry
 
@@ -419,6 +427,11 @@ To access the live SSE web dashboard from your browser outside the Poridhi VM, e
    ```bash
    hostname -I | awk '{print $1}'
    ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/08_verify_stats_ip.png" alt="Verify Stats and Find VM Private IP" width="850">
+</p>
+
 2. Click the **Load Balancer** button in the top bar of the Poridhi interface.
 3. Enter the configuration:
    - **Enter IP:** Paste your VM Private IP from above
@@ -432,6 +445,10 @@ You will see the live dark-themed SSE Dashboard displaying:
 - **Memory & CPU:** Process resource telemetry.
 - **Live Stream Preview:** Terminal window showing live SSE broadcast packets.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/10_live_dashboard.png" alt="Real-Time SSE Live Dashboard" width="850">
+</p>
+
 ### 4. Launch the 1,000-Client Load Test
 
 In your terminal, execute the asynchronous load test:
@@ -441,6 +458,10 @@ cd ~/load-test-sse-lab
 source venv/bin/activate
 python3 scripts/load_test_async.py
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab59/09_run_load_test.png" alt="Execute Asynchronous 1,000-Client Load Test" width="850">
+</p>
 
 Expected Terminal Output:
 
