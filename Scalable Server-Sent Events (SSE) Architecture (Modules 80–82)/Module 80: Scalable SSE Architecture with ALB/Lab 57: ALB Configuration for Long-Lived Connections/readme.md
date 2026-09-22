@@ -395,6 +395,10 @@ http {
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/06_create_nginx_conf.png" alt="Create Nginx Configuration" width="700">
+</p>
+
 Create `proxy/docker-compose.yml` to spin up 2 backend SSE instances and the Nginx load balancer:
 
 ```bash
@@ -440,6 +444,10 @@ services:
 EOF
 ```
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/07_create_docker_compose.png" alt="Create Docker Compose Configuration" width="700">
+</p>
+
 ---
 
 ## Step 6: Deploy and Verify the Cluster
@@ -458,6 +466,10 @@ docker compose up -d
 > ```
 > Once you see `Application startup complete`, proceed to test the endpoints.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/08_docker_compose_up.png" alt="Start Containers with Docker Compose" width="700">
+</p>
+
 Check the status of all three services:
 
 ```bash
@@ -472,6 +484,10 @@ sse_alb_proxy   nginx:alpine       "/docker-entrypoint.…"   load_balancer   4 
 sse_node_1      python:3.11-slim   "sh -c 'pip install …"   app1            4 seconds ago   Up 3 seconds   
 sse_node_2      python:3.11-slim   "sh -c 'pip install …"   app2            4 seconds ago   Up 3 seconds   
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/09_docker_compose_ps.png" alt="Check Services Status" width="700">
+</p>
 
 Test health check resolution across targets:
 
@@ -490,6 +506,10 @@ Connection: keep-alive
 
 {"status":"ok","node":"sse-node-1"}
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iftakhar-323/lab-assets/main/lab57/10_curl_health_check.png" alt="Health Check Resolution via Load Balancer" width="700">
+</p>
 
 ---
 
